@@ -6,7 +6,7 @@
   <title>F1 - Admin</title>
   <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback" async defer></script>
   <style>
     :root { --bg:#0a0a0c; --panel:rgba(18,19,24,.86); --line:rgba(255,255,255,.10); --text:#f4f7fb; --muted:#a4adba; --red:#e10600; --shadow:0 24px 70px rgba(0,0,0,.55); }
     * { box-sizing:border-box; }
@@ -64,10 +64,7 @@
         <input id="password" type="password" placeholder="Password" />
 
         <!-- Cloudflare Turnstile Widget -->
-        <div id="turnstileWidget" class="cf-turnstile" 
-             data-sitekey="0x4AAAAAADr1pviXfxqcY4OG"
-             data-theme="dark"
-             data-size="normal"></div>
+        <div id="turnstileWidget"></div>
 
         <button id="loginBtn" style="width:100%; margin-top:12px">Sign in</button>
         <div class="status" id="loginStatus"></div>
@@ -200,7 +197,7 @@
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const statusEl = document.getElementById("loginStatus");
-        
+
       if (!email || !password) {
         statusEl.textContent = "Email and password are required.";
         statusEl.className = "status err";
@@ -231,7 +228,7 @@
       
         // 2. Proceed with sign-in
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        
+
         if (error) {
           statusEl.textContent = error.message;
           statusEl.className = "status err";
