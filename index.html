@@ -227,7 +227,8 @@
       const races = racesRes.data || []; 
       const results = resultsRes.data || []; 
       const drivers = driversRes.data || []; 
-      document.getElementById("raceCount").textContent = races.length;
+      const completedRaces = races.filter(r => results.some(res => res.race_id === r.id)).length;
+      document.getElementById("raceCount").textContent = completedRaces + "/" + races.length;
       document.getElementById("driverCount").textContent = drivers.length;
       
       // Vykresľovanie
