@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 - Race Detail</title>
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { --bg:#0a0a0c; --panel:rgba(18,19,24,.86); --line:rgba(255,255,255,.10); --text:#f4f7fb; --muted:#a4adba; --red:#e10600; --shadow:0 24px 70px rgba(0,0,0,.55); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text); background:linear-gradient(180deg,#060608 0%, #0a0b0f 100%); }
+    .wrap { max-width:1800px; margin:0 auto; padding:22px; }
+    .back { display:inline-flex; text-decoration:none; color:#fff; padding:12px 16px; border-radius:16px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); margin-bottom:16px; }
+    .hero { background:linear-gradient(135deg, rgba(225,6,0,.24), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:34px; box-shadow:var(--shadow); overflow:hidden; }
+    .hero-top { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-start; padding:24px 24px 18px; }
+    .badge { display:inline-flex; padding:9px 12px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.10); font-size:12px; font-weight:800; text-transform:uppercase; }
+    h1 { margin:12px 0 0; font-size:clamp(32px,5vw,62px); line-height:1; letter-spacing:-.05em; }
+    .meta { margin-top:10px; color:rgba(244,247,251,.82); font-size:15px; line-height:1.6; max-width:900px; }
+    .status { display:inline-flex; align-items:center; gap:8px; padding:10px 13px; border-radius:999px; background:rgba(10,10,12,.30); border:1px solid rgba(255,255,255,.14); font-weight:800; }
+    .hero-body { display:grid; grid-template-columns:1.15fr .85fr; gap:18px; padding:0 24px 24px; }
+    .panel { 
+      background: rgba(18, 19, 24, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.08); 
+      border-radius: 28px; 
+      overflow: hidden; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22); 
+    }
+    .panel-h { padding:18px 20px 0; }
+    .panel-h h2 { margin:0; font-size:20px; }
+    .panel-h p { margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.55; }
+    .panel-b { padding:18px 20px 20px; }
+    .result-head, .result-row { display:grid; grid-template-columns:50px 1.2fr 1fr 70px; gap:10px; }
+    .result-head { padding:12px 14px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:#d7dde8; font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:800; }
+    .result-row { padding:14px 14px; border-top:1px solid rgba(255,255,255,.06); align-items:center; }
+    .pos { width:34px; height:34px; border-radius:12px; display:grid; place-items:center; background:rgba(225,6,0,.18); font-weight:900; }
+    .driver { font-weight:800; }
+    .team { color:var(--muted); font-size:12px; margin-top:2px; display:flex; align-items:center; gap:6px; } .dnf-tag { display:inline-flex; margin-left:8px; padding:4px 8px; border-radius:999px; background:rgba(225,6,0,.18); color:#ffb3b3; font-size:11px; font-weight:900; }
+    .pts { font-weight:900; font-size:18px; text-align:right; }
+    .notes { display:grid; gap:12px; }
+    .note-box { padding:16px 18px; border-radius:22px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); line-height:1.7; color:rgba(244,247,251,.85); }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:12px; }
+    .stat { padding:14px 16px; border-radius:20px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); }
+    .stat .k { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .stat .v { margin-top:8px; font-size:24px; font-weight:900; }
+    .brand-credit { position: fixed; right: 18px; bottom: 18px; z-index: 9000; padding: 10px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); background: rgba(8,8,12,0.82); backdrop-filter: blur(10px); font-size: 0.9rem; color: var(--muted); box-shadow: 0 14px 30px rgba(0,0,0,0.28); }
+    .brand-credit a { color: var(--text); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.18); transition: border-color 0.2s ease, color 0.2s ease; }
+    .brand-credit a:hover { color: white; border-color: rgba(255,255,255,0.55); }
+    select option { background-color: #121318; color: var(--text); }
+    @media (max-width:1040px) { .hero-body { grid-template-columns:1fr; } .result-head, .result-row { grid-template-columns:46px 1fr 1fr 56px; } }
+    @media (max-width:640px) { .stats { grid-template-columns:1fr; } .result-head, .result-row { grid-template-columns:40px 1fr 62px; } .hide-sm { display:none; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="index.html">← Back to seasons</a>
+    <div class="hero">
+      <div class="hero-top"><div><div class="badge" id="seasonTag">Season</div><h1 id="raceTitle">Loading...</h1><div class="meta" id="raceMeta"></div></div><div class="status" id="raceStatus">Loading</div></div>
+      <div class="hero-body">
+        <section class="panel"><div class="panel-h"><h2>Results</h2><p>Styled like a proper race event page.</p></div><div class="panel-b"><div class="result-head"><div>Pos</div><div>Driver</div><div class="hide-sm">Team</div><div>Pts</div></div><div id="resultsWrap"></div></div></section>
+        <aside class="notes">
+          <section class="panel"><div class="panel-h"><h2>Race summary</h2><p>Fast stats and clean layout.</p></div><div class="panel-b"><div class="stats"><div class="stat"><div class="k">Entries</div><div class="v" id="entryCount">—</div></div><div class="stat"><div class="k">Winner</div><div class="v" id="winnerName">—</div></div><div class="stat"><div class="k">Top pts</div><div class="v" id="topPts">—</div></div></div></div></section>
+          <section class="panel"><div class="panel-h"><h2>Race notes</h2><p>Put your own notes in the admin later.</p></div><div class="panel-b"><div class="note-box" id="notes">No notes yet.</div></div></section>
+        </aside>
+      </div>
+    </div>
+  </div>
+  <div class="brand-credit">By Scripty</div>
+  <script>
+    const SUPABASE_URL = "https://bswuztumpvoleajheeej.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzd3V6dHVtcHZvbGVhamhlZWVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NDM1ODksImV4cCI6MjA5ODAxOTU4OX0.FyBZun8WwlhpvXLs4k2mEdNc_7LvZWMHy7dT-26rXqs";
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const params = new URLSearchParams(location.search);
+    const seasonId = params.get("season");
+    const raceSlug = params.get("race");
+    const slugify = s => String(s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    
+
+    const TEAM_LOGOS = {
+      "ferrari":         "icons/ferrari.svg",
+      "red bull racing": "icons/redbull.svg",
+      "mercedes":        "icons/mercedes.svg",
+      "mclaren":         "icons/mclaren.svg",
+      "aston martin":    "icons/aston-martin.svg",
+      "alpine":          "icons/alpine.svg",
+      "williams":        "icons/williams-racing.svg",
+      "haas":            "icons/moneygram-haas.svg",
+      "visa cash app rb":"icons/visa.svg",
+      "stake kick sauber":"icons/kick.svg",
+    };
+    function getTeamLogo(teamName){
+      if(!teamName) return null;
+      const key = teamName.toLowerCase().trim();
+      for (const [k,v] of Object.entries(TEAM_LOGOS)) if (key.includes(k) || k.includes(key)) return v;
+      return null;
+    }
+
+    async function load(){ 
+      const [{ data: seasons }, { data: races }] = await Promise.all([sb.from("seasons").select("*").eq("id", seasonId).limit(1), sb.from("races").select("*").eq("season_id", seasonId)]); 
+      const season = seasons?.[0]; 
+      if (season) document.getElementById("seasonTag").textContent = season.name; 
+      
+      const race = (races || []).find(r => slugify(r.name) === raceSlug); 
+      if (!race) { 
+        document.getElementById("raceTitle").textContent = "Race not found"; 
+        document.getElementById("raceStatus").textContent = "Missing"; 
+        return; 
+      } 
+      
+      document.title = `${race.name} • ${season?.name || "Race"}`; 
+      document.getElementById("raceTitle").textContent = race.name; 
+      document.getElementById("raceMeta").textContent = `${race.country || "Unknown country"}${race.date ? " • " + race.date : ""}`; 
+      document.getElementById("notes").textContent = race.notes || "No notes yet."; 
+      
+      // Dynamic Hero Background Injection
+      if (race.map_url) {
+        const heroEl = document.querySelector('.hero');
+        heroEl.style.background = `linear-gradient(135deg, rgba(225,6,0,0.15), rgba(10,11,15,0.95)), url('${race.map_url}') center/cover no-repeat`;
+      }
+
+      const [resultsRes, driversRes] = await Promise.all([sb.from("results").select("*").eq("season_id", seasonId).eq("race_id", race.id).order("position"), sb.from("drivers").select("*, teams(name,color)").eq("season_id", seasonId)]); 
+      const drivers = driversRes.data || []; 
+      const map = Object.fromEntries(drivers.map(d => [d.id, d])); 
+      const results = resultsRes.data || []; 
+
+      document.getElementById("raceStatus").textContent = results.length ? "Completed" : "Open"; 
+      document.getElementById("entryCount").textContent = results.length;
+      const winner = results.find(r => Number(r.position) === 1);
+      document.getElementById("winnerName").textContent = winner ? (map[winner.driver_id]?.name || "—") : "—"; 
+      document.getElementById("topPts").textContent = winner ? (winner.points ?? 0) : "—";
+      
+      document.getElementById("resultsWrap").innerHTML = results.map(r => { 
+        const d = map[r.driver_id] || {}; 
+        const isDNF = Number(r.position) === 0 || String(r.status || "").toUpperCase() === "DNF" || String(r.note || "").toUpperCase() === "DNF"; 
+        const logo = getTeamLogo(d.teams?.name || "");
+        const teamHtml = logo ? `<img src="${logo}" alt="${d.teams?.name || ""}" style="width:20px;height:20px;object-fit:contain;margin-right:6px;vertical-align:middle" onerror="this.style.display='none'">${d.teams?.name || "-"}` : (d.teams?.name || "-");
+        return `<div class="result-row"><div class="pos">${isDNF ? "DNF" : r.position}</div><div><a href="driver.html?season=${seasonId}&driver=${r.driver_id}" style="color:inherit;text-decoration:none;"><div class="driver" style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,0.25)">${d.name || "-"} ${isDNF ? '<span class="dnf-tag">DNF</span>' : ''}</div></a><div class="team">${teamHtml}</div></div><div class="hide-sm">${teamHtml}</div><div class="pts">${isDNF ? 0 : (r.points ?? 0)}</div></div>`;
+      }).join("") || '<div class="note-box" style="margin-top:12px">No results yet.</div>'; 
+    }
+    load();
+  </script>
+</body>
+</html>

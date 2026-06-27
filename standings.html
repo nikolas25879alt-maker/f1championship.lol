@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 - Full Standings</title>
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { --bg:#0a0a0c; --panel:rgba(18,19,24,.86); --line:rgba(255,255,255,.10); --text:#f4f7fb; --muted:#a4adba; --red:#e10600; --shadow:0 24px 70px rgba(0,0,0,.55); }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text); background:linear-gradient(180deg,#060608 0%, #0a0b0f 100%); }
+    .wrap { max-width:1100px; margin:0 auto; padding:22px; }
+    .back { display:inline-flex; text-decoration:none; color:#fff; padding:12px 16px; border-radius:16px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); margin-bottom:16px; }
+    .hero { background:linear-gradient(135deg, rgba(225,6,0,.24), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:34px; box-shadow:var(--shadow); overflow:hidden; }
+    .hero-top { padding:24px 24px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+    .badge { display:inline-flex; padding:9px 12px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.10); font-size:12px; font-weight:800; text-transform:uppercase; }
+    h1 { margin:10px 0 0; font-size:clamp(28px,5vw,52px); line-height:1; letter-spacing:-.05em; }
+    .hero-body { padding:0 24px 24px; display:grid; gap:14px; }
+
+    .row-head, .row { display:grid; grid-template-columns:52px 1fr 180px 80px 70px 70px 70px; gap:12px; align-items:center; }
+    .row-head { padding:12px 16px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:#d7dde8; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:800; margin-top:10px; }
+    .row { padding:14px 16px; border-radius:18px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); transition:background .15s,border-color .15s; }
+    .row:hover { background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.12); }
+    .row.top1 { background:rgba(255,215,0,.07); border-color:rgba(255,215,0,.35); }
+    .row.top2 { background:rgba(192,192,192,.06); border-color:rgba(187,194,204,.35); }
+    .row.top3 { background:rgba(205,127,50,.06); border-color:rgba(205,127,50,.35); }
+
+    .rank-badge { width:34px; height:34px; border-radius:12px; display:grid; place-items:center; background:rgba(225,6,0,.18); font-weight:900; font-size:15px; }
+    .row.top1 .rank-badge { background:rgba(255,215,0,.22); color:#fde68a; }
+    .row.top2 .rank-badge { background:rgba(192,192,192,.20); color:#e2e8f0; }
+    .row.top3 .rank-badge { background:rgba(205,127,50,.20); color:#fbbf77; }
+
+    .driver-name { font-weight:800; font-size:15px; text-decoration:underline; text-underline-offset:3px; text-decoration-color:rgba(255,255,255,.22); }
+    .driver-name:hover { text-decoration-color:rgba(255,255,255,.6); }
+    .team-cell { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:13px; }
+    .team-logo { width:20px; height:20px; object-fit:contain; border-radius:4px; }
+    .team-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .pts-cell { font-weight:900; font-size:17px; }
+    .num-cell { font-size:13px; color:var(--muted); font-weight:700; }
+    .win-cell { font-size:13px; font-weight:800; }
+
+    .loading { padding:18px; border-radius:18px; border:1px dashed rgba(255,255,255,.18); color:var(--muted); }
+    select option { background-color:#121318; color:var(--text); }
+    .brand-credit { position:fixed; right:18px; bottom:18px; z-index:9000; padding:10px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.08); background:rgba(8,8,12,.82); backdrop-filter:blur(10px); font-size:.9rem; color:var(--muted); box-shadow:0 14px 30px rgba(0,0,0,.28); }
+
+    @media (max-width:800px) {
+      .row-head, .row { grid-template-columns:44px 1fr 130px 64px; }
+      .hide-sm { display:none; }
+    }
+    @media (max-width:520px) {
+      .row-head, .row { grid-template-columns:40px 1fr 64px; }
+      .hide-md { display:none; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Back to seasons</a>
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="badge" id="seasonTag">Season</div>
+        <h1>Full Standings</h1>
+      </div>
+      <select id="seasonSelect" style="min-width:200px;align-self:center;appearance:none;background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.10);padding:13px 16px;border-radius:16px;outline:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;"></select>
+    </div>
+    </div>
+    <div class="hero-body">
+      <div class="row-head">
+        <div>#</div>
+        <div>Driver</div>
+        <div class="hide-sm">Team</div>
+        <div>Pts</div>
+        <div class="hide-sm">Wins</div>
+        <div class="hide-sm">Pods</div>
+        <div class="hide-sm">Races</div>
+      </div>
+      <div id="standingsList"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+</div>
+<div class="brand-credit">By Scripty</div>
+<script>
+  const SUPABASE_URL = "https://bswuztumpvoleajheeej.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzd3V6dHVtcHZvbGVhamhlZWVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NDM1ODksImV4cCI6MjA5ODAxOTU4OX0.FyBZun8WwlhpvXLs4k2mEdNc_7LvZWMHy7dT-26rXqs";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const params = new URLSearchParams(location.search);
+  let seasonId = params.get("season");
+
+  const TEAM_LOGOS = {
+    "ferrari":"icons/ferrari.svg","red bull racing":"icons/redbull.svg","mercedes":"icons/mercedes.svg",
+    "mclaren":"icons/mclaren.svg","aston martin":"icons/aston-martin.svg","alpine":"icons/alpine.svg",
+    "williams":"icons/williams-racing.svg","haas":"icons/moneygram-haas.svg",
+    "visa cash app rb":"icons/visa.svg","stake kick sauber":"icons/kick.svg",
+  };
+  function getTeamLogo(n){ if(!n) return null; const k=n.toLowerCase().trim(); for(const [key,v] of Object.entries(TEAM_LOGOS)) if(k.includes(key)||key.includes(k)) return v; return null; }
+
+  async function init() {
+    const { data: seasons } = await sb.from("seasons").select("*").order("display_order", { ascending: true });
+    if (!seasonId && seasons?.length) seasonId = seasons[0].id;
+
+    const sel = document.getElementById("seasonSelect");
+    sel.innerHTML = (seasons || []).map(s => `<option value="${s.id}">${s.name} (${s.year})</option>`).join("");
+    if (seasonId) sel.value = seasonId;
+    sel.onchange = e => { seasonId = e.target.value; loadStandings(); };
+
+    await loadStandings();
+  }
+
+  async function loadStandings() {
+    document.getElementById("standingsList").innerHTML = '<div class="loading">Loading...</div>';
+    const season = (await sb.from("seasons").select("*").eq("id", seasonId).limit(1)).data?.[0];
+    if (season) {
+      document.getElementById("seasonTag").textContent = season.name;
+      document.title = `${season.name} • Full Standings`;
+    }
+
+    const [driversRes, resultsRes] = await Promise.all([
+      sb.from("drivers").select("*, teams(name,color)").eq("season_id", seasonId),
+      sb.from("results").select("*").eq("season_id", seasonId),
+    ]);
+    const drivers = driversRes.data || [];
+    const results = resultsRes.data || [];
+
+    // Calc stats per driver
+    const stats = {};
+    results.forEach(r => {
+      if (!stats[r.driver_id]) stats[r.driver_id] = { pts:0, wins:0, podiums:0, races:0 };
+      stats[r.driver_id].pts    += r.points || 0;
+      stats[r.driver_id].races  += 1;
+      const p = Number(r.position);
+      if (p === 1) stats[r.driver_id].wins++;
+      if (p >= 1 && p <= 3) stats[r.driver_id].podiums++;
+    });
+
+    const sorted = drivers
+      .map(d => ({ ...d, ...(stats[d.id] || { pts:0, wins:0, podiums:0, races:0 }) }))
+      .sort((a, b) => b.pts - a.pts);
+
+    const topClass = ["top1","top2","top3"];
+
+    document.getElementById("standingsList").innerHTML = sorted.length ? sorted.map((d, i) => {
+      const teamName = d.teams?.name || "";
+      const teamColor = d.teams?.color || "#555";
+      const logo = getTeamLogo(teamName);
+      const logoHtml = logo
+        ? `<img class="team-logo" src="${logo}" alt="${teamName}" onerror="this.style.display='none'">`
+        : `<span class="team-dot" style="background:${teamColor}"></span>`;
+      return `<a href="driver.html?season=${seasonId}&driver=${d.id}" style="text-decoration:none;color:inherit;display:contents">
+        <div class="row ${topClass[i] || ''}">
+          <div><div class="rank-badge">${i + 1}</div></div>
+          <div><div class="driver-name">${d.name}</div></div>
+          <div class="team-cell hide-sm">${logoHtml} ${teamName || "—"}</div>
+          <div class="pts-cell">${d.pts}</div>
+          <div class="num-cell hide-sm">${d.wins}</div>
+          <div class="num-cell hide-sm">${d.podiums}</div>
+          <div class="num-cell hide-sm">${d.races}</div>
+        </div>
+      </a>`;
+    }).join("") : '<div class="loading">No drivers yet.</div>';
+  }
+
+  init();
+</script>
+</body>
+</html>
