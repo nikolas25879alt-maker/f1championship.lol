@@ -110,7 +110,7 @@
           </div>
           <div id="drivers" class="section"><div class="split"><div><h3>Add driver</h3><input id="driverName" placeholder="Driver name" /><select id="driverTeam"></select><button id="addDriverBtn">Add driver</button></div><div class="tablewrap"><table><thead><tr><th>Name</th><th>Team</th><th>Action</th></tr></thead><tbody id="driversBody"></tbody></table></div></div></div>
           <div id="races" class="section"><div class="split"><div><h3>Add race</h3><input id="raceRound" type="number" placeholder="Round number" /><input id="raceName" placeholder="Race name" /><input id="raceCountry" placeholder="Country" /><input id="raceDate" type="date" /><input id="raceMapUrl" placeholder="Map image URL" /><textarea id="raceNotes" placeholder="Race notes"></textarea><button id="addRaceBtn">Add race</button></div><div class="tablewrap"><table><thead><tr><th>Round</th><th>Race</th><th>Country</th><th>Date</th><th>Action</th></tr></thead><tbody id="racesBody"></tbody></table></div></div></div>
-          <div id="results" class="section"><div class="split"><div><h3>Add result</h3><select id="resultRace"></select><select id="resultDriver"></select><select id="resultPosition"> <option value="">Position / DNF</option> <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option> <option value="13">13</option> <option value="14">14</option> <option value="15">15</option> <option value="16">16</option> <option value="17">17</option> <option value="18">18</option> <option value="19">19</option> <option value="20">20</option> <option value="0">DNF</option> </select><button id="addResultBtn">Add result</button></div><div class="tablewrap"><table><thead><tr><th>Race</th><th>Driver</th><th>Pos</th><th>Pts</th><th>Action</th></tr></thead><tbody id="resultsBody"></tbody></table></div></div></div>
+          <div id="results" class="section"><div class="split"><div><h3>Add result</h3><select id="resultRace"></select><select id="resultDriver"></select><select id="resultPosition"> <option value="">Position</option> <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option> <option value="7">7</option> <option value="8">8</option> <option value="9">9</option> <option value="10">10</option> <option value="11">11</option> <option value="12">12</option> <option value="13">13</option> <option value="14">14</option> <option value="15">15</option> <option value="16">16</option> <option value="17">17</option> <option value="18">18</option> <option value="19">19</option> <option value="20">20</option> <option value="0">DNF</option> <option value="-1">DNP</option> <option value="-2">DSQ</option> </select><button id="addResultBtn">Add result</button></div><div class="tablewrap"><table><thead><tr><th>Race</th><th>Driver</th><th>Pos</th><th>Pts</th><th>Action</th></tr></thead><tbody id="resultsBody"></tbody></table></div></div></div>
         </div></section>
       </div>
     </div>
@@ -330,15 +330,15 @@
       const raceMap = Object.fromEntries(cache.races.map(r=>[r.id,r.name]));
       const driverMap = Object.fromEntries(cache.drivers.map(d=>[d.id,d.name]));
       document.getElementById("resultsBody").innerHTML = cache.results.map(r => {
-        const isDNF = Number(r.position)===0;
-        return `<tr><td>${raceMap[r.race_id]||"-"}</td><td>${driverMap[r.driver_id]||"-"}</td><td>${isDNF?"<span style=\"color:#ff8f8f;font-weight:800\">DNF</span>":(r.position??"")}</td><td>${isDNF?0:(r.points??"")}</td><td><button onclick="deleteResult('${r.id}')">Delete</button></td></tr>`;
+        const pos = Number(r.position);
+        const posLabel = pos===0?"<span style=\"color:#ff8f8f;font-weight:800\">DNF</span>":pos===-1?"<span style=\"color:#f59e0b;font-weight:800\">DNP</span>":pos===-2?"<span style=\"color:#a78bfa;font-weight:800\">DSQ</span>":(r.position??"");
+        return `<tr><td>${raceMap[r.race_id]||"-"}</td><td>${driverMap[r.driver_id]||"-"}</td><td>${posLabel}</td><td>${pos<=0?0:(r.points??"")}</td><td><button onclick="deleteResult('${r.id}')">Delete</button></td></tr>`;
       }).join("");
     }
 
     document.getElementById("addSeasonBtn").onclick=async()=>{const name=document.getElementById("seasonName").value.trim();const year=Number(document.getElementById("seasonYear").value);await sb.from("seasons").insert([{name,year}]);await loadAll()};
     document.getElementById("saveSeasonBtn").onclick=async()=>{if(!currentSeasonId)return;const name=document.getElementById("editSeasonName").value.trim();const year=Number(document.getElementById("editSeasonYear").value);await sb.from("seasons").update({name,year}).eq("id",currentSeasonId);await loadAll()};    document.getElementById("deleteSeasonBtn").onclick=async()=>{if(!currentSeasonId)return;if(!confirm("Delete season and all linked data?"))return;await sb.from("seasons").delete().eq("id",currentSeasonId);currentSeasonId=null;await loadAll()};
-    document.getElementById("cloneBtn").onclick=async()=>{const new_name=document.getElementById("cloneName").value.trim();const new_year=Number(document.getElementById("cloneYear").value);const new_description=document.getElementById("cloneDesc").value.trim();const {error}=await sb.rpc("clone_season",{source_season_id:currentSeasonId,new_name,new_year,new_points_name:"Default"});if(error)alert(error.message);await loadAll()};
-
+    document.getElementById("cloneBtn").onclick=async()=>{const new_name=document.getElementById("cloneName").value.trim();const new_year=Number(document.getElementById("cloneYear").value);if(!new_name||!new_year){alert("Enter a name and year for the clone.");return;}const {error}=await sb.rpc("clone_season",{source_season_id:currentSeasonId,new_name,new_year,new_points_name:"Default"});if(error)alert(error.message);else{document.getElementById("cloneName").value="";document.getElementById("cloneYear").value="";}await loadAll()};
     document.getElementById("addTeamBtn").onclick=async()=>{
       const preset=document.getElementById("teamPreset").value;
       let name="",color="";
@@ -360,7 +360,7 @@
       const pos=Number(document.getElementById("resultPosition").value);
       if(!race_id||!driver_id||document.getElementById("resultPosition").value===""){alert("Please fill in all fields.");return;}
 
-      const posTaken = pos !== 0 && cache.results.some(r => r.race_id===race_id && Number(r.position)===pos);
+      const posTaken = pos > 0 && cache.results.some(r => r.race_id===race_id && Number(r.position)===pos);
       if(posTaken){
         const takenDriver = cache.drivers.find(d => {
           const existing = cache.results.find(r => r.race_id===race_id && Number(r.position)===pos);
@@ -377,7 +377,7 @@
         return;
       }
     
-      const points=pos===0?0:(AUTO_POINTS[pos]??0);
+      const points=pos<=0?0:(AUTO_POINTS[pos]??0);
       await sb.from("results").insert([{season_id:currentSeasonId,race_id,driver_id,position:pos,points}]);
       await loadAll();
     };

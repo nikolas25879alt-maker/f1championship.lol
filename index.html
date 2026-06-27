@@ -38,7 +38,7 @@
     .race-card:has(.race-status.completed):hover { border-color: rgba(34,197,94,.5); }
     .race-card:has(.race-status.open):hover { border-color: rgba(239,68,68,.5); }
     .race-cover { height:82px; background:linear-gradient(135deg, rgba(225,6,0,.95), rgba(25,27,34,.88)); position:relative; overflow:hidden; }
-    .race-number { position:absolute; left:16px; top:14px; padding:8px 11px; border-radius:999px; background:rgba(5,6,9,.28); border:1px solid rgba(255,255,255,.16); font-size:12px; font-weight:700; text-transform:uppercase; }
+    .race-number { position:absolute; left:16px; top:14px; padding:8px 11px; border-radius:999px; background:rgba(5,6,9,.65); border:1px solid rgba(255,255,255,.16); font-size:12px; font-weight:700; text-transform:uppercase; }
     .race-status { position:absolute; right:16px; top:14px; padding:8px 11px; border-radius:999px; font-size:12px; font-weight:800; background:rgba(10,10,12,.32); border:1px solid rgba(255,255,255,.14); }
     .race-flag { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:32px; opacity:0.35; }
     .race-main { padding:16px 16px 0px; }
@@ -66,13 +66,13 @@
     select option { background-color: #121318; color: var(--text); }
     .race-status.completed {
       background: rgba(34,197,94,.16);
-      border-color: rgba(34,197,94,.35);
+      border-color: rgba(34,197,94,.70);
       color: #86efac;
     }
 
     .race-status.open {
       background: rgba(239,68,68,.16);
-      border-color: rgba(239,68,68,.35);
+      border-color: rgba(239,68,68,.70);
       color: #fca5a5;
     }
     @media (max-width:1120px) { .content { grid-template-columns:1fr; } .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
@@ -256,8 +256,12 @@
           <div class="race-main">
             <div class="race-title">${r.name}</div>
             <div class="race-meta">
-              <img src="https://flagcdn.com/w40/${getFlagCode(r.country || r.name)}.png" onerror="this.style.display='none'" alt="" /> 
-              ${r.country || ""} ${r.date ? "· " + new Date(r.date).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : ""}
+              <img src="https://flagcdn.com/w40/${getFlagCode(r.country || r.name)}.png" onerror="this.style.display='none'" alt="" />
+              ${r.date ? " ● " + new Date(r.date).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+              }) : ""}
             </div>
           </div>
           <div class="race-footer">

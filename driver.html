@@ -195,7 +195,7 @@
     const totalPts  = myResults.reduce((s, r) => s + (r.points || 0), 0);
     const wins      = myResults.filter(r => Number(r.position) === 1).length;
     const podiums   = myResults.filter(r => Number(r.position) >= 1 && Number(r.position) <= 3).length;
-    const dnfs      = myResults.filter(r => Number(r.position) === 0).length;
+    const dnfs      = myResults.filter(r => Number(r.position) <= 0).length;
 
     document.getElementById("statPts").textContent    = totalPts;
     document.getElementById("statRaces").textContent  = myResults.length;
@@ -211,9 +211,13 @@
 
     document.getElementById("raceResults").innerHTML = sorted.length ? sorted.map(r => {
       const race = raceMap[r.race_id] || {};
-      const isDNF = Number(r.position) === 0;
-      const pos = isDNF ? "DNF" : r.position;
-      const posClass = r.position == 1 ? "p1" : r.position == 2 ? "p2" : r.position == 3 ? "p3" : isDNF ? "dnf" : "";
+      const posNum = Number(r.position);
+      const isDNF = posNum === 0;
+      const isDNP = posNum === -1;
+      const isDSQ = posNum === -2;
+      const isSpecial = isDNF || isDNP || isDSQ;
+      const pos = isDNF ? "DNF" : isDNP ? "DNP" : isDSQ ? "DSQ" : r.position;
+      const posClass = posNum == 1 ? "p1" : posNum == 2 ? "p2" : posNum == 3 ? "p3" : isSpecial ? "dnf" : "";
       return `<div class="result-row">
         <div><div class="pos-badge ${posClass}">${pos}</div></div>
         <div>
@@ -221,21 +225,25 @@
           <div class="race-date">${race.date ? new Date(race.date).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : ""}</div>
         </div>
         <div class="finish-cell hide-sm">${race.country || "—"}</div>
-        <div class="pts-cell">${isDNF ? 0 : (r.points ?? 0)}</div>
-        <div class="finish-cell">${isDNF ? "<span style='color:#ff8f8f'>DNF</span>" : `P${r.position}`}</div>
+        <div class="pts-cell">${isSpecial ? 0 : (r.points ?? 0)}</div>
+        <div class="finish-cell">${isSpecial ? `<span style='color:#ff8f8f'>${pos}</span>` : `P${r.position}`}</div>
       </div>`;
     }).join("") : '<div class="loading">No results yet for this driver.</div>';
 
     // Position breakdown chart
     const posCounts = {};
     myResults.forEach(r => {
-      if (Number(r.position) === 0) { posCounts["DNF"] = (posCounts["DNF"] || 0) + 1; return; }
+      const pNum = Number(r.position);
+      if (pNum === 0) { posCounts["DNF"] = (posCounts["DNF"] || 0) + 1; return; }
+      if (pNum === -1) { posCounts["DNP"] = (posCounts["DNP"] || 0) + 1; return; }
+      if (pNum === -2) { posCounts["DSQ"] = (posCounts["DSQ"] || 0) + 1; return; }
       const p = `P${r.position}`;
       posCounts[p] = (posCounts[p] || 0) + 1;
     });
     const maxCount = Math.max(...Object.values(posCounts), 1);
     const posEntries = Object.entries(posCounts).sort((a, b) => {
-      if (a[0] === "DNF") return 1; if (b[0] === "DNF") return -1;
+      const specialOrder = ["DNF","DNP","DSQ"];
+      if (specialOrder.includes(a[0])) return 1; if (specialOrder.includes(b[0])) return -1;
       return parseInt(a[0].slice(1)) - parseInt(b[0].slice(1));
     });
     document.getElementById("posChart").innerHTML = posEntries.length
