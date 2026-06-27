@@ -200,7 +200,7 @@
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const statusEl = document.getElementById("loginStatus");
-    
+        
       if (!email || !password) {
         statusEl.textContent = "Email and password are required.";
         statusEl.className = "status err";
@@ -213,26 +213,42 @@
         return;
       }
     
-      statusEl.textContent = "Signing in...";
+      statusEl.textContent = "Verifying security...";
       statusEl.className = "status";
     
-      const { error } = await sb.auth.signInWithPassword({ 
-        email, 
-        password,
-        // You can pass the token in options if using Supabase custom auth later
-      });
-    
-      if (error) {
-        statusEl.textContent = error.message;
+      try {
+        // 1. Verify Turnstile via Edge Function
+        const verifyRes = await fetch('https://bswuztumpvoleajheeej.supabase.co/functions/v1/quick-endpoint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: turnstileToken })
+        });
+        const verifyData = await verifyRes.json();
+      
+        if (!verifyData.success) {
+          throw new Error("CAPTCHA verification failed.");
+        }
+      
+        // 2. Proceed with sign-in
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+          statusEl.textContent = error.message;
+          statusEl.className = "status err";
+          if (window.turnstile) window.turnstile.reset("#turnstileWidget");
+          turnstileToken = null;
+          return;
+        }
+      
+        await showApp();
+        await loadAll();
+      
+      } catch (err) {
+        statusEl.textContent = err.message;
         statusEl.className = "status err";
-        // Reset Turnstile on failure
         if (window.turnstile) window.turnstile.reset("#turnstileWidget");
         turnstileToken = null;
-        return;
       }
-    
-      await showApp();
-      await loadAll();
     };
 
     // Turnstile callback
