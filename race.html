@@ -96,51 +96,87 @@
     }
 
     async function load(){ 
-      const [{ data: seasons }, { data: races }] = await Promise.all([sb.from("seasons").select("*").eq("id", seasonId).limit(1), sb.from("races").select("*").eq("season_id", seasonId)]); 
+      const [{ data: seasons }, { data: races }] = await Promise.all([
+        sb.from("seasons").select("*").eq("id", seasonId).limit(1),
+        sb.from("races").select("*").eq("season_id", seasonId)
+      ]); 
+    
       const season = seasons?.[0]; 
       if (season) document.getElementById("seasonTag").textContent = season.name; 
-      
+
       const race = (races || []).find(r => slugify(r.name) === raceSlug); 
       if (!race) { 
         document.getElementById("raceTitle").textContent = "Race not found"; 
         document.getElementById("raceStatus").textContent = "Missing"; 
         return; 
       } 
-      
+
       document.title = `${race.name} • ${season?.name || "Race"}`; 
       document.getElementById("raceTitle").textContent = race.name; 
       document.getElementById("raceMeta").textContent = `${race.country || "Unknown country"}${race.date ? " • " + race.date : ""}`; 
       document.getElementById("notes").textContent = race.notes || "No notes yet."; 
-      
+
       // Dynamic Hero Background Injection
       if (race.map_url) {
         const heroEl = document.querySelector('.hero');
         heroEl.style.background = `linear-gradient(135deg, rgba(225,6,0,0.15), rgba(10,11,15,0.95)), url('${race.map_url}') center/cover no-repeat`;
       }
-
-      const [resultsRes, driversRes] = await Promise.all([sb.from("results").select("*").eq("season_id", seasonId).eq("race_id", race.id).order("position"), sb.from("drivers").select("*, teams(name,color)").eq("season_id", seasonId)]); 
+    
+      const [resultsRes, driversRes] = await Promise.all([
+        sb.from("results").select("*").eq("season_id", seasonId).eq("race_id", race.id).order("position"),
+        sb.from("drivers").select("*, teams(name,color)").eq("season_id", seasonId)
+      ]);
+    
       const drivers = driversRes.data || []; 
       const map = Object.fromEntries(drivers.map(d => [d.id, d])); 
       const results = resultsRes.data || []; 
-
+    
       document.getElementById("raceStatus").textContent = results.length ? "Completed" : "Open"; 
       document.getElementById("entryCount").textContent = results.length;
+    
       const winner = results.find(r => Number(r.position) === 1);
       document.getElementById("winnerName").textContent = winner ? (map[winner.driver_id]?.name || "—") : "—"; 
       document.getElementById("topPts").textContent = winner ? (winner.points ?? 0) : "—";
-      
-      document.getElementById("resultsWrap").innerHTML = results.map(r => { 
+    
+      // NEW: Move DNF/DNP/DSQ to the bottom
+      const orderedResults = [
+        ...results.filter(r => Number(r.position) > 0),
+        ...results.filter(r => Number(r.position) === 0),   // DNF
+        ...results.filter(r => Number(r.position) === -2),  // DSQ
+        ...results.filter(r => Number(r.position) === -1)   // DNP
+      ];
+    
+      document.getElementById("resultsWrap").innerHTML = orderedResults.map(r => { 
         const d = map[r.driver_id] || {}; 
         const pos = Number(r.position);
+      
         const isDNF = pos === 0 || String(r.status || "").toUpperCase() === "DNF";
         const isDNP = pos === -1;
         const isDSQ = pos === -2;
         const isSpecial = isDNF || isDNP || isDSQ;
+      
         const specialLabel = isDNF ? "DNF" : isDNP ? "DNP" : isDSQ ? "DSQ" : "";
+      
         const logo = getTeamLogo(d.teams?.name || "");
-        const teamHtml = logo ? `<img src="${logo}" alt="${d.teams?.name || ""}" style="width:20px;height:20px;object-fit:contain;margin-right:6px;vertical-align:middle" onerror="this.style.display='none'">${d.teams?.name || "-"}` : (d.teams?.name || "-");
-        return `<div class="result-row"><div class="pos">${isSpecial ? specialLabel : r.position}</div><div><a href="driver.html?season=${seasonId}&driver=${r.driver_id}" style="color:inherit;text-decoration:none;"><div class="driver" style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,0.25)">${d.name || "-"} ${isSpecial ? `<span class="dnf-tag">${specialLabel}</span>` : ''}</div></a><div class="team">${teamHtml}</div></div><div class="hide-sm">${teamHtml}</div><div class="pts">${isSpecial ? 0 : (r.points ?? 0)}</div></div>`;
-      }).join("") || '<div class="note-box" style="margin-top:12px">No results yet.</div>'; 
+      
+        const teamHtml = logo
+          ? `<img src="${logo}" alt="${d.teams?.name || ""}" style="width:20px;height:20px;object-fit:contain;margin-right:6px;vertical-align:middle" onerror="this.style.display='none'">${d.teams?.name || "-"}`
+          : (d.teams?.name || "-");
+      
+        return `<div class="result-row">
+          <div class="pos">${isSpecial ? specialLabel : r.position}</div>
+          <div>
+            <a href="driver.html?season=${seasonId}&driver=${r.driver_id}" style="color:inherit;text-decoration:none;">
+              <div class="driver" style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,0.25)">
+                ${d.name || "-"} ${isSpecial ? `<span class="dnf-tag">${specialLabel}</span>` : ''}
+              </div>
+            </a>
+            <div class="team">${teamHtml}</div>
+          </div>
+          <div class="hide-sm">${teamHtml}</div>
+          <div class="pts">${isSpecial ? 0 : (r.points ?? 0)}</div>
+        </div>`;
+      }).join("") || '<div class="note-box" style="margin-top:12px">No results yet.</div>';
     }
     load();
   </script>
