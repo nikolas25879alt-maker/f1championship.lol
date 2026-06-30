@@ -117,8 +117,8 @@
   </div>
   <div class="brand-credit">By Scripty</div>
   <script>
-    const SUPABASE_URL = "https://bswuztumpvoleajheeej.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzd3V6dHVtcHZvbGVhamhlZWVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NDM1ODksImV4cCI6MjA5ODAxOTU4OX0.FyBZun8WwlhpvXLs4k2mEdNc_7LvZWMHy7dT-26rXqs";
+    const SUPABASE_URL = "/api";
+    const SUPABASE_ANON_KEY = "public";
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const AUTO_POINTS = {1:25,2:18,3:15,4:12,5:10,6:8,7:6,8:4,9:2,10:1};
@@ -215,7 +215,7 @@
     
       try {
         // 1. Verify Turnstile via Edge Function
-        const verifyRes = await fetch('https://bswuztumpvoleajheeej.supabase.co/functions/v1/quick-endpoint', {
+        const verifyRes = await fetch('/api/functions/v1/quick-endpoint', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: turnstileToken })
