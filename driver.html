@@ -241,10 +241,27 @@
       posCounts[p] = (posCounts[p] || 0) + 1;
     });
     const maxCount = Math.max(...Object.values(posCounts), 1);
+    const specialOrder = {
+      DNF: 0,
+      DSQ: 1,
+      DNP: 2
+    };
+    
     const posEntries = Object.entries(posCounts).sort((a, b) => {
-      const specialOrder = ["DNF","DNP","DSQ"];
-      if (specialOrder.includes(a[0])) return 1; if (specialOrder.includes(b[0])) return -1;
-      return parseInt(a[0].slice(1)) - parseInt(b[0].slice(1));
+      const aSpecial = a[0] in specialOrder;
+      const bSpecial = b[0] in specialOrder;
+    
+      // Normal positions first
+      if (!aSpecial && !bSpecial) {
+        return parseInt(a[0].slice(1)) - parseInt(b[0].slice(1));
+      }
+    
+      // Specials always at the bottom
+      if (aSpecial && !bSpecial) return 1;
+      if (!aSpecial && bSpecial) return -1;
+    
+      // Order of specials: DNF -> DSQ -> DNP
+      return specialOrder[a[0]] - specialOrder[b[0]];
     });
     document.getElementById("posChart").innerHTML = posEntries.length
       ? posEntries.map(([label, count]) => `
