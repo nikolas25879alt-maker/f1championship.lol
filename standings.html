@@ -82,7 +82,7 @@
 </div>
 <div class="brand-credit">By Scripty</div>
 <script>
-  const SUPABASE_URL = "/api";
+  const SUPABASE_URL = `${location.origin}/api`;
   const SUPABASE_ANON_KEY = "public";
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
