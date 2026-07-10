@@ -465,67 +465,32 @@
             async function fetchLeaderboard() {
                 const container = document.getElementById('leaderboardContainer');
 
-                // Query to get hit counts per user_id
-                const { data: hitsData, error: hitsError } = await sb
-                    .from('victims')
-                    .select('user_id')
-                    .then(res => res); // Actually we need to group by, but we can do it client-side
-                if (hitsError) {
-                    container.innerHTML = `<div class="empty">Error loading leaderboard: ${hitsError.message}</div>`;
+                // Call the Supabase function that returns aggregated hits
+                const { data, error } = await sb.rpc('get_leaderboard');
+
+                if (error) {
+                    container.innerHTML = `<div class="empty">Error loading leaderboard: ${error.message}</div>`;
                     return;
                 }
-
-                // Count hits per user
-                const userCounts = {};
-                hitsData.forEach(row => {
-                    const uid = row.user_id;
-                    userCounts[uid] = (userCounts[uid] || 0) + 1;
-                });
-
-                const userIds = Object.keys(userCounts);
-                if (userIds.length === 0) {
+            
+                if (!data || data.length === 0) {
                     container.innerHTML = `<div class="empty">No hits recorded yet.</div>`;
                     return;
                 }
-
-                // Fetch profiles for these user_ids
-                const { data: profiles, error: profilesError } = await sb
-                    .from('profiles')
-                    .select('id, username, avatar_url')
-                    .in('id', userIds);
-
-                if (profilesError) {
-                    container.innerHTML = `<div class="empty">Error loading profiles: ${profilesError.message}</div>`;
-                    return;
-                }
-
-                // Merge counts with profiles
-                const merged = profiles.map(p => ({
-                    ...p,
-                    hits: userCounts[p.id] || 0
-                })).filter(p => p.hits > 0);
-
-                // Sort descending by hits
-                merged.sort((a, b) => b.hits - a.hits);
-
-                if (merged.length === 0) {
-                    container.innerHTML = `<div class="empty">No profiles with hits.</div>`;
-                    return;
-                }
-
+            
                 // Render
                 let html = `<div class="leaderboard-list">`;
-                merged.forEach((item, index) => {
+                data.forEach((item, index) => {
                     const rank = index + 1;
                     let rankClass = '';
                     if (rank === 1) rankClass = 'gold';
                     else if (rank === 2) rankClass = 'silver';
                     else if (rank === 3) rankClass = 'bronze';
-
+                
                     const avatarHtml = item.avatar_url
                         ? `<img src="${item.avatar_url}" alt="${item.username || 'User'}" />`
                         : `<i class="fas fa-user-secret"></i>`;
-
+                
                     html += `
                         <div class="leaderboard-item">
                             <div class="leaderboard-rank ${rankClass}">#${rank}</div>
@@ -556,10 +521,9 @@
                 ];
 
                 function checkVip(userId) {
+                    // Always show the leaderboard for everyone
                     const overlay = document.getElementById('vipOverlay');
-                    if (!overlay) return;
-                    // Always hide the overlay and show the leaderboard
-                    overlay.style.display = 'none';
+                    if (overlay) overlay.style.display = 'none';
                     document.querySelector('.app-container')?.style.setProperty('display', 'flex');
                 }
                 checkVip(currentUser.id);
