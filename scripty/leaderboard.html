@@ -1211,7 +1211,7 @@
             }
 
             // --- Init ---
-            sb.auth.getSession().then(({ data: { session } }) => {
+            sb.auth.getSession().then(async ({ data: { session } }) => {
                 if (!session) {
                     window.location.href = 'login.html';
                     return;
@@ -1263,12 +1263,16 @@
                 }
 
                 // Upsert profile (optional)
-                sb.from('profiles').upsert({
-                    id: user.id,
-                    username: userName,
-                    avatar_url: avatarUrl,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'id' }).catch(err => console.warn('Profile upsert failed:', err));
+                try {
+                    await sb.from('profiles').upsert({
+                        id: user.id,
+                        username: userName,
+                        avatar_url: avatarUrl,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id' });
+                } catch (err) {
+                    console.warn('Profile upsert failed:', err);
+                }
 
                 // Load leaderboard
                 fetchLeaderboard();
