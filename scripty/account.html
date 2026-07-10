@@ -656,11 +656,8 @@
                 const status = isVip ? 'VIP' : 'Free';
                 const badgeClass = isVip ? 'type-badge admin' : 'type-badge user';
                 container.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <div style="display: flex; justify-content: center; padding: 8px 0;">
                         <span class="type-badge ${badgeClass}" style="font-size: 1.2rem; padding: 8px 24px;">${status}</span>
-                        <span style="font-size: 0.9rem; color: var(--text-secondary);">
-                            ${isVip ? '✅ Premium access enabled' : '❌ Basic account'}
-                        </span>
                     </div>
                 `;
             }
@@ -935,12 +932,6 @@
                     // reload
                     loadProfile();
                 }
-
-                // Also update sidebar from session metadata
-                const avatarUrl = currentUser.user_metadata?.avatar_url || '';
-                const userName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email || 'User';
-                const email = currentUser.email || '';
-                updateSidebar(avatarUrl, userName, email);
 
                 // Set username input field if modal opens
                 document.getElementById('usernameInput').value = profileData.username || '';
