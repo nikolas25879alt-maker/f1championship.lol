@@ -574,7 +574,7 @@
                 </div>
                 <div class="session-row" style="border-bottom:none;">
                     <span class="session-text">Sign out of all other sessions (global)</span>
-                    <button class="btn btn-warning btn-sm" onclick="window.logoutAll()"><i class="fas fa-globe"></i> Log Out All</button>
+                    <button class="btn btn-warning" onclick="window.logoutAll()"><i class="fas fa-globe"></i> Log Out All</button>
                 </div>
             </div>
         </main>
@@ -760,6 +760,7 @@
 
                 // Also load avatar preview in modal
                 updateAvatarPreview();
+                renderAccountStatus();
             }
 
             function updateSidebar(avatarUrl, username, email) {
@@ -785,6 +786,27 @@
                 } else {
                     preview.innerHTML = `<i class="fas fa-user-secret"></i>`;
                 }
+            }
+            function renderAccountStatus() {
+                const container = document.getElementById('accountDetails');
+                if (!currentUser) {
+                    container.innerHTML = `<div class="empty">Not logged in</div>`;
+                    return;
+                }
+                // VIP_USERS is already defined above
+                const isVip = VIP_USERS.includes(currentUser.id);
+                const status = isVip ? 'VIP' : 'Free';
+                const badgeClass = isVip ? 'type-badge admin' : 'type-badge user';
+                container.innerHTML = `
+                    <div class="detail-row">
+                        <span class="detail-label">Subscription</span>
+                        <span class="type-badge ${badgeClass}">${status}</span>
+                    </div>
+                    <div class="detail-row" style="border-bottom:none;">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">${isVip ? '✅ Active' : '❌ Not subscribed'}</span>
+                    </div>
+                `;
             }
 
             // ===== Change Username =====
