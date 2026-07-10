@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scripty Core · Builder</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -607,7 +608,6 @@
             sb.auth.getSession().then(({ data: { session } }) => {
                 if (!session) { window.location.href = 'login.html'; return; }
                 currentUser = session.user;
-                checkVip(currentUser.id);
                 const VIP_USERS = [
                     '60e9045c-274e-4573-b2cb-87493563b7a2',
                     // add more
@@ -624,6 +624,7 @@
                         document.querySelector('.app-container')?.style.setProperty('display', 'none');
                     }
                 }
+                checkVip(currentUser.id);
 
                 const user = session.user;
                 const avatarUrl = user.user_metadata?.avatar_url || '';
