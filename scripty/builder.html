@@ -432,7 +432,7 @@
 </head>
 <body>
     <!-- VIP Overlay -->
-    <div id="vipOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:99999; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#eee; font-family:var(--font-sans); backdrop-filter:blur(6px);">
+    <div id="vipOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:99999; align-items:center; justify-content:center; flex-direction:column; color:#eee; font-family:var(--font-sans); backdrop-filter:blur(6px);">
         <div style="text-align:center; padding:2rem; max-width:400px;">
             <i class="fas fa-lock" style="font-size:4rem; color:var(--accent); text-shadow:0 0 30px var(--accent); margin-bottom:1.5rem;"></i>
             <h1 style="font-size:2rem; font-weight:700; margin-bottom:0.5rem; background:linear-gradient(135deg,var(--accent),var(--neon-pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">VIP Only</h1>
@@ -607,6 +607,7 @@
             sb.auth.getSession().then(({ data: { session } }) => {
                 if (!session) { window.location.href = 'login.html'; return; }
                 currentUser = session.user;
+                checkVip(currentUser.id);
                 const VIP_USERS = [
                     '60e9045c-274e-4573-b2cb-87493563b7a2',
                     // add more
