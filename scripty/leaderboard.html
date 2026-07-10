@@ -558,13 +558,9 @@
                 function checkVip(userId) {
                     const overlay = document.getElementById('vipOverlay');
                     if (!overlay) return;
-                    if (VIP_USERS.includes(userId)) {
-                        overlay.style.display = 'none';
-                        document.querySelector('.app-container')?.style.setProperty('display', 'flex');
-                    } else {
-                        overlay.style.display = 'flex';
-                        document.querySelector('.app-container')?.style.setProperty('display', 'none');
-                    }
+                    // Always hide the overlay and show the leaderboard
+                    overlay.style.display = 'none';
+                    document.querySelector('.app-container')?.style.setProperty('display', 'flex');
                 }
                 checkVip(currentUser.id);
 
