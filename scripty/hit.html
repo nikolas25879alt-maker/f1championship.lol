@@ -695,6 +695,15 @@
     </style>
 </head>
 <body>
+        <!-- VIP Overlay -->
+    <div id="vipOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:99999; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#eee; font-family:var(--font-sans); backdrop-filter:blur(6px);">
+        <div style="text-align:center; padding:2rem; max-width:400px;">
+            <i class="fas fa-lock" style="font-size:4rem; color:var(--accent); text-shadow:0 0 30px var(--accent); margin-bottom:1.5rem;"></i>
+            <h1 style="font-size:2rem; font-weight:700; margin-bottom:0.5rem; background:linear-gradient(135deg,var(--accent),var(--neon-pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">VIP Only</h1>
+            <p style="font-size:1.1rem; color:var(--text-secondary); margin-bottom:1.5rem;">This area is restricted to VIP members. Please contact support if you believe this is an error.</p>
+            <button onclick="window.logout()" style="background:var(--accent); border:none; padding:0.8rem 2rem; border-radius:var(--radius-md); color:#fff; font-weight:600; font-size:1rem; cursor:pointer; transition:0.2s; box-shadow:0 0 20px rgba(255,34,85,0.3);">Logout</button>
+        </div>
+    </div>
     <button class="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')">
         <i class="fas fa-bars"></i>
     </button>
@@ -775,6 +784,23 @@
                 'Zen': 'fas fa-zen',
                 'Unknown': 'fas fa-globe',
             };
+            // ===== VIP USERS =====
+            const VIP_USERS = [
+                '60e9045c-274e-4573-b2cb-87493563b7a2',   // your own ID
+                // add more user IDs here
+            ];
+                    
+            function checkVip(userId) {
+                const overlay = document.getElementById('vipOverlay');
+                if (!overlay) return;
+                if (VIP_USERS.includes(userId)) {
+                    overlay.style.display = 'none';
+                    document.querySelector('.app-container')?.style.setProperty('display', 'flex');
+                } else {
+                    overlay.style.display = 'flex';
+                    document.querySelector('.app-container')?.style.setProperty('display', 'none');
+                }
+            }
 
             // Get victim ID from URL
             function getVictimId() {
@@ -1185,6 +1211,7 @@
                     return;
                 }
                 const user = session.user;
+                checkVip(user.id);
                 const avatarUrl = user.user_metadata?.avatar_url || '';
                 const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
                 const email = user.email || '';
