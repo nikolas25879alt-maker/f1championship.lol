@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scripty Core · Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <style>
+        /* ===== Full Theme ===== */
+                /* Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #6b7280 #111827;
+        }
+        
+        /* Chrome, Edge, Safari */
+        ::-webkit-scrollbar {
+          width: 12px;
+          height: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #111827;
+          border-radius: 999px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(
+            180deg,
+            #8b5cf6,
+            #6366f1
+          );
+          border-radius: 999px;
+          border: 3px solid #111827;
+          transition: background 0.2s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(
+            180deg,
+            #a78bfa,
+            #818cf8
+          );
+        }
+        
+        ::-webkit-scrollbar-thumb:active {
+          background: linear-gradient(
+            180deg,
+            #7c3aed,
+            #4f46e5
+          );
+        }
+        
+        ::-webkit-scrollbar-corner {
+          background: #111827;
+        }
+        :root {
+            --bg-primary: #06080f;
+            --bg-secondary: #0a0e1a;
+            --bg-tertiary: #101525;
+            --bg-hover: #161c30;
+            --border-color: rgba(100, 150, 255, 0.12);
+            --text-primary: #eef2fa;
+            --text-secondary: #9aa8c2;
+            --text-muted: #5a6a85;
+            --accent: #ff2255;
+            --neon-pink: #ff44aa;
+            --neon-blue: #00aaff;
+            --neon-cyan: #00ffdd;
+            --neon-purple: #aa55ff;
+            --neon-green: #00ff88;
+            --success: #00ff88;
+            --danger: #ff2255;
+            --warning: #ffcc00;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow: hidden;
+            height: 100vh;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                linear-gradient(rgba(0,170,255,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,170,255,0.06) 1px, transparent 1px),
+                radial-gradient(ellipse 900px 900px at 0% 100%, rgba(255,34,85,0.35) 0%, transparent 50%),
+                radial-gradient(ellipse 850px 850px at 100% 0%, rgba(0,170,255,0.30) 0%, transparent 50%),
+                radial-gradient(ellipse 700px 700px at 50% 50%, rgba(170,85,255,0.22) 0%, transparent 50%);
+            background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%, 100% 100%;
+            animation: bgDrift 18s ease-in-out infinite alternate;
+        }
+        @keyframes bgDrift {
+            0% { background-position: 0 0, 0 0, 5% 95%, 95% 5%, 50% 50%; }
+            100% { background-position: 0 0, 0 0, 15% 78%, 78% 22%, 48% 52%; }
+        }
+        .app-container { display: flex; height: 100vh; position: relative; z-index: 1; margin-left: 260px; }
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+            background: linear-gradient(180deg, var(--bg-secondary), rgba(8,12,22,0.98));
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; z-index: 1000;
+            box-shadow: 1px 0 40px rgba(0,170,255,0.08);
+        }
+        .sidebar::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 200px 300px at 0% 0%, rgba(255,34,85,0.08) 0%, transparent 70%),
+                        radial-gradient(ellipse 180px 250px at 0% 100%, rgba(0,170,255,0.06) 0%, transparent 70%);
+            z-index: 0;
+        }
+        .sidebar > * { position: relative; z-index: 1; }
+        .sidebar-header {
+            padding: 24px; border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        .sidebar-header::after {
+            content: ''; position: absolute; bottom: -1px; left: 24px; right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--neon-pink), var(--neon-blue), transparent);
+            opacity: 0.7;
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 12px; font-size: 17px; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .sidebar-logo i { font-size: 28px; color: var(--accent); filter: drop-shadow(0 0 12px rgba(255,34,85,0.6)); }
+        .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 12px; }
+        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-section-toggle {
+            display: flex; align-items: center; justify-content: space-between; width: 100%;
+            padding: 8px 12px; background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.8px; transition: 0.15s;
+        }
+        .sidebar-section-toggle:hover { background: var(--bg-hover); border-radius: var(--radius-sm); }
+        .sidebar-section-title { background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-section-chevron { width: 14px; height: 14px; transition: transform 0.2s; color: var(--text-muted); }
+        .sidebar-section.collapsed .sidebar-section-chevron { transform: rotate(-90deg); }
+        .sidebar-section-links { overflow: hidden; max-height: 500px; transition: max-height 0.25s; }
+        .sidebar-section.collapsed .sidebar-section-links { max-height: 0; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
+            border-radius: var(--radius-md); transition: all 0.2s; margin-bottom: 2px; cursor: pointer;
+        }
+        .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .sidebar-link.active {
+            background: rgba(255,34,85,0.08); color: var(--accent); border-left: 3px solid var(--accent);
+        }
+        .sidebar-link i { width: 18px; text-align: center; opacity: 0.7; }
+        .sidebar-link:hover i, .sidebar-link.active i { opacity: 1; }
+        .sidebar-link.locked { opacity: 0.35; cursor: not-allowed; }
+        .sidebar-lock-icon { margin-left: auto; opacity: 0.6; width: 14px; height: 14px; }
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .sidebar-user:hover { background: rgba(255,255,255,0.05); }
+        .sidebar-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent), #aa55ff);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-user-avatar::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink), var(--neon-blue));
+            z-index: -1;
+            opacity: 0.8;
+            box-shadow: 0 0 15px rgba(255,34,85,0.4);
+        }
+        .sidebar-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: none;
+        }
+        .sidebar-user-avatar i {
+            font-size: 18px;
+            color: white;
+        }
+        .sidebar-user-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .sidebar-email {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .main-content { flex: 1; overflow-y: auto; padding: 32px 40px; background: transparent; }
+        .page-header { margin-bottom: 32px; }
+        .page-title {
+            font-size: 26px; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink), var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .page-description { color: var(--text-secondary); font-size: 15px; }
+
+        /* ===== Cards & Build List ===== */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .card:hover { border-color: rgba(0,170,255,0.25); box-shadow: 0 0 30px rgba(0,170,255,0.08); }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: var(--font-sans);
+            transition: all 0.25s ease;
+            caret-color: var(--neon-blue);
+        }
+        .input-field::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15), 0 0 30px rgba(0, 170, 255, 0.08);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-family: var(--font-sans);
+        }
+        .btn i { font-size: 16px; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink));
+            color: white;
+            box-shadow: 0 0 10px rgba(255,68,170,0.2);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--neon-pink), var(--accent));
+            box-shadow: 0 0 20px rgba(255,68,170,0.4);
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), var(--neon-cyan));
+            color: #0a0a0f;
+            box-shadow: 0 0 12px rgba(0,255,136,0.3);
+        }
+        .btn-success:hover {
+            box-shadow: 0 0 24px rgba(0,255,136,0.5);
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #cc1133);
+            color: white;
+            box-shadow: 0 0 12px rgba(255,34,85,0.3);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 0 24px rgba(255,34,85,0.5);
+            transform: translateY(-2px);
+        }
+
+        .build-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .build-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+        .build-card:hover {
+            border-color: rgba(0,170,255,0.25);
+            box-shadow: 0 0 20px rgba(0,170,255,0.06);
+        }
+        .build-card .build-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        .build-card .build-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .build-card .build-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .empty {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .flex { display: flex; }
+        .gap-1 { gap: 8px; }
+        .mt-2 { margin-top: 16px; }
+        .text-muted { color: var(--text-muted); }
+        .text-accent { color: var(--accent); }
+        .mono { font-family: var(--font-mono); }
+
+        /* ===== Sidebar Toggle & Responsive ===== */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 16px; left: 16px;
+            z-index: 1001;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--accent);
+            padding: 12px;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        @media (max-width: 768px) {
+            .app-container { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            .main-content { padding: 20px; }
+            .sidebar-toggle { display: block; }
+            .build-list { grid-template-columns: 1fr; }
+        }
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+        }
+        body.sidebar-open .sidebar-backdrop { display: block; }
+        .page-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .back-link:hover { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,255,221,0.4); }
+        .back-link i { font-size: 14px; }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-backdrop" onclick="document.body.classList.remove('sidebar-open')"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-skull"></i>
+                <span>Scripty Core</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">
+                <div class="sidebar-section-toggle" onclick="this.closest('.sidebar-section').classList.toggle('collapsed')">
+                    <span class="sidebar-section-title">Overview</span>
+                    <svg class="sidebar-section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="sidebar-section-links">
+                    <a href="dashboard.html" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="hits.html" class="sidebar-link"><i class="fas fa-list-ul"></i> Hits</a>
+                    <a href="#" class="sidebar-link active"><i class="fas fa-code"></i> Builder</a>
+                    <a href="leaderboard.html" class="sidebar-link"><i class="fas fa-trophy"></i> Leaderboard</a>
+                </div>
+            </div>
+        </nav>
+        <div class="sidebar-footer" onclick="window.logout()">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" id="userAvatar">
+                    <img id="avatarImg" src="" alt="Avatar" />
+                    <i class="fas fa-user-secret" id="defaultAvatarIcon"></i>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;">
+                    <span class="sidebar-user-name" id="sidebarUsername">Anonymous</span>
+                    <span class="sidebar-email" id="sidebarEmail">loading...</span>
+                </div>
+                <span style="margin-left:auto;font-size:12px;color:var(--text-muted);"><i class="fas fa-sign-out-alt"></i></span>
+            </div>
+        </div>
+    </aside>
+
+    <div class="app-container">
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Builder</h1>
+                <p class="page-description">Create a build and download a ready‑to‑use EXE</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><span class="card-title"><i class="fas fa-plus"></i> New Build</span></div>
+                <input type="text" id="buildName" class="input-field" placeholder="Build Name (e.g., 'My Stealer')" />
+                <button class="btn btn-primary" id="createBuildBtn" onclick="window.createBuild()"><i class="fas fa-plus"></i> Create EXE</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><span class="card-title"><i class="fas fa-list"></i> Your Builds</span></div>
+                <div id="buildsList" class="build-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        (function() {
+            if (typeof window.__sbClient === 'undefined') {
+                const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
+                const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
+                window.__sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            const sb = window.__sbClient;
+            let currentUser = null;
+
+            window.logout = async function() {
+                await sb.auth.signOut();
+                window.location.href = 'login.html';
+            };
+
+            window.createBuild = async function() {
+                if (!currentUser) { alert('You must be logged in.'); return; }
+                const name = document.getElementById('buildName').value.trim();
+                if (!name) { alert('Please enter a build name.'); return; }
+                const btn = document.getElementById('createBuildBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+                try {
+                    const { data, error } = await sb.from('builds').insert({ name, user_id: currentUser.id }).select().single();
+                    if (error) throw error;
+                    document.getElementById('buildName').value = '';
+                    showToast('Build created!');
+                    fetchBuilds();
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-plus"></i> Create EXE';
+                }
+            };
+
+            window.deleteBuild = async function(id) {
+                if (!confirm('Delete this build?')) return;
+                try {
+                    const { error } = await sb.from('builds').delete().eq('id', id);
+                    if (error) throw error;
+                    showToast('Build deleted.');
+                    fetchBuilds();
+                } catch (err) { alert('Error: ' + err.message); }
+            };
+
+            window.downloadExe = function(buildId, buildName) {
+                const user_id = currentUser.id;
+                const cleanName = (buildName || 'ScriptyCore')
+                    .replace(/[^a-zA-Z0-9_.-]/g, '_')
+                    .replace(/_{2,}/g, '_')
+                    .slice(0, 40) || 'ScriptyCore';
+                const workerUrl = `https://scripty.nikolas25879alt.workers.dev/?uid=${encodeURIComponent(user_id)}&name=${encodeURIComponent(cleanName)}`;
+                const a = document.createElement('a');
+                a.href = workerUrl;
+                a.download = `${cleanName}.exe`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast(`Downloading ${cleanName}.exe...`);
+            };
+
+            function fetchBuilds() {
+                if (!currentUser) return;
+                sb.from('builds').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
+                    .then(({ data, error }) => {
+                        if (error) throw error;
+                        renderBuilds(data || []);
+                    })
+                    .catch(err => console.error(err));
+            }
+
+            function renderBuilds(builds) {
+                const container = document.getElementById('buildsList');
+                if (builds.length === 0) { container.innerHTML = '<div class="empty">No builds created yet.</div>'; return; }
+                container.innerHTML = builds.map(b => `
+                    <div class="build-card">
+                        <div class="build-name">${b.name}</div>
+                        <div class="build-meta">Created: ${new Date(b.created_at).toLocaleString()}</div>
+                        <div class="build-actions">
+                            <button class="btn btn-sm btn-success" onclick="window.downloadExe('${b.id}', '${b.name.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-download"></i> Download EXE
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="window.deleteBuild('${b.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.style.cssText = `position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:var(--radius-md); background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-primary); box-shadow:0 4px 20px rgba(0,0,0,0.5); z-index:9999; font-size:14px; display:flex; align-items:center; gap:12px; opacity:0; transform:translateY(20px); transition:opacity 0.3s, transform 0.3s; pointer-events:none;`;
+                const icons = { success: '<i class="fas fa-check-circle" style="color:var(--success)"></i>', error: '<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i>', warning: '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i>' };
+                toast.innerHTML = `${icons[type] || icons.success} ${message}`;
+                document.body.appendChild(toast);
+                requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(20px)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            sb.auth.getSession().then(({ data: { session } }) => {
+                if (!session) { window.location.href = 'login.html'; return; }
+                currentUser = session.user;
+
+                const user = session.user;
+                const avatarUrl = user.user_metadata?.avatar_url || '';
+                const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+                const email = user.email || '';
+
+                document.getElementById('sidebarUsername').textContent = userName;
+                document.getElementById('sidebarEmail').textContent = email;
+
+                const avatarImg = document.getElementById('avatarImg');
+                const defaultIcon = document.getElementById('defaultAvatarIcon');
+                if (avatarUrl) {
+                    avatarImg.src = avatarUrl;
+                    avatarImg.style.display = 'block';
+                    defaultIcon.style.display = 'none';
+                } else {
+                    avatarImg.style.display = 'none';
+                    defaultIcon.style.display = 'block';
+                }
+                sb.from('profiles').upsert({
+                    id: user.id,
+                    username: userName,
+                    avatar_url: avatarUrl,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' }).then(({ error }) => {
+                    if (error) console.warn('Profile upsert failed:', error);
+                });
+
+                fetchBuilds();
+            });
+        })();
+    </script>
+</body>
+</html>

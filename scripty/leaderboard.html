@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scripty Core · Leaderboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+    <style>
+        /* ===== Full Theme ===== */
+                /* Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #6b7280 #111827;
+        }
+        
+        /* Chrome, Edge, Safari */
+        ::-webkit-scrollbar {
+          width: 12px;
+          height: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #111827;
+          border-radius: 999px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(
+            180deg,
+            #8b5cf6,
+            #6366f1
+          );
+          border-radius: 999px;
+          border: 3px solid #111827;
+          transition: background 0.2s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(
+            180deg,
+            #a78bfa,
+            #818cf8
+          );
+        }
+        
+        ::-webkit-scrollbar-thumb:active {
+          background: linear-gradient(
+            180deg,
+            #7c3aed,
+            #4f46e5
+          );
+        }
+        
+        ::-webkit-scrollbar-corner {
+          background: #111827;
+        }
+        :root {
+            --bg-primary: #06080f;
+            --bg-secondary: #0a0e1a;
+            --bg-tertiary: #101525;
+            --bg-hover: #161c30;
+            --border-color: rgba(100, 150, 255, 0.12);
+            --text-primary: #eef2fa;
+            --text-secondary: #9aa8c2;
+            --text-muted: #5a6a85;
+            --accent: #ff2255;
+            --neon-pink: #ff44aa;
+            --neon-blue: #00aaff;
+            --neon-cyan: #00ffdd;
+            --neon-purple: #aa55ff;
+            --neon-green: #00ff88;
+            --success: #00ff88;
+            --danger: #ff2255;
+            --warning: #ffcc00;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow: hidden;
+            height: 100vh;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                linear-gradient(rgba(0,170,255,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,170,255,0.06) 1px, transparent 1px),
+                radial-gradient(ellipse 900px 900px at 0% 100%, rgba(255,34,85,0.35) 0%, transparent 50%),
+                radial-gradient(ellipse 850px 850px at 100% 0%, rgba(0,170,255,0.30) 0%, transparent 50%),
+                radial-gradient(ellipse 700px 700px at 50% 50%, rgba(170,85,255,0.22) 0%, transparent 50%);
+            background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%, 100% 100%;
+            animation: bgDrift 18s ease-in-out infinite alternate;
+        }
+        @keyframes bgDrift {
+            0% { background-position: 0 0, 0 0, 5% 95%, 95% 5%, 50% 50%; }
+            100% { background-position: 0 0, 0 0, 15% 78%, 78% 22%, 48% 52%; }
+        }
+        .app-container { display: flex; height: 100vh; position: relative; z-index: 1; margin-left: 260px; }
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+            background: linear-gradient(180deg, var(--bg-secondary), rgba(8,12,22,0.98));
+            border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; z-index: 1000;
+            box-shadow: 1px 0 40px rgba(0,170,255,0.08);
+        }
+        .sidebar::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 200px 300px at 0% 0%, rgba(255,34,85,0.08) 0%, transparent 70%),
+                        radial-gradient(ellipse 180px 250px at 0% 100%, rgba(0,170,255,0.06) 0%, transparent 70%);
+            z-index: 0;
+        }
+        .sidebar > * { position: relative; z-index: 1; }
+        .sidebar-header {
+            padding: 24px; border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        .sidebar-header::after {
+            content: ''; position: absolute; bottom: -1px; left: 24px; right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--neon-pink), var(--neon-blue), transparent);
+            opacity: 0.7;
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 12px; font-size: 17px; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .sidebar-logo i { font-size: 28px; color: var(--accent); filter: drop-shadow(0 0 12px rgba(255,34,85,0.6)); }
+        .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 12px; }
+        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-section-toggle {
+            display: flex; align-items: center; justify-content: space-between; width: 100%;
+            padding: 8px 12px; background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.8px; transition: 0.15s;
+        }
+        .sidebar-section-toggle:hover { background: var(--bg-hover); border-radius: var(--radius-sm); }
+        .sidebar-section-title { background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-section-chevron { width: 14px; height: 14px; transition: transform 0.2s; color: var(--text-muted); }
+        .sidebar-section.collapsed .sidebar-section-chevron { transform: rotate(-90deg); }
+        .sidebar-section-links { overflow: hidden; max-height: 500px; transition: max-height 0.25s; }
+        .sidebar-section.collapsed .sidebar-section-links { max-height: 0; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
+            border-radius: var(--radius-md); transition: all 0.2s; margin-bottom: 2px; cursor: pointer;
+        }
+        .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .sidebar-link.active {
+            background: rgba(255,34,85,0.08); color: var(--accent); border-left: 3px solid var(--accent);
+        }
+        .sidebar-link i { width: 18px; text-align: center; opacity: 0.7; }
+        .sidebar-link:hover i, .sidebar-link.active i { opacity: 1; }
+        .sidebar-link.locked { opacity: 0.35; cursor: not-allowed; }
+        .sidebar-lock-icon { margin-left: auto; opacity: 0.6; width: 14px; height: 14px; }
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .sidebar-user:hover { background: rgba(255,255,255,0.05); }
+        .sidebar-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent), #aa55ff);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-user-avatar::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink), var(--neon-blue));
+            z-index: -1;
+            opacity: 0.8;
+            box-shadow: 0 0 15px rgba(255,34,85,0.4);
+        }
+        .sidebar-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: none;
+        }
+        .sidebar-user-avatar i {
+            font-size: 18px;
+            color: white;
+        }
+        .sidebar-user-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .sidebar-email {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .main-content { flex: 1; overflow-y: auto; padding: 32px 40px; background: transparent; }
+        .page-header { margin-bottom: 32px; }
+        .page-title {
+            font-size: 26px; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink), var(--neon-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .page-description { color: var(--text-secondary); font-size: 15px; }
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .card:hover { border-color: rgba(0,170,255,0.25); box-shadow: 0 0 30px rgba(0,170,255,0.08); }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .leaderboard-item:hover {
+            border-color: rgba(0,170,255,0.2);
+            box-shadow: 0 0 20px rgba(0,170,255,0.05);
+        }
+        .leaderboard-rank {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            width: 50px;
+            color: var(--text-muted);
+        }
+        .leaderboard-rank.gold { color: #ffd700; }
+        .leaderboard-rank.silver { color: #c0c0c0; }
+        .leaderboard-rank.bronze { color: #cd7f32; }
+
+        .leaderboard-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--neon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .leaderboard-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .leaderboard-avatar i {
+            font-size: 18px;
+            color: white;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .leaderboard-username {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+        .leaderboard-hits {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .leaderboard-hits i {
+            margin-right: 4px;
+            color: var(--neon-blue);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 16px; left: 16px;
+            z-index: 1001;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--accent);
+            padding: 12px;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        @media (max-width: 768px) {
+            .app-container { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            .main-content { padding: 20px; }
+            .sidebar-toggle { display: block; }
+        }
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+        }
+        body.sidebar-open .sidebar-backdrop { display: block; }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-backdrop" onclick="document.body.classList.remove('sidebar-open')"></div>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-skull"></i>
+                <span>Scripty Core</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">
+                <div class="sidebar-section-toggle" onclick="this.closest('.sidebar-section').classList.toggle('collapsed')">
+                    <span class="sidebar-section-title">Overview</span>
+                    <svg class="sidebar-section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="sidebar-section-links">
+                    <a href="dashboard.html" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="hits.html" class="sidebar-link"><i class="fas fa-list-ul"></i> Hits</a>
+                    <a href="builder.html" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
+                    <a href="leaderboard.html" class="sidebar-link active"><i class="fas fa-trophy"></i> Leaderboard</a>
+                </div>
+            </div>
+        </nav>
+        <div class="sidebar-footer" onclick="logout()">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" id="userAvatar">
+                    <img id="avatarImg" src="" alt="Avatar" />
+                    <i class="fas fa-user-secret" id="defaultAvatarIcon"></i>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;">
+                    <span class="sidebar-user-name" id="sidebarUsername">Anonymous</span>
+                    <span class="sidebar-email" id="sidebarEmail">loading...</span>
+                </div>
+                <span style="margin-left:auto;font-size:12px;color:var(--text-muted);"><i class="fas fa-sign-out-alt"></i></span>
+            </div>
+        </div>
+    </aside>
+
+    <div class="app-container">
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Leaderboard</h1>
+                <p class="page-description">Top collectors ranked by total hits</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-trophy text-pink"></i> Global Rankings</span>
+                    <span style="font-size:13px;color:var(--text-muted);">Updated in real‑time</span>
+                </div>
+                <div id="leaderboardContainer">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading rankings...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        (function() {
+            if (typeof window.__sbClient === 'undefined') {
+                const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
+                const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
+                window.__sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            const sb = window.__sbClient;
+
+            let currentUser = null;
+
+            window.logout = async function() {
+                await sb.auth.signOut();
+                window.location.href = 'login.html';
+            };
+
+            async function fetchLeaderboard() {
+                const container = document.getElementById('leaderboardContainer');
+
+                // Query to get hit counts per user_id
+                const { data: hitsData, error: hitsError } = await sb
+                    .from('victims')
+                    .select('user_id')
+                    .then(res => res); // Actually we need to group by, but we can do it client-side
+                if (hitsError) {
+                    container.innerHTML = `<div class="empty">Error loading leaderboard: ${hitsError.message}</div>`;
+                    return;
+                }
+
+                // Count hits per user
+                const userCounts = {};
+                hitsData.forEach(row => {
+                    const uid = row.user_id;
+                    userCounts[uid] = (userCounts[uid] || 0) + 1;
+                });
+
+                const userIds = Object.keys(userCounts);
+                if (userIds.length === 0) {
+                    container.innerHTML = `<div class="empty">No hits recorded yet.</div>`;
+                    return;
+                }
+
+                // Fetch profiles for these user_ids
+                const { data: profiles, error: profilesError } = await sb
+                    .from('profiles')
+                    .select('id, username, avatar_url')
+                    .in('id', userIds);
+
+                if (profilesError) {
+                    container.innerHTML = `<div class="empty">Error loading profiles: ${profilesError.message}</div>`;
+                    return;
+                }
+
+                // Merge counts with profiles
+                const merged = profiles.map(p => ({
+                    ...p,
+                    hits: userCounts[p.id] || 0
+                })).filter(p => p.hits > 0);
+
+                // Sort descending by hits
+                merged.sort((a, b) => b.hits - a.hits);
+
+                if (merged.length === 0) {
+                    container.innerHTML = `<div class="empty">No profiles with hits.</div>`;
+                    return;
+                }
+
+                // Render
+                let html = `<div class="leaderboard-list">`;
+                merged.forEach((item, index) => {
+                    const rank = index + 1;
+                    let rankClass = '';
+                    if (rank === 1) rankClass = 'gold';
+                    else if (rank === 2) rankClass = 'silver';
+                    else if (rank === 3) rankClass = 'bronze';
+
+                    const avatarHtml = item.avatar_url
+                        ? `<img src="${item.avatar_url}" alt="${item.username || 'User'}" />`
+                        : `<i class="fas fa-user-secret"></i>`;
+
+                    html += `
+                        <div class="leaderboard-item">
+                            <div class="leaderboard-rank ${rankClass}">#${rank}</div>
+                            <div class="leaderboard-avatar">${avatarHtml}</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-username">${item.username || 'Unknown User'}</div>
+                                <div class="leaderboard-hits"><i class="fas fa-users"></i> ${item.hits} hit${item.hits > 1 ? 's' : ''}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                container.innerHTML = html;
+            }
+
+            // --- Init ---
+            sb.auth.getSession().then(({ data: { session } }) => {
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                currentUser = session.user;
+
+                // Set sidebar user
+                const user = session.user;
+                const avatarUrl = user.user_metadata?.avatar_url || '';
+                const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+                const email = user.email || '';
+                document.getElementById('sidebarUsername').textContent = userName;
+                document.getElementById('sidebarEmail').textContent = email;
+                const avatarImg = document.getElementById('avatarImg');
+                const defaultIcon = document.getElementById('defaultAvatarIcon');
+                if (avatarUrl) {
+                    avatarImg.src = avatarUrl;
+                    avatarImg.style.display = 'block';
+                    defaultIcon.style.display = 'none';
+                } else {
+                    avatarImg.style.display = 'none';
+                    defaultIcon.style.display = 'block';
+                }
+
+                // Upsert profile
+                sb.from('profiles').upsert({
+                    id: user.id,
+                    username: userName,
+                    avatar_url: avatarUrl,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' }).then(({ error }) => {
+                    if (error) console.warn('Profile upsert failed:', error);
+                });
+
+                fetchLeaderboard();
+            });
+
+            // Refresh every 60 seconds
+            setInterval(() => { if (currentUser) fetchLeaderboard(); }, 60000);
+        })();
+    </script>
+</body>
+</html>

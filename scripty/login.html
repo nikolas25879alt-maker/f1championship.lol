@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Silent Net · Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+                /* Firefox */
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #6b7280 #111827;
+        }
+        
+        /* Chrome, Edge, Safari */
+        ::-webkit-scrollbar {
+          width: 12px;
+          height: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #111827;
+          border-radius: 999px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(
+            180deg,
+            #8b5cf6,
+            #6366f1
+          );
+          border-radius: 999px;
+          border: 3px solid #111827;
+          transition: background 0.2s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(
+            180deg,
+            #a78bfa,
+            #818cf8
+          );
+        }
+        
+        ::-webkit-scrollbar-thumb:active {
+          background: linear-gradient(
+            180deg,
+            #7c3aed,
+            #4f46e5
+          );
+        }
+        
+        ::-webkit-scrollbar-corner {
+          background: #111827;
+        }
+        :root {
+            --bg-primary: #06080f;
+            --bg-secondary: #0a0e1a;
+            --bg-tertiary: #101525;
+            --border-color: rgba(100, 150, 255, 0.12);
+            --text-primary: #eef2fa;
+            --text-secondary: #9aa8c2;
+            --text-muted: #5a6a85;
+            --accent: #ff2255;
+            --neon-pink: #ff44aa;
+            --neon-blue: #00aaff;
+            --neon-purple: #aa55ff;
+            --success: #00ff88;
+            --danger: #ff2255;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                linear-gradient(rgba(0,170,255,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,170,255,0.06) 1px, transparent 1px),
+                radial-gradient(ellipse 900px 900px at 0% 100%, rgba(255,34,85,0.35) 0%, transparent 50%),
+                radial-gradient(ellipse 850px 850px at 100% 0%, rgba(0,170,255,0.30) 0%, transparent 50%),
+                radial-gradient(ellipse 700px 700px at 50% 50%, rgba(170,85,255,0.22) 0%, transparent 50%);
+            background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%, 100% 100%;
+            animation: bgDrift 18s ease-in-out infinite alternate;
+        }
+        @keyframes bgDrift {
+            0% { background-position: 0 0, 0 0, 5% 95%, 95% 5%, 50% 50%; }
+            100% { background-position: 0 0, 0 0, 15% 78%, 78% 22%, 48% 52%; }
+        }
+        .auth-container {
+            max-width: 400px;
+            width: 90%;
+            padding: 40px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            z-index: 1;
+            position: relative;
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo i { font-size: 32px; color: var(--accent); margin-right: 8px; }
+        .btn-discord {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #5865F2;
+            color: white;
+            box-shadow: 0 0 20px rgba(88,101,242,0.4);
+        }
+        .btn-discord:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(88,101,242,0.6);
+        }
+        .btn-discord i { font-size: 24px; }
+        .btn-discord:disabled { opacity: 0.6; cursor: not-allowed; }
+        .error-msg {
+            color: var(--danger);
+            margin-top: 16px;
+            display: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo"><i class="fas fa-skull"></i> Silent Net</div>
+        <button class="btn-discord" id="loginBtn" onclick="loginWithDiscord()">
+            <i class="fab fa-discord"></i> Login with Discord
+        </button>
+        <div id="loginError" class="error-msg"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loginWithDiscord() {
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
+            document.getElementById('loginError').style.display = 'none';
+            try {
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'discord',
+                    options: {
+                        redirectTo: window.location.origin + '/dashboard.html'
+                    }
+                });
+                if (error) throw error;
+            } catch (err) {
+                document.getElementById('loginError').textContent = err.message;
+                document.getElementById('loginError').style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fab fa-discord"></i> Login with Discord';
+            }
+        }
+
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (session) window.location.href = 'dashboard.html';
+        });
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>
