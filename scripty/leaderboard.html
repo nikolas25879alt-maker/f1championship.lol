@@ -956,7 +956,19 @@
                 </div>
             </div>
         </nav>
-        <div class="sidebar-footer" onclick="logout()">
+        <div class="sidebar-footer" onclick="window.location.href='account.html'">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" id="userAvatar">
+                    <img id="avatarImg" src="" alt="Avatar" />
+                    <i class="fas fa-user-secret" id="defaultAvatarIcon"></i>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;">
+                    <span class="sidebar-user-name" id="sidebarUsername">Anonymous</span>
+                    <span class="sidebar-email" id="sidebarEmail">loading...</span>
+                </div>
+                <span style="margin-left:auto;font-size:12px;color:var(--text-muted);"><i class="fas fa-user-cog"></i></span>
+            </div>
+        </div>
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar" id="userAvatar">
                     <img id="avatarImg" src="" alt="Avatar" />
