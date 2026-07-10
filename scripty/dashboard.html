@@ -782,25 +782,53 @@
                     if (error) throw error;
                     allVictims = data || [];
                 
+                    // 2. Calculate Global Rank — uses same RPC as leaderboard, with fallback
                     try {
+                        // First, try the RPC (same as leaderboard)
                         const { data: leaderboard, error: lbError } = await supabaseClient.rpc('get_leaderboard');
-                        if (lbError) throw lbError;
+                        
+                        let rank = 'N/A';
+                        let found = false;
                     
-                        if (leaderboard && leaderboard.length > 0) {
-                            // Find current user's rank (1‑based)
-                            let rank = 'N/A';
+                        if (!lbError && leaderboard && leaderboard.length > 0) {
                             for (let i = 0; i < leaderboard.length; i++) {
                                 if (leaderboard[i].user_id === currentUser.id) {
                                     rank = `#${i + 1}`;
+                                    found = true;
                                     break;
                                 }
                             }
-                            document.getElementById('globalRank').textContent = rank;
-                        } else {
-                            document.getElementById('globalRank').textContent = 'N/A (no victims)';
                         }
+                    
+                        // If RPC failed or user not found, fall back to client-side calculation
+                        if (!found) {
+                            console.log('RPC leaderboard empty or user not found, using fallback...');
+                            // Count hits per user from victims table
+                            const { data: allUsers, error: countError } = await supabaseClient
+                                .from('victims')
+                                .select('user_id');
+                        
+                            if (!countError && allUsers && allUsers.length > 0) {
+                                const userCounts = {};
+                                allUsers.forEach(v => {
+                                    const uid = v.user_id;
+                                    if (uid) userCounts[uid] = (userCounts[uid] || 0) + 1;
+                                });
+                                const sorted = Object.entries(userCounts).sort((a, b) => b[1] - a[1]);
+                                for (let i = 0; i < sorted.length; i++) {
+                                    if (sorted[i][0] === currentUser.id) {
+                                        rank = `#${i + 1}`;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                rank = 'N/A (no victims)';
+                            }
+                        }
+                    
+                        document.getElementById('globalRank').textContent = rank;
                     } catch (rankErr) {
-                        console.warn('Rank calculation failed:', rankErr);
+                        console.error('Rank calculation failed:', rankErr);
                         document.getElementById('globalRank').textContent = 'Error';
                     }
                 
