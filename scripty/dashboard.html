@@ -783,52 +783,51 @@
                     allVictims = data || [];
                 
                     // 2. Calculate Global Rank — uses same RPC as leaderboard, with fallback
+                    // 2. Calculate Global Rank — uses same RPC as leaderboard
                     try {
-                        // First, try the RPC (same as leaderboard)
                         const { data: leaderboard, error: lbError } = await supabaseClient.rpc('get_leaderboard');
-                        
-                        let rank = 'N/A';
-                        let found = false;
                     
-                        if (!lbError && leaderboard && leaderboard.length > 0) {
-                            for (let i = 0; i < leaderboard.length; i++) {
-                                if (leaderboard[i].user_id === currentUser.id) {
-                                    rank = `#${i + 1}`;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                    
-                        // If RPC failed or user not found, fall back to client-side calculation
-                        if (!found) {
-                            console.log('RPC leaderboard empty or user not found, using fallback...');
-                            // Count hits per user from victims table
+                        // Handle RPC error
+                        if (lbError) {
+                            console.warn('Leaderboard RPC error:', lbError);
+                            // Fallback: count manually
                             const { data: allUsers, error: countError } = await supabaseClient
                                 .from('victims')
                                 .select('user_id');
-                        
                             if (!countError && allUsers && allUsers.length > 0) {
-                                const userCounts = {};
-                                allUsers.forEach(v => {
-                                    const uid = v.user_id;
-                                    if (uid) userCounts[uid] = (userCounts[uid] || 0) + 1;
-                                });
-                                const sorted = Object.entries(userCounts).sort((a, b) => b[1] - a[1]);
+                                const counts = {};
+                                allUsers.forEach(v => { if (v.user_id) counts[v.user_id] = (counts[v.user_id] || 0) + 1; });
+                                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                                let rank = 'N/A';
                                 for (let i = 0; i < sorted.length; i++) {
-                                    if (sorted[i][0] === currentUser.id) {
-                                        rank = `#${i + 1}`;
-                                        break;
-                                    }
+                                    if (sorted[i][0] === currentUser.id) { rank = `#${i + 1}`; break; }
                                 }
+                                document.getElementById('globalRank').textContent = rank;
                             } else {
-                                rank = 'N/A (no victims)';
+                                document.getElementById('globalRank').textContent = 'N/A';
+                            }
+                            return;
+                        }
+                    
+                        // No data = no hits
+                        if (!leaderboard || leaderboard.length === 0) {
+                            document.getElementById('globalRank').textContent = 'N/A (no hits)';
+                            return;
+                        }
+                    
+                        // 🔥 THE FIX: check BOTH 'id' AND 'user_id'
+                        let rank = 'N/A';
+                        for (let i = 0; i < leaderboard.length; i++) {
+                            const userId = leaderboard[i].id || leaderboard[i].user_id;
+                            if (userId === currentUser.id) {
+                                rank = `#${i + 1}`;
+                                break;
                             }
                         }
                     
                         document.getElementById('globalRank').textContent = rank;
                     } catch (rankErr) {
-                        console.error('Rank calculation failed:', rankErr);
+                        console.error('Rank calculation error:', rankErr);
                         document.getElementById('globalRank').textContent = 'Error';
                     }
                 
