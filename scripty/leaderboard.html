@@ -9,56 +9,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
     <style>
         /* ===== Full Theme ===== */
-                /* Firefox */
         * {
-          scrollbar-width: thin;
-          scrollbar-color: #6b7280 #111827;
+            scrollbar-width: thin;
+            scrollbar-color: #6b7280 #111827;
         }
-        
-        /* Chrome, Edge, Safari */
         ::-webkit-scrollbar {
-          width: 12px;
-          height: 12px;
+            width: 12px;
+            height: 12px;
         }
-        
         ::-webkit-scrollbar-track {
-          background: #111827;
-          border-radius: 999px;
+            background: #111827;
+            border-radius: 999px;
         }
-        
         ::-webkit-scrollbar-thumb {
-          background: linear-gradient(
-            180deg,
-            #8b5cf6,
-            #6366f1
-          );
-          border-radius: 999px;
-          border: 3px solid #111827;
-          transition: background 0.2s ease;
+            background: linear-gradient(180deg, #8b5cf6, #6366f1);
+            border-radius: 999px;
+            border: 3px solid #111827;
+            transition: background 0.2s ease;
         }
-        
         ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(
-            180deg,
-            #a78bfa,
-            #818cf8
-          );
+            background: linear-gradient(180deg, #a78bfa, #818cf8);
         }
-        
         ::-webkit-scrollbar-thumb:active {
-          background: linear-gradient(
-            180deg,
-            #7c3aed,
-            #4f46e5
-          );
+            background: linear-gradient(180deg, #7c3aed, #4f46e5);
         }
-        
         ::-webkit-scrollbar-corner {
-          background: #111827;
+            background: #111827;
         }
+
         :root {
             --bg-primary: #06080f;
             --bg-secondary: #0a0e1a;
@@ -235,115 +215,632 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .page-description { color: var(--text-secondary); font-size: 15px; }
-        .card {
+
+        /* ===== NEW LEADERBOARD STYLES ===== */
+        .leaderboard-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .podium-section {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 1.5rem;
+            padding: 3rem 1rem 2rem;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        .card:hover { border-color: rgba(0,170,255,0.25); box-shadow: 0 0 30px rgba(0,170,255,0.08); }
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan), var(--neon-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .leaderboard-list {
+        .podium-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), #ff44aa, var(--accent), transparent);
+            box-shadow: 0 0 30px var(--accent), 0 0 60px var(--accent), 0 0 90px rgba(255, 34, 85, 0.5);
+        }
+
+        .podium-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(255, 34, 85, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .podium-card {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-        }
-        .leaderboard-item {
-            display: flex;
             align-items: center;
-            gap: 16px;
-            padding: 12px 16px;
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-md);
-            border: 1px solid transparent;
-            transition: all 0.2s ease;
+            position: relative;
+            z-index: 1;
         }
-        .leaderboard-item:hover {
-            border-color: rgba(0,170,255,0.2);
-            box-shadow: 0 0 20px rgba(0,170,255,0.05);
-        }
-        .leaderboard-rank {
-            font-size: 18px;
-            font-weight: 700;
-            font-family: var(--font-mono);
-            width: 50px;
-            color: var(--text-muted);
-        }
-        .leaderboard-rank.gold { color: #ffd700; }
-        .leaderboard-rank.silver { color: #c0c0c0; }
-        .leaderboard-rank.bronze { color: #cd7f32; }
 
-        .leaderboard-avatar {
-            width: 40px;
-            height: 40px;
+        .podium-card.gold { order: 2; }
+        .podium-card.silver { order: 1; }
+        .podium-card.bronze { order: 3; }
+
+        .podium-crown {
+            width: 44px;
+            height: 36px;
+            margin-bottom: 0.5rem;
+        }
+
+        .podium-crown svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 1)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.5));
+            animation: crownGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes crownGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 1)) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.5)); }
+            50% { filter: drop-shadow(0 0 12px rgba(255, 215, 0, 1)) drop-shadow(0 0 30px rgba(255, 215, 0, 1)) drop-shadow(0 0 60px rgba(255, 215, 0, 0.7)); }
+        }
+
+        .podium-avatar {
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--neon-purple));
+            background: var(--bg-tertiary);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            position: relative;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
             overflow: hidden;
-            flex-shrink: 0;
         }
-        .leaderboard-avatar img {
+
+        .podium-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .leaderboard-avatar i {
-            font-size: 18px;
+
+        .podium-card:hover .podium-avatar {
+            transform: translateY(-5px);
+        }
+
+        .gold .podium-avatar {
+            width: 88px;
+            height: 88px;
+            font-size: 1.75rem;
+            border: 2px solid #ffd700;
+            box-shadow:
+                0 0 25px rgba(255, 215, 0, 0.6),
+                0 0 50px rgba(255, 215, 0, 0.4),
+                0 0 75px rgba(255, 215, 0, 0.2),
+                inset 0 0 25px rgba(255, 215, 0, 0.15);
+            animation: goldPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes goldPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.6), 0 0 50px rgba(255, 215, 0, 0.4), 0 0 75px rgba(255, 215, 0, 0.2), inset 0 0 25px rgba(255, 215, 0, 0.15); }
+            50% { box-shadow: 0 0 35px rgba(255, 215, 0, 0.8), 0 0 70px rgba(255, 215, 0, 0.5), 0 0 100px rgba(255, 215, 0, 0.3), inset 0 0 30px rgba(255, 215, 0, 0.2); }
+        }
+
+        .silver .podium-avatar {
+            border: 2px solid #c0c0c0;
+            box-shadow:
+                0 0 20px rgba(192, 192, 192, 0.5),
+                0 0 40px rgba(192, 192, 192, 0.3),
+                0 0 60px rgba(192, 192, 192, 0.15),
+                inset 0 0 20px rgba(192, 192, 192, 0.1);
+            animation: silverPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes silverPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(192, 192, 192, 0.5), 0 0 40px rgba(192, 192, 192, 0.3), 0 0 60px rgba(192, 192, 192, 0.15), inset 0 0 20px rgba(192, 192, 192, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(192, 192, 192, 0.7), 0 0 55px rgba(192, 192, 192, 0.4), 0 0 80px rgba(192, 192, 192, 0.2), inset 0 0 25px rgba(192, 192, 192, 0.15); }
+        }
+
+        .bronze .podium-avatar {
+            border: 2px solid #cd7f32;
+            box-shadow:
+                0 0 20px rgba(205, 127, 50, 0.5),
+                0 0 40px rgba(205, 127, 50, 0.3),
+                0 0 60px rgba(205, 127, 50, 0.15),
+                inset 0 0 20px rgba(205, 127, 50, 0.1);
+            animation: bronzePulse 3s ease-in-out infinite 0.5s;
+        }
+
+        @keyframes bronzePulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(205, 127, 50, 0.5), 0 0 40px rgba(205, 127, 50, 0.3), 0 0 60px rgba(205, 127, 50, 0.15), inset 0 0 20px rgba(205, 127, 50, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(205, 127, 50, 0.7), 0 0 55px rgba(205, 127, 50, 0.4), 0 0 80px rgba(205, 127, 50, 0.2), inset 0 0 25px rgba(205, 127, 50, 0.15); }
+        }
+
+        .podium-rank {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        .gold .podium-rank {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #1a1a1a;
+            width: 28px;
+            height: 28px;
+            font-size: 0.875rem;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
+        }
+
+        .silver .podium-rank {
+            background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+            color: #1a1a1a;
+            box-shadow: 0 0 15px rgba(192, 192, 192, 0.7), 0 0 30px rgba(192, 192, 192, 0.3);
+        }
+
+        .bronze .podium-rank {
+            background: linear-gradient(135deg, #cd7f32, #a0522d);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(205, 127, 50, 0.7), 0 0 30px rgba(205, 127, 50, 0.3);
+        }
+
+        .podium-info {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .podium-username {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .podium-username.anonymous {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .podium-username .you-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            -webkit-text-fill-color: white;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            margin-left: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 0 15px rgba(255, 34, 85, 0.6);
+            animation: badgeGlow 2s ease-in-out infinite;
+            vertical-align: middle;
+        }
+
+        .gold .podium-username {
+            font-size: 1.1rem;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+        .gold .podium-username.anonymous {
+            color: #cca300;
+        }
+        .silver .podium-username {
+            color: #e0e0e0;
+            text-shadow: 0 0 10px rgba(192, 192, 192, 0.6), 0 0 20px rgba(192, 192, 192, 0.3);
+        }
+        .bronze .podium-username {
+            color: #daa06d;
+            text-shadow: 0 0 10px rgba(205, 127, 50, 0.6), 0 0 20px rgba(205, 127, 50, 0.3);
+        }
+
+        .podium-hits {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(255, 34, 85, 0.6), 0 0 20px rgba(255, 34, 85, 0.4);
+        }
+        .gold .podium-hits {
+            font-size: 1.5rem;
+            text-shadow: 0 0 15px rgba(255, 34, 85, 0.8), 0 0 30px rgba(255, 34, 85, 0.5), 0 0 45px rgba(255, 34, 85, 0.3);
+        }
+
+        .podium-stand {
+            width: 120px;
+            border-radius: 8px 8px 0 0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-tertiary);
+            opacity: 0.3;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gold .podium-stand {
+            height: 100px;
+            width: 140px;
+            border-color: rgba(255, 215, 0, 0.4);
+            background: linear-gradient(180deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.05) 30%, var(--bg-tertiary) 60%);
+            box-shadow: inset 0 0 40px rgba(255, 215, 0, 0.1), 0 0 30px rgba(255, 215, 0, 0.15);
+        }
+        .gold .podium-stand::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ffd700, transparent);
+            box-shadow: 0 0 20px #ffd700, 0 0 40px rgba(255, 215, 0, 0.6);
+        }
+        .silver .podium-stand {
+            height: 70px;
+            border-color: rgba(192, 192, 192, 0.4);
+            background: linear-gradient(180deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.03) 30%, var(--bg-tertiary) 60%);
+            box-shadow: inset 0 0 30px rgba(192, 192, 192, 0.08), 0 0 20px rgba(192, 192, 192, 0.1);
+        }
+        .silver .podium-stand::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #c0c0c0, transparent);
+            box-shadow: 0 0 15px rgba(192, 192, 192, 0.9), 0 0 30px rgba(192, 192, 192, 0.5);
+        }
+        .bronze .podium-stand {
+            height: 50px;
+            border-color: rgba(205, 127, 50, 0.4);
+            background: linear-gradient(180deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.03) 30%, var(--bg-tertiary) 60%);
+            box-shadow: inset 0 0 30px rgba(205, 127, 50, 0.08), 0 0 20px rgba(205, 127, 50, 0.1);
+        }
+        .bronze .podium-stand::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #cd7f32, transparent);
+            box-shadow: 0 0 15px rgba(205, 127, 50, 0.9), 0 0 30px rgba(205, 127, 50, 0.5);
+        }
+
+        .leaderboard-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .leaderboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), #aa55ff, var(--accent), transparent);
+            box-shadow: 0 0 20px var(--accent), 0 0 40px rgba(255, 34, 85, 0.5);
+        }
+
+        .list-row {
+            display: grid;
+            grid-template-columns: 70px 1fr 100px;
+            padding: 0.875rem 1.25rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .list-row.header {
+            background: var(--bg-tertiary);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            padding: 0.75rem 1.25rem;
+        }
+
+        .list-row:not(.header):last-child {
+            border-bottom: none;
+        }
+
+        .list-row:not(.header):hover {
+            background: rgba(255, 34, 85, 0.08);
+            box-shadow: inset 3px 0 0 var(--accent), inset 0 0 30px rgba(255, 34, 85, 0.05);
+        }
+
+        .list-row:not(.header):hover .list-rank {
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(255, 34, 85, 0.6);
+        }
+
+        .list-row.is-you {
+            background: linear-gradient(90deg, rgba(255, 34, 85, 0.15), rgba(255, 34, 85, 0.05));
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            margin: 0.5rem 0.75rem;
+            padding: 0.875rem 1rem;
+            box-shadow: 0 0 20px rgba(255, 34, 85, 0.3), 0 0 40px rgba(255, 34, 85, 0.15), inset 0 0 30px rgba(255, 34, 85, 0.05);
+            animation: youPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes youPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 34, 85, 0.3), 0 0 40px rgba(255, 34, 85, 0.15), inset 0 0 30px rgba(255, 34, 85, 0.05); }
+            50% { box-shadow: 0 0 30px rgba(255, 34, 85, 0.5), 0 0 60px rgba(255, 34, 85, 0.25), inset 0 0 40px rgba(255, 34, 85, 0.08); }
+        }
+
+        .list-row.is-you .list-rank {
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(255, 34, 85, 0.6);
+            font-weight: 700;
+        }
+
+        .list-row.is-you .list-username {
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(255, 34, 85, 0.5);
+            font-weight: 600;
+        }
+
+        .list-row.is-you .list-avatar {
+            box-shadow: 0 0 25px rgba(255, 34, 85, 0.7), 0 0 50px rgba(255, 34, 85, 0.4);
+        }
+
+        .list-row.is-you .list-hits {
+            text-shadow: 0 0 20px rgba(255, 34, 85, 0.8), 0 0 40px rgba(255, 34, 85, 0.4);
+        }
+
+        .you-badge {
+            background: var(--accent);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 0 15px rgba(255, 34, 85, 0.5);
+            animation: badgeGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes badgeGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 34, 85, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 34, 85, 0.8); }
+        }
+
+        .list-rank {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .list-user {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+
+        .list-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), #aa55ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(255, 34, 85, 0.4), 0 0 40px rgba(170, 85, 255, 0.2);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .list-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .list-row:not(.header):hover .list-avatar {
+            box-shadow: 0 0 30px rgba(255, 34, 85, 0.6), 0 0 60px rgba(170, 85, 255, 0.3);
+            transform: scale(1.08);
+        }
+
+        .list-user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+            min-width: 0;
+        }
+
+        .list-username {
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        .list-username.anonymous {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .list-row:not(.header):hover .list-username {
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(255, 34, 85, 0.6);
+        }
+
+        .list-userid {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .list-hits {
+            text-align: right;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(255, 34, 85, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .list-row:not(.header):hover .list-hits {
+            text-shadow: 0 0 20px rgba(255, 34, 85, 0.8), 0 0 40px rgba(255, 34, 85, 0.4);
+        }
+
+        .your-position-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255, 34, 85, 0.2), 0 0 80px rgba(255, 34, 85, 0.1), inset 0 0 60px rgba(255, 34, 85, 0.03);
+        }
+
+        .your-position-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent), 0 0 60px rgba(255, 34, 85, 0.5);
+        }
+
+        .your-position-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top left, rgba(255, 34, 85, 0.1), transparent 50%);
+            pointer-events: none;
+        }
+
+        .your-position-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .your-position-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), #ff44aa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 34, 85, 0.6), 0 0 60px rgba(255, 34, 85, 0.3);
+            animation: iconGlow 2s ease-in-out infinite;
+            overflow: hidden;
+            font-weight: 700;
+            font-size: 1rem;
             color: white;
         }
 
-        .leaderboard-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .leaderboard-username {
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--text-primary);
-        }
-        .leaderboard-hits {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-        .leaderboard-hits i {
-            margin-right: 4px;
-            color: var(--neon-blue);
+        .your-position-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
         }
 
-        .empty {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-muted);
-            font-style: italic;
+        .your-position-avatar svg {
+            width: 24px;
+            height: 24px;
+            color: white;
         }
-        .loading {
-            text-align: center;
-            padding: 40px;
+
+        @keyframes iconGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(255, 34, 85, 0.6), 0 0 60px rgba(255, 34, 85, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 34, 85, 0.8), 0 0 80px rgba(255, 34, 85, 0.4); }
+        }
+
+        .your-position-label {
+            font-size: 0.8rem;
             color: var(--text-secondary);
+        }
+
+        .your-position-label strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-top: 0.125rem;
+        }
+
+        .your-position-stats {
+            display: flex;
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .your-stat {
+            text-align: right;
+        }
+
+        .your-stat-value {
+            font-family: var(--font-mono);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(255, 34, 85, 0.6), 0 0 40px rgba(255, 34, 85, 0.3);
+        }
+
+        .your-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.125rem;
+        }
+
+        .loading-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
         }
 
         .sidebar-toggle {
@@ -359,13 +856,60 @@
             cursor: pointer;
             font-size: 24px;
         }
+
         @media (max-width: 768px) {
             .app-container { margin-left: 0; }
             .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
             body.sidebar-open .sidebar { transform: translateX(0); }
             .main-content { padding: 20px; }
             .sidebar-toggle { display: block; }
+            .podium-section {
+                gap: 0.75rem;
+                padding: 2rem 0.5rem 1.5rem;
+            }
+            .podium-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.25rem;
+            }
+            .gold .podium-avatar {
+                width: 72px;
+                height: 72px;
+                font-size: 1.5rem;
+            }
+            .podium-stand {
+                width: 90px;
+            }
+            .gold .podium-stand {
+                width: 110px;
+                height: 80px;
+            }
+            .silver .podium-stand { height: 55px; }
+            .bronze .podium-stand { height: 40px; }
+            .podium-crown {
+                width: 36px;
+                height: 30px;
+            }
+            .list-row {
+                grid-template-columns: 50px 1fr 70px;
+                padding: 0.75rem 1rem;
+            }
+            .list-userid {
+                display: none;
+            }
+            .your-position-card {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .your-position-left {
+                flex-direction: column;
+            }
+            .your-stat {
+                text-align: center;
+            }
         }
+
         .sidebar-backdrop {
             display: none;
             position: fixed;
@@ -434,13 +978,45 @@
                 <p class="page-description">Top collectors ranked by total hits</p>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-trophy text-pink"></i> Global Rankings</span>
-                    <span style="font-size:13px;color:var(--text-muted);">Updated in real‑time</span>
+            <div class="leaderboard-grid">
+                <!-- Podium -->
+                <div class="podium-section" id="podiumSection">
+                    <div class="loading-state">Loading rankings...</div>
                 </div>
-                <div id="leaderboardContainer">
-                    <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading rankings...</div>
+
+                <!-- List -->
+                <div class="leaderboard-card">
+                    <div class="list-row header">
+                        <span>Rank</span>
+                        <span>User</span>
+                        <span style="text-align: right;">Hits</span>
+                    </div>
+                    <div id="leaderboardList">
+                        <div class="loading-state">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Your position -->
+                <div class="your-position-card">
+                    <div class="your-position-left">
+                        <div class="your-position-avatar" id="yourAvatar">
+                            <i class="fas fa-user-secret"></i>
+                        </div>
+                        <div class="your-position-label">
+                            Your Position
+                            <strong id="yourPositionText">Loading...</strong>
+                        </div>
+                    </div>
+                    <div class="your-position-stats">
+                        <div class="your-stat">
+                            <div class="your-stat-value" id="yourRank">-</div>
+                            <div class="your-stat-label">Rank</div>
+                        </div>
+                        <div class="your-stat">
+                            <div class="your-stat-value" id="yourHits">-</div>
+                            <div class="your-stat-label">Hits</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -448,6 +1024,7 @@
 
     <script>
         (function() {
+            // Supabase client
             if (typeof window.__sbClient === 'undefined') {
                 const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
                 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
@@ -456,54 +1033,181 @@
             const sb = window.__sbClient;
 
             let currentUser = null;
+            let leaderboardData = [];
 
             window.logout = async function() {
                 await sb.auth.signOut();
                 window.location.href = 'login.html';
             };
 
-            async function fetchLeaderboard() {
-                const container = document.getElementById('leaderboardContainer');
+            function getInitials(username) {
+                if (!username) return '?';
+                return username.slice(0, 2).toUpperCase();
+            }
 
-                // Call the Supabase function that returns aggregated hits
-                const { data, error } = await sb.rpc('get_leaderboard');
+            function formatNumber(num) {
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+                if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+                return num;
+            }
 
-                if (error) {
-                    container.innerHTML = `<div class="empty">Error loading leaderboard: ${error.message}</div>`;
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function renderPodium(entries, myUserId) {
+                const container = document.getElementById('podiumSection');
+                const top3 = entries.slice(0, 3);
+
+                if (top3.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No entries yet</div>';
                     return;
                 }
-            
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<div class="empty">No hits recorded yet.</div>`;
-                    return;
-                }
-            
-                // Render
-                let html = `<div class="leaderboard-list">`;
-                data.forEach((item, index) => {
-                    const rank = index + 1;
-                    let rankClass = '';
-                    if (rank === 1) rankClass = 'gold';
-                    else if (rank === 2) rankClass = 'silver';
-                    else if (rank === 3) rankClass = 'bronze';
-                
-                    const avatarHtml = item.avatar_url
-                        ? `<img src="${item.avatar_url}" alt="${item.username || 'User'}" />`
-                        : `<i class="fas fa-user-secret"></i>`;
-                
-                    html += `
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank ${rankClass}">#${rank}</div>
-                            <div class="leaderboard-avatar">${avatarHtml}</div>
-                            <div class="leaderboard-info">
-                                <div class="leaderboard-username">${item.username || 'Unknown User'}</div>
-                                <div class="leaderboard-hits"><i class="fas fa-users"></i> ${item.hits} hit${item.hits > 1 ? 's' : ''}</div>
+
+                const classes = ['gold', 'silver', 'bronze'];
+                const crownSvg = `<svg viewBox="0 0 24 20" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 16L4 6L8 10L12 3L16 10L20 6L22 16H2Z"/>
+                    <line x1="2" y1="16" x2="22" y2="16"/>
+                    <circle cx="12" cy="3" r="1" fill="#ffd700" stroke="none"/>
+                    <circle cx="4" cy="6" r="0.75" fill="#ffd700" stroke="none"/>
+                    <circle cx="20" cy="6" r="0.75" fill="#ffd700" stroke="none"/>
+                </svg>`;
+
+                container.innerHTML = top3.map((user, idx) => {
+                    const cls = classes[idx];
+                    const isYou = user.user_id === myUserId;
+                    const displayName = isYou ? 'You' : (user.username || 'Anonymous');
+                    const isAnonymous = !user.username && !isYou;
+                    const usernameClasses = isAnonymous ? 'anonymous' : '';
+
+                    return `
+                        <div class="podium-card ${cls}">
+                            ${idx === 0 ? `<div class="podium-crown">${crownSvg}</div>` : ''}
+                            <div class="podium-avatar">
+                                ${user.avatar_url ? `<img src="${user.avatar_url}" alt="Avatar" />` : getInitials(displayName)}
+                                <div class="podium-rank">#${user.rank}</div>
                             </div>
+                            <div class="podium-info">
+                                <div class="podium-username ${usernameClasses}">${escapeHtml(displayName)}${isYou ? '<span class="you-badge">You</span>' : ''}</div>
+                                <div class="podium-hits">${formatNumber(user.hits)}</div>
+                            </div>
+                            <div class="podium-stand">#${user.rank}</div>
                         </div>
                     `;
-                });
-                html += `</div>`;
-                container.innerHTML = html;
+                }).join('');
+            }
+
+            function renderList(entries, myUserId) {
+                const container = document.getElementById('leaderboardList');
+                const rest = entries.slice(3);
+
+                if (rest.length === 0) {
+                    container.innerHTML = '';
+                    return;
+                }
+
+                container.innerHTML = rest.map(user => {
+                    const isYou = user.user_id === myUserId;
+                    const displayName = isYou ? 'You' : (user.username || 'Anonymous');
+                    const isAnonymous = !user.username && !isYou;
+                    const usernameClasses = isAnonymous ? 'anonymous' : '';
+
+                    return `
+                        <div class="list-row ${isYou ? 'is-you' : ''}">
+                            <span class="list-rank">#${user.rank}</span>
+                            <div class="list-user">
+                                <div class="list-avatar">${user.avatar_url ? `<img src="${user.avatar_url}" alt="Avatar" />` : getInitials(displayName)}</div>
+                                <div class="list-user-info">
+                                    <span class="list-username ${usernameClasses}">${escapeHtml(displayName)}${isYou ? '<span class="you-badge">You</span>' : ''}</span>
+                                </div>
+                            </div>
+                            <span class="list-hits">${formatNumber(user.hits)}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function renderYourPosition(you) {
+                const rankEl = document.getElementById('yourRank');
+                const hitsEl = document.getElementById('yourHits');
+                const textEl = document.getElementById('yourPositionText');
+                const avatarEl = document.getElementById('yourAvatar');
+
+                if (!you) {
+                    rankEl.textContent = '-';
+                    hitsEl.textContent = '0';
+                    textEl.textContent = 'No hits yet';
+                    avatarEl.innerHTML = '<i class="fas fa-user-secret"></i>';
+                    return;
+                }
+
+                if (you.avatar_url) {
+                    avatarEl.innerHTML = `<img src="${you.avatar_url}" alt="Your avatar" />`;
+                } else {
+                    avatarEl.innerHTML = `<i class="fas fa-user-secret"></i>`;
+                }
+
+                rankEl.textContent = `#${you.rank}`;
+                hitsEl.textContent = formatNumber(you.hits);
+
+                if (you.rank <= 3) {
+                    textEl.textContent = 'Top 3! Amazing!';
+                } else if (you.rank <= 10) {
+                    textEl.textContent = 'Top 10 - Keep it up!';
+                } else if (you.rank <= 30) {
+                    textEl.textContent = 'Keep climbing';
+                } else {
+                    textEl.textContent = 'Not in top 30 yet';
+                }
+            }
+
+            async function fetchLeaderboard() {
+                try {
+                    // Call the RPC
+                    const { data, error } = await sb.rpc('get_leaderboard');
+
+                    if (error) {
+                        console.error('RPC error:', error);
+                        document.getElementById('podiumSection').innerHTML = `<div class="empty-state">Error: ${error.message}</div>`;
+                        document.getElementById('leaderboardList').innerHTML = '';
+                        return;
+                    }
+
+                    if (!data || data.length === 0) {
+                        document.getElementById('podiumSection').innerHTML = '<div class="empty-state">No hits recorded yet.</div>';
+                        document.getElementById('leaderboardList').innerHTML = '';
+                        document.getElementById('yourRank').textContent = '-';
+                        document.getElementById('yourHits').textContent = '0';
+                        document.getElementById('yourPositionText').textContent = 'No hits yet';
+                        return;
+                    }
+
+                    // Add rank numbers (1-based)
+                    const ranked = data.map((item, index) => ({ ...item, rank: index + 1 }));
+
+                    // Find current user
+                    let currentUserEntry = null;
+                    if (currentUser) {
+                        for (const item of ranked) {
+                            if (item.user_id === currentUser.id) {
+                                currentUserEntry = item;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Render
+                    renderPodium(ranked, currentUser ? currentUser.id : null);
+                    renderList(ranked, currentUser ? currentUser.id : null);
+                    renderYourPosition(currentUserEntry);
+
+                } catch (err) {
+                    console.error('Error fetching leaderboard:', err);
+                    document.getElementById('podiumSection').innerHTML = '<div class="empty-state">Failed to load leaderboard</div>';
+                }
             }
 
             // --- Init ---
@@ -513,21 +1217,32 @@
                     return;
                 }
                 currentUser = session.user;
-                
+                                // ===== VIP RESTRICTION =====
                 const VIP_USERS = [
                     '60e9045c-274e-4573-b2cb-87493563b7a2',
-                    '8241d12f-6560-4be5-adc1-a4a22ca3d003',
+                    //'8241d12f-6560-4be5-adc1-a4a22ca3d003',
                     'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-                    // add more
+                    // add more VIP user IDs here
                 ];
 
                 function checkVip(userId) {
-                    // Always show the leaderboard for everyone
                     const overlay = document.getElementById('vipOverlay');
-                    if (overlay) overlay.style.display = 'none';
-                    document.querySelector('.app-container')?.style.setProperty('display', 'flex');
+                    if (!overlay) return;
+                    if (VIP_USERS.includes(userId)) {
+                        overlay.style.display = 'none';
+                        document.querySelector('.app-container')?.style.setProperty('display', 'flex');
+                    } else {
+                        overlay.style.display = 'flex';
+                        document.querySelector('.app-container')?.style.setProperty('display', 'none');
+                    }
                 }
                 checkVip(currentUser.id);
+                // ===== END VIP =====
+
+                // VIP check (show for everyone)
+                const overlay = document.getElementById('vipOverlay');
+                if (overlay) overlay.style.display = 'none';
+                document.querySelector('.app-container')?.style.setProperty('display', 'flex');
 
                 // Set sidebar user
                 const user = session.user;
@@ -547,16 +1262,15 @@
                     defaultIcon.style.display = 'block';
                 }
 
-                // Upsert profile
+                // Upsert profile (optional)
                 sb.from('profiles').upsert({
                     id: user.id,
                     username: userName,
                     avatar_url: avatarUrl,
                     updated_at: new Date().toISOString()
-                }, { onConflict: 'id' }).then(({ error }) => {
-                    if (error) console.warn('Profile upsert failed:', error);
-                });
+                }, { onConflict: 'id' }).catch(err => console.warn('Profile upsert failed:', err));
 
+                // Load leaderboard
                 fetchLeaderboard();
             });
 
