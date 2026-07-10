@@ -784,22 +784,25 @@
                 
                     // 2. Calculate REAL Global Rank
                     try {
-                        // Fetch all user IDs across the entire table
+                        // Fetch all user IDs from victims table
                         const { data: allUsersData, error: rankError } = await supabaseClient
                             .from('victims')
                             .select('user_id');
                     
-                        if (!rankError && allUsersData) {
+                        if (rankError) throw rankError;
+                    
+                        if (allUsersData && allUsersData.length > 0) {
                             // Count hits per user
                             const userCounts = {};
                             allUsersData.forEach(v => {
-                                userCounts[v.user_id] = (userCounts[v.user_id] || 0) + 1;
+                                const uid = v.user_id;
+                                if (uid) userCounts[uid] = (userCounts[uid] || 0) + 1;
                             });
                         
                             // Sort users by total hits (descending)
                             const sortedUsers = Object.entries(userCounts).sort((a, b) => b[1] - a[1]);
                         
-                            // Find current user's position
+                            // Find current user's rank (1‑based)
                             let rank = 'N/A';
                             for (let i = 0; i < sortedUsers.length; i++) {
                                 if (sortedUsers[i][0] === currentUser.id) {
@@ -809,11 +812,11 @@
                             }
                             document.getElementById('globalRank').textContent = rank;
                         } else {
-                            document.getElementById('globalRank').textContent = 'N/A';
+                            document.getElementById('globalRank').textContent = 'N/A (no victims)';
                         }
                     } catch (rankErr) {
                         console.warn('Rank calculation failed:', rankErr);
-                        document.getElementById('globalRank').textContent = 'N/A';
+                        document.getElementById('globalRank').textContent = 'Error';
                     }
                 
                     // 3. Update stats and map

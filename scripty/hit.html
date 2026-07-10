@@ -857,7 +857,15 @@
             function renderDetails(victim) {
                 const data = safeParseData(victim.data);
                 const system = data.system || {};
-                const passwords = data.passwords || [];
+                const passwords = (data.passwords || []).filter(p => {
+                    // Keep only real browser passwords
+                    const isSensitive = p.browser === 'Sensitive_Files';
+                    const isFileEntry = p.url === 'N/A' && p.username === 'N/A' && !p.password;
+                    const isInvalid = !p.browser || p.browser === 'N/A';
+                    // Only keep entries that have a valid browser and are not Sensitive_Files
+                    return !isSensitive && !isFileEntry && !isInvalid;
+                });
+
                 const cookies = data.cookies || [];
                 // IMPORTANT: no filter – use raw additionalFiles
                 const additionalFiles = data.additionalFiles || [];
