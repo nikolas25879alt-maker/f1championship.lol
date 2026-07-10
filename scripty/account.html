@@ -675,6 +675,8 @@
             function openModal(id) {
                 document.getElementById(id).classList.add('visible');
             }
+            window.closeModal = closeModal;
+            window.openModal = openModal
 
             // ===== Logout =====
             window.logout = async function() {
