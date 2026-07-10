@@ -829,28 +829,46 @@
                     return;
                 }
                 try {
-                    // Upload to Supabase Storage
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
+                    const fileExt = file.name.split('.').pop().toLowerCase();
+                    // Use a simple, clean filename
+                    const fileName = `avatar.${fileExt}`;
+                    const fullPath = `${currentUser.id}/${fileName}`;
+                
+                    // 1. Try to delete existing avatar first (ignore if not found)
+                    try {
+                        await sb.storage.from('avatars').remove([fullPath]);
+                        console.log('Deleted old avatar');
+                    } catch (delErr) {
+                        // Ignore – file might not exist
+                        console.log('No existing avatar to delete');
+                    }
+                
+                    // 2. Upload new file
                     const { error: uploadError } = await sb.storage
                         .from('avatars')
-                        .upload(fileName, file, { upsert: true });
+                        .upload(fullPath, file, {
+                            contentType: file.type,
+                            cacheControl: '3600',
+                            upsert: false  // false because we already deleted old one
+                        });
+                    
                     if (uploadError) throw uploadError;
-
-                    // Get public URL
-                    const { data: urlData } = sb.storage.from('avatars').getPublicUrl(fileName);
+                    
+                    // 3. Get public URL
+                    const { data: urlData } = sb.storage.from('avatars').getPublicUrl(fullPath);
                     const publicUrl = urlData.publicUrl;
-
-                    // Update profile
+                    
+                    // 4. Update profile
                     const { error: updateError } = await sb
                         .from('profiles')
                         .upsert({ id: currentUser.id, avatar_url: publicUrl, updated_at: new Date().toISOString() }, { onConflict: 'id' });
                     if (updateError) throw updateError;
-
+                    
                     showToast('Avatar updated!');
                     loadProfile();
                     closeModal('avatarModal');
                 } catch (err) {
+                    console.error('Upload error:', err);
                     showToast('Upload failed: ' + err.message, 'error');
                 }
                 this.value = '';
