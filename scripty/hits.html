@@ -713,7 +713,7 @@
                 if (currentPage * PAGE_SIZE < filteredVictims.length) { currentPage++; renderTable(); updatePaginationInfo(); }
             });
 
-            supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
                 if (!session) { window.location.href = 'login.html'; return; }
                 currentUser = session.user;
                 const VIP_USERS = [
@@ -722,7 +722,6 @@
                     'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
                     // add more
                 ];
-
                 function checkVip(userId) {
                     const overlay = document.getElementById('vipOverlay');
                     if (!overlay) return;
@@ -735,14 +734,21 @@
                     }
                 }
                 checkVip(currentUser.id);
+            
                 const user = session.user;
-                const avatarUrl = user.user_metadata?.avatar_url || '';
-                const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-                const email = user.email || '';
-
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('username, avatar_url')
+                    .eq('id', currentUser.id)
+                    .single();
+            
+                let avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || '';
+                let userName = profile?.username || user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+                let email = user.email || '';
+            
                 document.getElementById('sidebarUsername').textContent = userName;
                 document.getElementById('sidebarEmail').textContent = email;
-
+            
                 const avatarImg = document.getElementById('avatarImg');
                 const defaultIcon = document.getElementById('defaultAvatarIcon');
                 if (avatarUrl) {
@@ -753,17 +759,21 @@
                     avatarImg.style.display = 'none';
                     defaultIcon.style.display = 'block';
                 }
-                supabaseClient.from('profiles').upsert({
-                    id: user.id,
-                    username: userName,
-                    avatar_url: avatarUrl,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'id' }).then(({ error }) => {
-                    if (error) console.warn('Profile upsert failed:', error);
-                });
-
+            
+                try {
+                    await supabaseClient.from('profiles').upsert({
+                        id: currentUser.id,
+                        username: userName,
+                        avatar_url: avatarUrl,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id' });
+                } catch (err) {
+                    console.warn('Profile upsert failed:', err);
+                }
+            
                 fetchData();
             });
+            
             setInterval(() => { if (currentUser) fetchData(); }, 30000);
         })();
     </script>

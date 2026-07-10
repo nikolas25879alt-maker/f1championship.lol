@@ -1257,14 +1257,12 @@
                     return;
                 }
                 currentUser = session.user;
-                                // ===== VIP RESTRICTION =====
+            
                 const VIP_USERS = [
                     '60e9045c-274e-4573-b2cb-87493563b7a2',
                     '8241d12f-6560-4be5-adc1-a4a22ca3d003',
                     'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-                    // add more VIP user IDs here
                 ];
-
                 function checkVip(userId) {
                     const overlay = document.getElementById('vipOverlay');
                     if (!overlay) return;
@@ -1277,15 +1275,21 @@
                     }
                 }
                 checkVip(currentUser.id);
-
-
-                // Set sidebar user
+            
                 const user = session.user;
-                const avatarUrl = user.user_metadata?.avatar_url || '';
-                const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-                const email = user.email || '';
+                const { data: profile, error: profileError } = await sb
+                    .from('profiles')
+                    .select('username, avatar_url')
+                    .eq('id', currentUser.id)
+                    .single();
+            
+                let avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || '';
+                let userName = profile?.username || user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+                let email = user.email || '';
+            
                 document.getElementById('sidebarUsername').textContent = userName;
                 document.getElementById('sidebarEmail').textContent = email;
+            
                 const avatarImg = document.getElementById('avatarImg');
                 const defaultIcon = document.getElementById('defaultAvatarIcon');
                 if (avatarUrl) {
@@ -1296,11 +1300,10 @@
                     avatarImg.style.display = 'none';
                     defaultIcon.style.display = 'block';
                 }
-
-                // Upsert profile (optional)
+            
                 try {
                     await sb.from('profiles').upsert({
-                        id: user.id,
+                        id: currentUser.id,
                         username: userName,
                         avatar_url: avatarUrl,
                         updated_at: new Date().toISOString()
@@ -1308,8 +1311,7 @@
                 } catch (err) {
                     console.warn('Profile upsert failed:', err);
                 }
-
-                // Load leaderboard
+            
                 fetchLeaderboard();
             });
 

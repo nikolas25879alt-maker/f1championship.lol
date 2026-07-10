@@ -1041,7 +1041,7 @@
             }
 
             // ===== INIT =====
-            supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
                 if (!session) { window.location.href = 'login.html'; return; }
                 currentUser = session.user;
                 const VIP_USERS = [
@@ -1050,7 +1050,6 @@
                     'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
                     // add more
                 ];
-
                 function checkVip(userId) {
                     const overlay = document.getElementById('vipOverlay');
                     if (!overlay) return;
@@ -1065,10 +1064,19 @@
                 checkVip(currentUser.id);
             
                 const user = session.user;
-                const avatarUrl = user.user_metadata?.avatar_url || '';
-                const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-                const email = user.email || '';
+                // 1. Fetch profile from profiles table
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('username, avatar_url')
+                    .eq('id', currentUser.id)
+                    .single();
             
+                // 2. Build final avatar & username
+                let avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || '';
+                let userName = profile?.username || user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+                let email = user.email || '';
+            
+                // 3. Update sidebar
                 document.getElementById('sidebarUsername').textContent = userName;
                 document.getElementById('sidebarEmail').textContent = email;
                 document.getElementById('dashUsername').textContent = userName || 'Admin';
@@ -1083,17 +1091,22 @@
                     avatarImg.style.display = 'none';
                     defaultIcon.style.display = 'block';
                 }
-                supabaseClient.from('profiles').upsert({
-                    id: user.id,
-                    username: userName,
-                    avatar_url: avatarUrl,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'id' }).then(({ error }) => {
-                    if (error) console.warn('Profile upsert failed:', error);
-                });
-
+            
+                // 4. Upsert profile (sync)
+                try {
+                    await supabaseClient.from('profiles').upsert({
+                        id: currentUser.id,
+                        username: userName,
+                        avatar_url: avatarUrl,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id' });
+                } catch (err) {
+                    console.warn('Profile upsert failed:', err);
+                }
+            
+                // 5. Load data
                 fetchData();
-
+            
                 const params = new URLSearchParams(window.location.search);
                 const viewId = params.get('view');
                 if (viewId) {

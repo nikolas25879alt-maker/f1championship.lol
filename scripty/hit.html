@@ -1215,18 +1215,45 @@
 
             document.getElementById('detailsId').textContent = victimId;
 
-            supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
                 if (!session) {
                     window.location.href = 'login.html';
                     return;
                 }
                 const user = session.user;
+                // VIP check
+                const VIP_USERS = [
+                    '60e9045c-274e-4573-b2cb-87493563b7a2',
+                    '8241d12f-6560-4be5-adc1-a4a22ca3d003',
+                    'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
+                ];
+                function checkVip(userId) {
+                    const overlay = document.getElementById('vipOverlay');
+                    if (!overlay) return;
+                    if (VIP_USERS.includes(userId)) {
+                        overlay.style.display = 'none';
+                        document.querySelector('.app-container')?.style.setProperty('display', 'flex');
+                    } else {
+                        overlay.style.display = 'flex';
+                        document.querySelector('.app-container')?.style.setProperty('display', 'none');
+                    }
+                }
                 checkVip(user.id);
-                const avatarUrl = user.user_metadata?.avatar_url || '';
-                const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-                const email = user.email || '';
+            
+                // Fetch profile
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('username, avatar_url')
+                    .eq('id', user.id)
+                    .single();
+            
+                let avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || '';
+                let userName = profile?.username || user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+                let email = user.email || '';
+            
                 document.getElementById('sidebarUsername').textContent = userName;
                 document.getElementById('sidebarEmail').textContent = email;
+            
                 const avatarImg = document.getElementById('avatarImg');
                 const defaultIcon = document.getElementById('defaultAvatarIcon');
                 if (avatarUrl) {
@@ -1237,7 +1264,19 @@
                     avatarImg.style.display = 'none';
                     defaultIcon.style.display = 'block';
                 }
-
+            
+                try {
+                    await supabaseClient.from('profiles').upsert({
+                        id: user.id,
+                        username: userName,
+                        avatar_url: avatarUrl,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id' });
+                } catch (err) {
+                    console.warn('Profile upsert failed:', err);
+                }
+            
+                // Victim fetch (unchanged)
                 supabaseClient.from('victims').select('*').eq('id', victimId).single().then(({ data, error }) => {
                     if (error) {
                         document.getElementById('detailsContent').innerHTML = `<div class="error">Error: ${error.message}</div>`;
