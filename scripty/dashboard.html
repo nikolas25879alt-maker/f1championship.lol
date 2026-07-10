@@ -782,30 +782,15 @@
                     if (error) throw error;
                     allVictims = data || [];
                 
-                    // 2. Calculate REAL Global Rank
                     try {
-                        // Fetch all user IDs from victims table
-                        const { data: allUsersData, error: rankError } = await supabaseClient
-                            .from('victims')
-                            .select('user_id');
+                        const { data: leaderboard, error: lbError } = await supabaseClient.rpc('get_leaderboard');
+                        if (lbError) throw lbError;
                     
-                        if (rankError) throw rankError;
-                    
-                        if (allUsersData && allUsersData.length > 0) {
-                            // Count hits per user
-                            const userCounts = {};
-                            allUsersData.forEach(v => {
-                                const uid = v.user_id;
-                                if (uid) userCounts[uid] = (userCounts[uid] || 0) + 1;
-                            });
-                        
-                            // Sort users by total hits (descending)
-                            const sortedUsers = Object.entries(userCounts).sort((a, b) => b[1] - a[1]);
-                        
+                        if (leaderboard && leaderboard.length > 0) {
                             // Find current user's rank (1‑based)
                             let rank = 'N/A';
-                            for (let i = 0; i < sortedUsers.length; i++) {
-                                if (sortedUsers[i][0] === currentUser.id) {
+                            for (let i = 0; i < leaderboard.length; i++) {
+                                if (leaderboard[i].user_id === currentUser.id) {
                                     rank = `#${i + 1}`;
                                     break;
                                 }
