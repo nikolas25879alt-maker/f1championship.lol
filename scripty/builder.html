@@ -9,56 +9,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
     <style>
         /* ===== Full Theme ===== */
-                /* Firefox */
         * {
-          scrollbar-width: thin;
-          scrollbar-color: #6b7280 #111827;
+            scrollbar-width: thin;
+            scrollbar-color: #6b7280 #111827;
         }
-        
-        /* Chrome, Edge, Safari */
         ::-webkit-scrollbar {
-          width: 12px;
-          height: 12px;
+            width: 12px;
+            height: 12px;
         }
-        
         ::-webkit-scrollbar-track {
-          background: #111827;
-          border-radius: 999px;
+            background: #111827;
+            border-radius: 999px;
         }
-        
         ::-webkit-scrollbar-thumb {
-          background: linear-gradient(
-            180deg,
-            #8b5cf6,
-            #6366f1
-          );
-          border-radius: 999px;
-          border: 3px solid #111827;
-          transition: background 0.2s ease;
+            background: linear-gradient(180deg, #8b5cf6, #6366f1);
+            border-radius: 999px;
+            border: 3px solid #111827;
+            transition: background 0.2s ease;
         }
-        
         ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(
-            180deg,
-            #a78bfa,
-            #818cf8
-          );
+            background: linear-gradient(180deg, #a78bfa, #818cf8);
         }
-        
         ::-webkit-scrollbar-thumb:active {
-          background: linear-gradient(
-            180deg,
-            #7c3aed,
-            #4f46e5
-          );
+            background: linear-gradient(180deg, #7c3aed, #4f46e5);
         }
-        
         ::-webkit-scrollbar-corner {
-          background: #111827;
+            background: #111827;
         }
+
         :root {
             --bg-primary: #06080f;
             --bg-secondary: #0a0e1a;
@@ -236,7 +216,6 @@
         }
         .page-description { color: var(--text-secondary); font-size: 15px; }
 
-        /* ===== Cards & Build List ===== */
         .card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -305,7 +284,6 @@
             font-family: var(--font-sans);
         }
         .btn i { font-size: 16px; }
-        .btn-sm { padding: 8px 16px; font-size: 13px; }
         .btn-primary {
             background: linear-gradient(135deg, var(--accent), var(--neon-pink));
             color: white;
@@ -316,72 +294,7 @@
             box-shadow: 0 0 20px rgba(255,68,170,0.4);
             transform: translateY(-2px);
         }
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), var(--neon-cyan));
-            color: #0a0a0f;
-            box-shadow: 0 0 12px rgba(0,255,136,0.3);
-        }
-        .btn-success:hover {
-            box-shadow: 0 0 24px rgba(0,255,136,0.5);
-            transform: translateY(-2px);
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger), #cc1133);
-            color: white;
-            box-shadow: 0 0 12px rgba(255,34,85,0.3);
-        }
-        .btn-danger:hover {
-            box-shadow: 0 0 24px rgba(255,34,85,0.5);
-            transform: translateY(-2px);
-        }
 
-        .build-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .build-card {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            transition: all 0.2s ease;
-        }
-        .build-card:hover {
-            border-color: rgba(0,170,255,0.25);
-            box-shadow: 0 0 20px rgba(0,170,255,0.06);
-        }
-        .build-card .build-name {
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--text-primary);
-        }
-        .build-card .build-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .build-card .build-actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .empty {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-muted);
-            font-style: italic;
-        }
-        .flex { display: flex; }
-        .gap-1 { gap: 8px; }
-        .mt-2 { margin-top: 16px; }
-        .text-muted { color: var(--text-muted); }
-        .text-accent { color: var(--accent); }
-        .mono { font-family: var(--font-mono); }
-
-        /* ===== Sidebar Toggle & Responsive ===== */
         .sidebar-toggle {
             display: none;
             position: fixed;
@@ -401,7 +314,6 @@
             body.sidebar-open .sidebar { transform: translateX(0); }
             .main-content { padding: 20px; }
             .sidebar-toggle { display: block; }
-            .build-list { grid-template-columns: 1fr; }
         }
         .sidebar-backdrop {
             display: none;
@@ -411,24 +323,14 @@
             z-index: 999;
         }
         body.sidebar-open .sidebar-backdrop { display: block; }
-        .page-header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .back-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        .back-link:hover { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,255,221,0.4); }
-        .back-link i { font-size: 14px; }
+
+        .empty { text-align: center; padding: 20px; color: var(--text-muted); font-style: italic; }
+        .flex { display: flex; }
+        .gap-1 { gap: 8px; }
+        .mt-2 { margin-top: 16px; }
+        .text-muted { color: var(--text-muted); }
+        .text-accent { color: var(--accent); }
+        .mono { font-family: var(--font-mono); }
     </style>
 </head>
 <body>
@@ -462,7 +364,7 @@
                 <div class="sidebar-section-links">
                     <a href="dashboard.html" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                     <a href="hits.html" class="sidebar-link"><i class="fas fa-list-ul"></i> Hits</a>
-                    <a href="#" class="sidebar-link active"><i class="fas fa-code"></i> Builder</a>
+                    <a href="builder.html" class="sidebar-link active"><i class="fas fa-code"></i> Builder</a>
                     <a href="leaderboard.html" class="sidebar-link"><i class="fas fa-trophy"></i> Leaderboard</a>
                 </div>
             </div>
@@ -486,18 +388,13 @@
         <main class="main-content">
             <div class="page-header">
                 <h1 class="page-title">Builder</h1>
-                <p class="page-description">Create a build and download a ready‑to‑use EXE</p>
+                <p class="page-description">Enter a build name and download your EXE instantly</p>
             </div>
 
             <div class="card">
-                <div class="card-header"><span class="card-title"><i class="fas fa-plus"></i> New Build</span></div>
-                <input type="text" id="buildName" class="input-field" placeholder="Build Name (e.g., 'My Stealer')" />
-                <button class="btn btn-primary" id="createBuildBtn" onclick="window.createBuild()"><i class="fas fa-plus"></i> Create EXE</button>
-            </div>
-
-            <div class="card">
-                <div class="card-header"><span class="card-title"><i class="fas fa-list"></i> Your Builds</span></div>
-                <div id="buildsList" class="build-list"></div>
+                <div class="card-header"><span class="card-title"><i class="fas fa-code"></i> Generate EXE</span></div>
+                <input type="text" id="buildName" class="input-field" placeholder="Build Name (e.g., 'MyStealer')" />
+                <button class="btn btn-primary" id="downloadBtn" onclick="window.downloadExe()"><i class="fas fa-download"></i> Download EXE</button>
             </div>
         </main>
     </div>
@@ -517,79 +414,38 @@
                 window.location.href = 'login.html';
             };
 
-            window.createBuild = async function() {
-                if (!currentUser) { alert('You must be logged in.'); return; }
-                const name = document.getElementById('buildName').value.trim();
-                if (!name) { alert('Please enter a build name.'); return; }
-                const btn = document.getElementById('createBuildBtn');
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-                try {
-                    const { data, error } = await sb.from('builds').insert({ name, user_id: currentUser.id }).select().single();
-                    if (error) throw error;
-                    document.getElementById('buildName').value = '';
-                    showToast('Build created!');
-                    fetchBuilds();
-                } catch (err) {
-                    alert('Error: ' + err.message);
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-plus"></i> Create EXE';
+            window.downloadExe = function() {
+                if (!currentUser) {
+                    alert('You must be logged in.');
+                    return;
                 }
-            };
+                const nameInput = document.getElementById('buildName');
+                const name = nameInput.value.trim();
+                if (!name) {
+                    alert('Please enter a build name.');
+                    nameInput.focus();
+                    return;
+                }
+                const btn = document.getElementById('downloadBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
 
-            window.deleteBuild = async function(id) {
-                if (!confirm('Delete this build?')) return;
-                try {
-                    const { error } = await sb.from('builds').delete().eq('id', id);
-                    if (error) throw error;
-                    showToast('Build deleted.');
-                    fetchBuilds();
-                } catch (err) { alert('Error: ' + err.message); }
-            };
-
-            window.downloadExe = function(buildId, buildName) {
-                const user_id = currentUser.id;
-                const cleanName = (buildName || 'ScriptyCore')
+                const cleanName = name
                     .replace(/[^a-zA-Z0-9_.-]/g, '_')
                     .replace(/_{2,}/g, '_')
                     .slice(0, 40) || 'ScriptyCore';
-                const workerUrl = `https://scripty.nikolas25879alt.workers.dev/?uid=${encodeURIComponent(user_id)}&name=${encodeURIComponent(cleanName)}`;
+                const workerUrl = `https://scripty.nikolas25879alt.workers.dev/?uid=${encodeURIComponent(currentUser.id)}&name=${encodeURIComponent(cleanName)}`;
                 const a = document.createElement('a');
                 a.href = workerUrl;
                 a.download = `${cleanName}.exe`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-download"></i> Download EXE';
                 showToast(`Downloading ${cleanName}.exe...`);
             };
-
-            function fetchBuilds() {
-                if (!currentUser) return;
-                sb.from('builds').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
-                    .then(({ data, error }) => {
-                        if (error) throw error;
-                        renderBuilds(data || []);
-                    })
-                    .catch(err => console.error(err));
-            }
-
-            function renderBuilds(builds) {
-                const container = document.getElementById('buildsList');
-                if (builds.length === 0) { container.innerHTML = '<div class="empty">No builds created yet.</div>'; return; }
-                container.innerHTML = builds.map(b => `
-                    <div class="build-card">
-                        <div class="build-name">${b.name}</div>
-                        <div class="build-meta">Created: ${new Date(b.created_at).toLocaleString()}</div>
-                        <div class="build-actions">
-                            <button class="btn btn-sm btn-success" onclick="window.downloadExe('${b.id}', '${b.name.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-download"></i> Download EXE
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="window.deleteBuild('${b.id}')"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-            }
 
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
@@ -605,16 +461,20 @@
                 }, 3000);
             }
 
-            sb.auth.getSession().then(({ data: { session } }) => {
-                if (!session) { window.location.href = 'login.html'; return; }
+            // --- Init ---
+            sb.auth.getSession().then(async ({ data: { session } }) => {
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
                 currentUser = session.user;
+
+                // VIP check
                 const VIP_USERS = [
                     '60e9045c-274e-4573-b2cb-87493563b7a2',
-                    '8241d12f-6560-4be5-adc1-a4a22ca3d003',
+                    // '8241d12f-6560-4be5-adc1-a4a22ca3d003',
                     'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-                    // add more
                 ];
-                            
                 function checkVip(userId) {
                     const overlay = document.getElementById('vipOverlay');
                     if (!overlay) return;
@@ -628,6 +488,7 @@
                 }
                 checkVip(currentUser.id);
 
+                // Sidebar user info
                 const user = session.user;
                 const avatarUrl = user.user_metadata?.avatar_url || '';
                 const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
@@ -646,16 +507,18 @@
                     avatarImg.style.display = 'none';
                     defaultIcon.style.display = 'block';
                 }
-                sb.from('profiles').upsert({
-                    id: user.id,
-                    username: userName,
-                    avatar_url: avatarUrl,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'id' }).then(({ error }) => {
-                    if (error) console.warn('Profile upsert failed:', error);
-                });
 
-                fetchBuilds();
+                // Optional: upsert profile
+                try {
+                    await sb.from('profiles').upsert({
+                        id: user.id,
+                        username: userName,
+                        avatar_url: avatarUrl,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id' });
+                } catch (err) {
+                    console.warn('Profile upsert failed:', err);
+                }
             });
         })();
     </script>
