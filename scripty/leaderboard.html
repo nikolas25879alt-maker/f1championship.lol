@@ -1166,44 +1166,84 @@
 
             async function fetchLeaderboard() {
                 try {
-                    // Call the RPC
+                    // 1. Get top 30 from RPC
                     const { data, error } = await sb.rpc('get_leaderboard');
-
-                    if (error) {
-                        console.error('RPC error:', error);
-                        document.getElementById('podiumSection').innerHTML = `<div class="empty-state">Error: ${error.message}</div>`;
-                        document.getElementById('leaderboardList').innerHTML = '';
-                        return;
-                    }
-
+                    if (error) throw error;
+                
+                    const container = document.getElementById('podiumSection');
+                    const listContainer = document.getElementById('leaderboardList');
+                
                     if (!data || data.length === 0) {
-                        document.getElementById('podiumSection').innerHTML = '<div class="empty-state">No hits recorded yet.</div>';
-                        document.getElementById('leaderboardList').innerHTML = '';
+                        container.innerHTML = '<div class="empty-state">No hits recorded yet.</div>';
+                        listContainer.innerHTML = '';
                         document.getElementById('yourRank').textContent = '-';
                         document.getElementById('yourHits').textContent = '0';
                         document.getElementById('yourPositionText').textContent = 'No hits yet';
                         return;
                     }
-
-                    // Add rank numbers (1-based)
+                
+                    // 2. Add rank numbers (1‑based)
                     const ranked = data.map((item, index) => ({ ...item, rank: index + 1 }));
-
-                    // Find current user
+                
+                    // 3. Try to find current user in the top 30
                     let currentUserEntry = null;
                     if (currentUser) {
                         for (const item of ranked) {
-                            if (item.user_id === currentUser.id) {
-                                currentUserEntry = item;
+                            // Check both id and user_id (RPC may return either)
+                            const userId = item.id || item.user_id;
+                            if (userId === currentUser.id) {
+                                currentUserEntry = { ...item, user_id: userId };
                                 break;
                             }
                         }
                     }
-
-                    // Render
+                
+                    // 4. If NOT found, get rank & hits manually from victims table
+                    if (!currentUserEntry && currentUser) {
+                        // Count total hits for this user
+                        const { count, error: countErr } = await sb
+                            .from('victims')
+                            .select('id', { count: 'exact', head: true })
+                            .eq('user_id', currentUser.id);
+                        if (countErr) throw countErr;
+                    
+                        // Count total hits for all users (to compute rank)
+                        const { data: allUsers, error: allErr } = await sb
+                            .from('victims')
+                            .select('user_id');
+                        if (allErr) throw allErr;
+                    
+                        // Build per-user counts
+                        const userCounts = {};
+                        allUsers.forEach(v => {
+                            if (v.user_id) userCounts[v.user_id] = (userCounts[v.user_id] || 0) + 1;
+                        });
+                        const sorted = Object.entries(userCounts).sort((a, b) => b[1] - a[1]);
+                    
+                        let rank = 0;
+                        for (let i = 0; i < sorted.length; i++) {
+                            if (sorted[i][0] === currentUser.id) {
+                                rank = i + 1;
+                                break;
+                            }
+                        }
+                    
+                        // Build a fake entry for the user
+                        currentUserEntry = {
+                            id: currentUser.id,
+                            user_id: currentUser.id,
+                            username: document.getElementById('sidebarUsername').textContent || 'You',
+                            avatar_url: '', // we will use default avatar
+                            hits: count || 0,
+                            rank: rank || 'N/A'
+                        };
+                    }
+                
+                    // 5. Render
                     renderPodium(ranked, currentUser ? currentUser.id : null);
                     renderList(ranked, currentUser ? currentUser.id : null);
                     renderYourPosition(currentUserEntry);
-
+                
                 } catch (err) {
                     console.error('Error fetching leaderboard:', err);
                     document.getElementById('podiumSection').innerHTML = '<div class="empty-state">Failed to load leaderboard</div>';
@@ -1237,12 +1277,7 @@
                     }
                 }
                 checkVip(currentUser.id);
-                // ===== END VIP =====
-
-                // VIP check (show for everyone)
-                const overlay = document.getElementById('vipOverlay');
-                if (overlay) overlay.style.display = 'none';
-                document.querySelector('.app-container')?.style.setProperty('display', 'flex');
+                
 
                 // Set sidebar user
                 const user = session.user;
