@@ -1220,11 +1220,9 @@
                 return name.slice(0, 2).toUpperCase();
             }
 
-            // ===== 🔍 Enhanced browser extraction: collect from passwords + cookies + data.browsers =====
             function extractBrowserNames(data) {
                 const browserSet = new Set();
 
-                // 1) from passwords
                 if (data.passwords && Array.isArray(data.passwords)) {
                     data.passwords.forEach(p => {
                         if (p.browser && typeof p.browser === 'string') {
@@ -1232,48 +1230,39 @@
                         }
                     });
                 }
-
-                // 2) from cookies
+            
                 if (data.cookies && Array.isArray(data.cookies)) {
                     data.cookies.forEach(c => {
-                        // some cookie objects have a 'browser' field
                         if (c.browser && typeof c.browser === 'string') {
                             browserSet.add(c.browser);
                         }
-                        // also try to infer from 'host' or 'domain'? skip, too fuzzy.
                     });
                 }
-
-                // 3) from the explicit data.browsers array (if present)
+            
                 if (data.browsers) {
                     if (Array.isArray(data.browsers)) {
                         data.browsers.forEach(b => {
                             if (typeof b === 'string') {
                                 browserSet.add(b);
-                            } else if (b && typeof b === 'object' && b.name && typeof b.name ===
-                                'string') {
+                            } else if (b && typeof b === 'object' && b.name && typeof b.name === 'string') {
                                 browserSet.add(b.name);
-                            } else if (b && typeof b === 'object' && b.browser && typeof b.browser ===
-                                'string') {
+                            } else if (b && typeof b === 'object' && b.browser && typeof b.browser === 'string') {
                                 browserSet.add(b.browser);
                             }
                         });
                     } else if (typeof data.browsers === 'string') {
-                        // sometimes it's a single string
                         browserSet.add(data.browsers);
                     }
                 }
-
-                // 4) also check data.browser (singular) if it exists
+            
                 if (data.browser && typeof data.browser === 'string') {
                     browserSet.add(data.browser);
                 }
-
-                // filter out generic / invalid names
+            
                 const result = Array.from(browserSet).filter(name =>
-                    name && name !== 'N/A' && name !== 'Unknown' && name !== 'undefined' && name.length > 1
+                    name && name !== 'N/A' && name !== 'Unknown' && name !== 'undefined' && name !== 'Sensitive_Files' && name.length > 1
                 );
-
+            
                 console.log('[extractBrowserNames] raw set:', Array.from(browserSet));
                 console.log('[extractBrowserNames] filtered result:', result);
                 return result;
