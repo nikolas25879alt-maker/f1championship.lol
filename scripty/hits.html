@@ -8,9 +8,10 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    </script>
     <style>
-        /* === Full Theme – same as before, kept intact === */
+        /* === Full Theme === */
         * {
             scrollbar-width: thin;
             scrollbar-color: #6b7280 #111827;
@@ -63,7 +64,11 @@
             --font-sans: 'Inter', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             background: var(--bg-primary);
             color: var(--text-primary);
@@ -78,76 +83,177 @@
             pointer-events: none;
             z-index: 0;
             background:
-                linear-gradient(rgba(0,170,255,0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,170,255,0.06) 1px, transparent 1px),
-                radial-gradient(ellipse 900px 900px at 0% 100%, rgba(255,34,85,0.35) 0%, transparent 50%),
-                radial-gradient(ellipse 850px 850px at 100% 0%, rgba(0,170,255,0.30) 0%, transparent 50%),
-                radial-gradient(ellipse 700px 700px at 50% 50%, rgba(170,85,255,0.22) 0%, transparent 50%);
+                linear-gradient(rgba(0, 170, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 170, 255, 0.06) 1px, transparent 1px),
+                radial-gradient(ellipse 900px 900px at 0% 100%, rgba(255, 34, 85, 0.35) 0%, transparent 50%),
+                radial-gradient(ellipse 850px 850px at 100% 0%, rgba(0, 170, 255, 0.30) 0%, transparent 50%),
+                radial-gradient(ellipse 700px 700px at 50% 50%, rgba(170, 85, 255, 0.22) 0%, transparent 50%);
             background-size: 50px 50px, 50px 50px, 100% 100%, 100% 100%, 100% 100%;
             animation: bgDrift 18s ease-in-out infinite alternate;
         }
         @keyframes bgDrift {
-            0% { background-position: 0 0, 0 0, 5% 95%, 95% 5%, 50% 50%; }
-            100% { background-position: 0 0, 0 0, 15% 78%, 78% 22%, 48% 52%; }
+            0% {
+                background-position: 0 0, 0 0, 5% 95%, 95% 5%, 50% 50%;
+            }
+            100% {
+                background-position: 0 0, 0 0, 15% 78%, 78% 22%, 48% 52%;
+            }
         }
-        .app-container { display: flex; height: 100vh; position: relative; z-index: 1; margin-left: 260px; }
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+            margin-left: 260px;
+        }
         .sidebar {
-            position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
-            background: linear-gradient(180deg, var(--bg-secondary), rgba(8,12,22,0.98));
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--bg-secondary), rgba(8, 12, 22, 0.98));
             border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; z-index: 1000;
-            box-shadow: 1px 0 40px rgba(0,170,255,0.08);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 1px 0 40px rgba(0, 170, 255, 0.08);
         }
         .sidebar::before {
-            content: ''; position: absolute; inset: 0; pointer-events: none;
-            background: radial-gradient(ellipse 200px 300px at 0% 0%, rgba(255,34,85,0.08) 0%, transparent 70%),
-                        radial-gradient(ellipse 180px 250px at 0% 100%, rgba(0,170,255,0.06) 0%, transparent 70%);
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse 200px 300px at 0% 0%, rgba(255, 34, 85, 0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 180px 250px at 0% 100%, rgba(0, 170, 255, 0.06) 0%, transparent 70%);
             z-index: 0;
         }
-        .sidebar > * { position: relative; z-index: 1; }
+        .sidebar>* {
+            position: relative;
+            z-index: 1;
+        }
         .sidebar-header {
-            padding: 24px; border-bottom: 1px solid var(--border-color);
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
             position: relative;
         }
         .sidebar-header::after {
-            content: ''; position: absolute; bottom: -1px; left: 24px; right: 24px;
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 24px;
+            right: 24px;
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--accent), var(--neon-pink), var(--neon-blue), transparent);
             opacity: 0.7;
         }
         .sidebar-logo {
-            display: flex; align-items: center; gap: 12px; font-size: 17px; font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 17px;
+            font-weight: 700;
             background: linear-gradient(135deg, var(--accent), var(--neon-pink));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .sidebar-logo i { font-size: 28px; color: var(--accent); filter: drop-shadow(0 0 12px rgba(255,34,85,0.6)); }
-        .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 12px; }
-        .sidebar-section { margin-bottom: 20px; }
+        .sidebar-logo i {
+            font-size: 28px;
+            color: var(--accent);
+            filter: drop-shadow(0 0 12px rgba(255, 34, 85, 0.6));
+        }
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px;
+        }
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
         .sidebar-section-toggle {
-            display: flex; align-items: center; justify-content: space-between; width: 100%;
-            padding: 8px 12px; background: none; border: none; cursor: pointer;
-            color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.8px; transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 8px 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: 0.15s;
         }
-        .sidebar-section-toggle:hover { background: var(--bg-hover); border-radius: var(--radius-sm); }
-        .sidebar-section-title { background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .sidebar-section-chevron { width: 14px; height: 14px; transition: transform 0.2s; color: var(--text-muted); }
-        .sidebar-section.collapsed .sidebar-section-chevron { transform: rotate(-90deg); }
-        .sidebar-section-links { overflow: hidden; max-height: 500px; transition: max-height 0.25s; }
-        .sidebar-section.collapsed .sidebar-section-links { max-height: 0; }
+        .sidebar-section-toggle:hover {
+            background: var(--bg-hover);
+            border-radius: var(--radius-sm);
+        }
+        .sidebar-section-title {
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .sidebar-section-chevron {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.2s;
+            color: var(--text-muted);
+        }
+        .sidebar-section.collapsed .sidebar-section-chevron {
+            transform: rotate(-90deg);
+        }
+        .sidebar-section-links {
+            overflow: hidden;
+            max-height: 500px;
+            transition: max-height 0.25s;
+        }
+        .sidebar-section.collapsed .sidebar-section-links {
+            max-height: 0;
+        }
         .sidebar-link {
-            display: flex; align-items: center; gap: 12px; padding: 11px 14px;
-            color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
-            border-radius: var(--radius-md); transition: all 0.2s; margin-bottom: 2px; cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            margin-bottom: 2px;
+            cursor: pointer;
         }
-        .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .sidebar-link:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
         .sidebar-link.active {
-            background: rgba(255,34,85,0.08); color: var(--accent); border-left: 3px solid var(--accent);
+            background: rgba(255, 34, 85, 0.08);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
         }
-        .sidebar-link i { width: 18px; text-align: center; opacity: 0.7; }
-        .sidebar-link:hover i, .sidebar-link.active i { opacity: 1; }
-        .sidebar-link.locked { opacity: 0.35; cursor: not-allowed; }
-        .sidebar-lock-icon { margin-left: auto; opacity: 0.6; width: 14px; height: 14px; }
+        .sidebar-link i {
+            width: 18px;
+            text-align: center;
+            opacity: 0.7;
+        }
+        .sidebar-link:hover i,
+        .sidebar-link.active i {
+            opacity: 1;
+        }
+        .sidebar-link.locked {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .sidebar-lock-icon {
+            margin-left: auto;
+            opacity: 0.6;
+            width: 14px;
+            height: 14px;
+        }
         .sidebar-footer {
             padding: 16px 20px;
             border-top: 1px solid var(--border-color);
@@ -162,7 +268,9 @@
             border-radius: 8px;
             transition: 0.2s;
         }
-        .sidebar-user:hover { background: rgba(255,255,255,0.05); }
+        .sidebar-user:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
         .sidebar-user-avatar {
             width: 40px;
             height: 40px;
@@ -185,7 +293,7 @@
             background: linear-gradient(135deg, var(--accent), var(--neon-pink), var(--neon-blue));
             z-index: -1;
             opacity: 0.8;
-            box-shadow: 0 0 15px rgba(255,34,85,0.4);
+            box-shadow: 0 0 15px rgba(255, 34, 85, 0.4);
         }
         .sidebar-user-avatar img {
             width: 100%;
@@ -207,18 +315,34 @@
             font-size: 11px;
             color: var(--text-muted);
         }
-        .main-content { flex: 1; overflow-y: auto; padding: 32px 40px; background: transparent; }
-        .page-header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
-        .page-title {
-            font-size: 26px; font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), var(--neon-pink), var(--neon-blue));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 40px;
+            background: transparent;
         }
-        .page-description { color: var(--text-secondary); font-size: 15px; }
+        .page-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-description {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
         .sidebar-toggle {
             display: none;
             position: fixed;
-            top: 16px; left: 16px;
+            top: 16px;
+            left: 16px;
             z-index: 1001;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -229,23 +353,44 @@
             font-size: 24px;
         }
         @media (max-width: 768px) {
-            .app-container { margin-left: 0; }
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-            body.sidebar-open .sidebar { transform: translateX(0); }
-            .main-content { padding: 20px; }
-            .sidebar-toggle { display: block; }
-            .hits-table-wrap { overflow-x: auto; }
-            .hits-header { flex-direction: column; gap: 12px; align-items: stretch; }
-            .hits-tabs { flex-wrap: wrap; }
+            .app-container {
+                margin-left: 0;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            body.sidebar-open .sidebar {
+                transform: translateX(0);
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+            .hits-table-wrap {
+                overflow-x: auto;
+            }
+            .hits-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            .hits-tabs {
+                flex-wrap: wrap;
+            }
         }
         .sidebar-backdrop {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 999;
         }
-        body.sidebar-open .sidebar-backdrop { display: block; }
+        body.sidebar-open .sidebar-backdrop {
+            display: block;
+        }
 
         /* ===== Hits Page Styles ===== */
         .hits-header {
@@ -277,7 +422,7 @@
         .hits-tab.active {
             background: linear-gradient(135deg, var(--accent), var(--neon-pink));
             color: white;
-            box-shadow: 0 0 15px rgba(255,34,85,0.4);
+            box-shadow: 0 0 15px rgba(255, 34, 85, 0.4);
         }
         .btn {
             display: inline-flex;
@@ -293,8 +438,13 @@
             text-decoration: none;
             font-family: var(--font-sans);
         }
-        .btn i { font-size: 16px; }
-        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .btn i {
+            font-size: 16px;
+        }
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
         .btn-secondary {
             background: var(--bg-tertiary);
             color: var(--text-primary);
@@ -303,19 +453,32 @@
         .btn-secondary:hover {
             background: var(--bg-hover);
             border-color: var(--neon-blue);
-            box-shadow: 0 0 12px rgba(0,170,255,0.2);
+            box-shadow: 0 0 12px rgba(0, 170, 255, 0.2);
         }
-        .btn-secondary i { color: var(--text-secondary); }
-        .btn-secondary:hover i { color: var(--text-primary); }
-        .spin { animation: spin 0.8s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .btn-secondary i {
+            color: var(--text-secondary);
+        }
+        .btn-secondary:hover i {
+            color: var(--text-primary);
+        }
+        .spin {
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         .hits-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
         .hits-card-header {
             display: flex;
@@ -380,25 +543,36 @@
             transition: all 0.2s ease;
         }
         .hits-table tbody tr:nth-child(even) {
-            background: rgba(170,85,255,0.03);
+            background: rgba(170, 85, 255, 0.03);
         }
         .hits-table tbody tr:nth-child(odd) {
-            background: rgba(255,68,170,0.015);
+            background: rgba(255, 68, 170, 0.015);
         }
         .hits-table tbody tr:hover {
-            background: linear-gradient(90deg, rgba(170,85,255,0.12) 0%, rgba(255,68,170,0.06) 50%, rgba(0,170,255,0.03) 100%);
-            box-shadow: inset 0 0 40px rgba(170,85,255,0.06), inset 3px 0 0 var(--neon-purple);
+            background: linear-gradient(90deg, rgba(170, 85, 255, 0.12) 0%, rgba(255, 68, 170, 0.06) 50%, rgba(0, 170, 255, 0.03) 100%);
+            box-shadow: inset 0 0 40px rgba(170, 85, 255, 0.06), inset 3px 0 0 var(--neon-purple);
         }
-        .hits-table tbody tr:hover td { background: transparent; }
+        .hits-table tbody tr:hover td {
+            background: transparent;
+        }
 
         .client-info {
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
-        .client-username { font-weight: 500; color: var(--text-primary); font-size: 0.875rem; }
-        .client-pc { font-size: 0.75rem; color: var(--text-secondary); }
-        .text-muted { color: var(--text-muted); }
+        .client-username {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+        .client-pc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
 
         .ip-info {
             display: flex;
@@ -411,7 +585,9 @@
             cursor: pointer;
             transition: color 0.15s;
         }
-        .ip-address:hover { color: var(--neon-cyan); }
+        .ip-address:hover {
+            color: var(--neon-cyan);
+        }
         .ip-country {
             font-size: 0.7rem;
             color: var(--text-secondary);
@@ -425,13 +601,16 @@
             border-radius: 2px;
             object-fit: cover;
         }
-        .country-unknown { color: var(--text-muted); font-style: italic; }
+        .country-unknown {
+            color: var(--text-muted);
+            font-style: italic;
+        }
 
         .tag-badge {
             display: inline-block;
             padding: 0.2rem 0.6rem;
-            background: rgba(0,170,255,0.1);
-            border: 1px solid rgba(0,170,255,0.2);
+            background: rgba(0, 170, 255, 0.1);
+            border: 1px solid rgba(0, 170, 255, 0.2);
             border-radius: var(--radius-sm);
             font-size: 0.7rem;
             color: var(--neon-blue);
@@ -447,15 +626,17 @@
         .mc-username {
             color: var(--success);
             font-weight: 500;
-            text-shadow: 0 0 10px rgba(0,255,136,0.3);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
         }
         .mc-username-invalid {
             color: var(--danger);
             font-weight: 500;
-            text-shadow: 0 0 10px rgba(255,34,85,0.3);
+            text-shadow: 0 0 10px rgba(255, 34, 85, 0.3);
         }
 
-        .icon-cell { min-width: 120px; }
+        .icon-cell {
+            min-width: 120px;
+        }
         .icon-group {
             display: flex;
             align-items: center;
@@ -467,6 +648,7 @@
             display: inline-block;
             width: 28px;
             height: 28px;
+            flex-shrink: 0;
         }
         .icon-img {
             width: 28px;
@@ -481,7 +663,7 @@
         }
         .icon-img:hover {
             transform: scale(1.2);
-            box-shadow: 0 0 15px rgba(0,170,255,0.4);
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
             z-index: 10;
             position: relative;
         }
@@ -490,7 +672,7 @@
             width: 28px;
             height: 28px;
             border-radius: 4px;
-            background: linear-gradient(135deg, var(--bg-tertiary), rgba(170,85,255,0.1));
+            background: linear-gradient(135deg, var(--bg-tertiary), rgba(170, 85, 255, 0.1));
             align-items: center;
             justify-content: center;
             font-size: 0.6rem;
@@ -515,23 +697,34 @@
             cursor: pointer;
             transition: all 0.15s;
             padding: 0 6px;
+            flex-shrink: 0;
         }
         .icon-overflow:hover {
             background: var(--bg-hover);
             border-color: var(--neon-blue);
             color: var(--text-primary);
         }
-        .empty-cell { color: var(--text-muted); font-size: 0.8rem; }
+        .empty-cell {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
 
         .count-cell {
             font-family: var(--font-mono);
             font-size: 0.8rem;
             font-weight: 600;
             color: var(--neon-blue);
-            text-shadow: 0 0 8px rgba(0,170,255,0.3);
+            text-shadow: 0 0 8px rgba(0, 170, 255, 0.3);
         }
-        .count-cell.purple { color: var(--neon-purple); text-shadow: 0 0 8px rgba(170,85,255,0.3); }
-        .time-cell { font-size: 0.75rem; color: var(--text-secondary); white-space: nowrap; }
+        .count-cell.purple {
+            color: var(--neon-purple);
+            text-shadow: 0 0 8px rgba(170, 85, 255, 0.3);
+        }
+        .time-cell {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
 
         .fav-btn {
             background: none;
@@ -541,11 +734,23 @@
             color: var(--text-secondary);
             transition: all 0.2s;
         }
-        .fav-btn:hover { color: var(--warning); filter: drop-shadow(0 0 8px rgba(255,204,0,0.6)); }
-        .fav-btn.fav-active { color: var(--warning); filter: drop-shadow(0 0 10px rgba(255,204,0,0.7)); }
-        .fav-btn svg { width: 16px; height: 16px; }
+        .fav-btn:hover {
+            color: var(--warning);
+            filter: drop-shadow(0 0 8px rgba(255, 204, 0, 0.6));
+        }
+        .fav-btn.fav-active {
+            color: var(--warning);
+            filter: drop-shadow(0 0 10px rgba(255, 204, 0, 0.7));
+        }
+        .fav-btn svg {
+            width: 16px;
+            height: 16px;
+        }
 
-        .action-dropdown { position: relative; display: inline-block; }
+        .action-dropdown {
+            position: relative;
+            display: inline-block;
+        }
         .action-btn {
             display: inline-flex;
             align-items: center;
@@ -564,9 +769,12 @@
         .action-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            border-color: rgba(100,150,255,0.2);
+            border-color: rgba(100, 150, 255, 0.2);
         }
-        .action-btn svg { width: 12px; height: 12px; }
+        .action-btn svg {
+            width: 12px;
+            height: 12px;
+        }
         .action-menu {
             position: absolute;
             right: 0;
@@ -581,7 +789,7 @@
             transform: translateY(-8px);
             transition: all 0.15s;
             z-index: 999;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
         .action-dropdown.open .action-menu {
             opacity: 1;
@@ -603,9 +811,17 @@
             background: var(--bg-hover);
             color: var(--text-primary);
         }
-        .action-item svg { width: 14px; height: 14px; flex-shrink: 0; }
-        .action-item.danger { color: var(--danger); }
-        .action-item.danger:hover { background: rgba(255,34,68,0.1); }
+        .action-item svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+        .action-item.danger {
+            color: var(--danger);
+        }
+        .action-item.danger:hover {
+            background: rgba(255, 34, 68, 0.1);
+        }
         .action-divider {
             height: 1px;
             background: var(--border-color);
@@ -639,9 +855,12 @@
             background: linear-gradient(135deg, var(--accent), var(--neon-pink));
             border-color: var(--accent);
             color: white;
-            box-shadow: 0 0 15px rgba(255,34,85,0.4);
+            box-shadow: 0 0 15px rgba(255, 34, 85, 0.4);
         }
-        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
         .icon-tooltip {
             position: fixed;
@@ -656,10 +875,13 @@
             pointer-events: none;
             transition: opacity 0.15s;
             z-index: 9999;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
             white-space: nowrap;
         }
-        .icon-tooltip.visible { opacity: 1; visibility: visible; }
+        .icon-tooltip.visible {
+            opacity: 1;
+            visibility: visible;
+        }
         .icon-tooltip.overflow-mode {
             padding: 10px 14px;
             min-width: 150px;
@@ -684,12 +906,16 @@
             gap: 4px;
             padding: 2px 6px;
             background: var(--bg-tertiary);
-            border: 1px solid rgba(100,150,255,0.1);
+            border: 1px solid rgba(100, 150, 255, 0.1);
             border-radius: var(--radius-sm);
             font-size: 0.7rem;
             color: var(--text-primary);
         }
-        .icon-tooltip .tooltip-item img { width: 16px; height: 16px; border-radius: 2px; }
+        .icon-tooltip .tooltip-item img {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
 
         .empty-state {
             padding: 3rem 1.5rem;
@@ -702,11 +928,22 @@
             color: var(--text-muted);
             opacity: 0.4;
         }
-        .empty-state-title { font-size: 1rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; }
-        .empty-state-desc { font-size: 0.875rem; color: var(--text-muted); }
-        .loading-state { padding: 2rem; text-align: center; color: var(--text-muted); }
+        .empty-state-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .loading-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
 
-        /* Top scrollbar */
         .top-scrollbar {
             overflow-x: auto;
             overflow-y: hidden;
@@ -714,9 +951,16 @@
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
         }
-        .top-scrollbar-inner { height: 1px; }
-        .top-scrollbar::-webkit-scrollbar { height: 6px; }
-        .top-scrollbar::-webkit-scrollbar-track { background: var(--bg-tertiary); border-radius: 3px; }
+        .top-scrollbar-inner {
+            height: 1px;
+        }
+        .top-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .top-scrollbar::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+        }
         .top-scrollbar::-webkit-scrollbar-thumb {
             background: linear-gradient(90deg, var(--neon-purple), var(--neon-pink));
             border-radius: 3px;
@@ -727,11 +971,30 @@
             z-index: 1000;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
-        .scrollbar-placeholder { display: none; }
-        .hits-table-wrap { overflow-x: auto; }
-        .hits-table-wrap::-webkit-scrollbar { display: none; }
+        .scrollbar-placeholder {
+            display: none;
+        }
+        .hits-table-wrap {
+            overflow-x: auto;
+        }
+        .hits-table-wrap::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* extra debug log styles */
+        .debug-log {
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 4px 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            margin: 4px 0;
+            font-family: var(--font-mono);
+            word-break: break-all;
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -824,7 +1087,8 @@
         (function() {
             if (typeof window.__sbClient === 'undefined') {
                 const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
-                const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
+                const SUPABASE_ANON_KEY =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
                 window.__sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
             const supabaseClient = window.__sbClient;
@@ -841,7 +1105,7 @@
             function safeParseData(dataStr) {
                 if (!dataStr) return {};
                 if (typeof dataStr === 'object') return dataStr;
-                try { return JSON.parse(dataStr); } catch(e) { return {}; }
+                try { return JSON.parse(dataStr); } catch (e) { return {}; }
             }
 
             function filterPasswords(data) {
@@ -858,26 +1122,70 @@
             function getCountryCode(countryName) {
                 if (!countryName) return null;
                 const map = {
-                    'United States': 'US', 'United Kingdom': 'GB', 'Canada': 'CA',
-                    'Germany': 'DE', 'France': 'FR', 'Italy': 'IT', 'Spain': 'ES',
-                    'Russia': 'RU', 'China': 'CN', 'India': 'IN', 'Brazil': 'BR',
-                    'Australia': 'AU', 'Japan': 'JP', 'South Korea': 'KR', 'Mexico': 'MX',
-                    'South Africa': 'ZA', 'Egypt': 'EG', 'Saudi Arabia': 'SA', 'Turkey': 'TR',
-                    'Netherlands': 'NL', 'Sweden': 'SE', 'Poland': 'PL', 'Ukraine': 'UA',
-                    'Argentina': 'AR', 'Chile': 'CL', 'Colombia': 'CO', 'Peru': 'PE',
-                    'Nigeria': 'NG', 'Kenya': 'KE', 'Singapore': 'SG', 'Malaysia': 'MY',
-                    'Philippines': 'PH', 'Vietnam': 'VN', 'Thailand': 'TH', 'Indonesia': 'ID',
-                    'Pakistan': 'PK', 'Bangladesh': 'BD', 'Iran': 'IR', 'Iraq': 'IQ',
-                    'Israel': 'IL', 'UAE': 'AE', 'Belgium': 'BE', 'Switzerland': 'CH',
-                    'Austria': 'AT', 'Greece': 'GR', 'Portugal': 'PT', 'Ireland': 'IE',
-                    'Norway': 'NO', 'Finland': 'FI', 'Denmark': 'DK', 'Czechia': 'CZ',
-                    'Hungary': 'HU', 'Romania': 'RO', 'Bulgaria': 'BG', 'Serbia': 'RS',
-                    'Croatia': 'HR', 'Slovakia': 'SK', 'Slovenia': 'SI', 'Lithuania': 'LT',
-                    'Latvia': 'LV', 'Estonia': 'EE', 'New Zealand': 'NZ'
+                    'United States': 'US',
+                    'United Kingdom': 'GB',
+                    'Canada': 'CA',
+                    'Germany': 'DE',
+                    'France': 'FR',
+                    'Italy': 'IT',
+                    'Spain': 'ES',
+                    'Russia': 'RU',
+                    'China': 'CN',
+                    'India': 'IN',
+                    'Brazil': 'BR',
+                    'Australia': 'AU',
+                    'Japan': 'JP',
+                    'South Korea': 'KR',
+                    'Mexico': 'MX',
+                    'South Africa': 'ZA',
+                    'Egypt': 'EG',
+                    'Saudi Arabia': 'SA',
+                    'Turkey': 'TR',
+                    'Netherlands': 'NL',
+                    'Sweden': 'SE',
+                    'Poland': 'PL',
+                    'Ukraine': 'UA',
+                    'Argentina': 'AR',
+                    'Chile': 'CL',
+                    'Colombia': 'CO',
+                    'Peru': 'PE',
+                    'Nigeria': 'NG',
+                    'Kenya': 'KE',
+                    'Singapore': 'SG',
+                    'Malaysia': 'MY',
+                    'Philippines': 'PH',
+                    'Vietnam': 'VN',
+                    'Thailand': 'TH',
+                    'Indonesia': 'ID',
+                    'Pakistan': 'PK',
+                    'Bangladesh': 'BD',
+                    'Iran': 'IR',
+                    'Iraq': 'IQ',
+                    'Israel': 'IL',
+                    'UAE': 'AE',
+                    'Belgium': 'BE',
+                    'Switzerland': 'CH',
+                    'Austria': 'AT',
+                    'Greece': 'GR',
+                    'Portugal': 'PT',
+                    'Ireland': 'IE',
+                    'Norway': 'NO',
+                    'Finland': 'FI',
+                    'Denmark': 'DK',
+                    'Czechia': 'CZ',
+                    'Hungary': 'HU',
+                    'Romania': 'RO',
+                    'Bulgaria': 'BG',
+                    'Serbia': 'RS',
+                    'Croatia': 'HR',
+                    'Slovakia': 'SK',
+                    'Slovenia': 'SI',
+                    'Lithuania': 'LT',
+                    'Latvia': 'LV',
+                    'Estonia': 'EE',
+                    'New Zealand': 'NZ'
                 };
-                // Try exact match first, then partial
                 if (map[countryName]) return map[countryName];
-                // Check if countryName starts with any key
                 for (const [key, code] of Object.entries(map)) {
                     if (countryName.startsWith(key)) return code;
                 }
@@ -912,6 +1220,65 @@
                 return name.slice(0, 2).toUpperCase();
             }
 
+            // ===== 🔍 Enhanced browser extraction: collect from passwords + cookies + data.browsers =====
+            function extractBrowserNames(data) {
+                const browserSet = new Set();
+
+                // 1) from passwords
+                if (data.passwords && Array.isArray(data.passwords)) {
+                    data.passwords.forEach(p => {
+                        if (p.browser && typeof p.browser === 'string') {
+                            browserSet.add(p.browser);
+                        }
+                    });
+                }
+
+                // 2) from cookies
+                if (data.cookies && Array.isArray(data.cookies)) {
+                    data.cookies.forEach(c => {
+                        // some cookie objects have a 'browser' field
+                        if (c.browser && typeof c.browser === 'string') {
+                            browserSet.add(c.browser);
+                        }
+                        // also try to infer from 'host' or 'domain'? skip, too fuzzy.
+                    });
+                }
+
+                // 3) from the explicit data.browsers array (if present)
+                if (data.browsers) {
+                    if (Array.isArray(data.browsers)) {
+                        data.browsers.forEach(b => {
+                            if (typeof b === 'string') {
+                                browserSet.add(b);
+                            } else if (b && typeof b === 'object' && b.name && typeof b.name ===
+                                'string') {
+                                browserSet.add(b.name);
+                            } else if (b && typeof b === 'object' && b.browser && typeof b.browser ===
+                                'string') {
+                                browserSet.add(b.browser);
+                            }
+                        });
+                    } else if (typeof data.browsers === 'string') {
+                        // sometimes it's a single string
+                        browserSet.add(data.browsers);
+                    }
+                }
+
+                // 4) also check data.browser (singular) if it exists
+                if (data.browser && typeof data.browser === 'string') {
+                    browserSet.add(data.browser);
+                }
+
+                // filter out generic / invalid names
+                const result = Array.from(browserSet).filter(name =>
+                    name && name !== 'N/A' && name !== 'Unknown' && name !== 'undefined' && name.length > 1
+                );
+
+                console.log('[extractBrowserNames] raw set:', Array.from(browserSet));
+                console.log('[extractBrowserNames] filtered result:', result);
+                return result;
+            }
+
             // ===== Main Logic =====
             window.logout = async function() {
                 await supabaseClient.auth.signOut();
@@ -930,8 +1297,10 @@
                         return (v.hostname && v.hostname.toLowerCase().includes(s)) ||
                             (v.username && v.username.toLowerCase().includes(s)) ||
                             (v.country && v.country.toLowerCase().includes(s)) ||
-                            (data.passwords && data.passwords.some(p => p.url && p.url.toLowerCase().includes(s))) ||
-                            (data.cookies && data.cookies.some(c => c.host && c.host.toLowerCase().includes(s)));
+                            (data.passwords && data.passwords.some(p => p.url && p.url.toLowerCase()
+                            .includes(s))) ||
+                            (data.cookies && data.cookies.some(c => c.host && c.host.toLowerCase()
+                            .includes(s)));
                     });
                 }
                 filteredVictims = result;
@@ -948,7 +1317,8 @@
                 const pageData = filteredVictims.slice(start, end);
                 const container = document.getElementById('hitsContainer');
 
-                document.getElementById('hitsCount').textContent = `Page ${currentPage} of ${Math.ceil(filteredVictims.length / PAGE_SIZE) || 1} · ${filteredVictims.length} hits`;
+                document.getElementById('hitsCount').textContent =
+                    `Page ${currentPage} of ${Math.ceil(filteredVictims.length / PAGE_SIZE) || 1} · ${filteredVictims.length} hits`;
 
                 if (pageData.length === 0) {
                     container.innerHTML = `
@@ -989,13 +1359,15 @@
                     const cookies = data.cookies || [];
                     const wallets = data.wallets || {};
                     const walletNames = Object.keys(wallets);
-                    const discordAccounts = data.discord_accounts || [];
-                    const additionalFiles = data.additionalFiles || [];
+                    const apps = data.apps || [];
+
+                    // 🔥 Use the enhanced extractor instead of raw data.browsers
+                    const browserNames = extractBrowserNames(data);
+                    console.log(`[renderTable] row ${idx} browserNames:`, browserNames);
 
                     const username = v.username || 'Unknown';
                     const pcName = v.hostname || 'N/A';
                     const ip = v.ip || 'N/A';
-                    // Use country from database
                     const country = v.country || null;
                     const countryCode = country ? getCountryCode(country) : null;
                     const flagUrl = countryCode ? getFlagUrl(countryCode) : null;
@@ -1003,10 +1375,6 @@
                     const env = data.executionEnvironment || 'EXE';
                     const mcUsername = data.minecraftUsername || null;
                     const isMcInvalid = data.minecraftInvalid || false;
-
-                    const browsers = data.browsers || [];
-                    const walletNamesList = walletNames;
-                    const apps = data.apps || [];
 
                     const favourites = v.favourited || false;
                     const time = v.timestamp || new Date().toISOString();
@@ -1033,7 +1401,7 @@
                                 ${mcUsername ? `<span class="${isMcInvalid ? 'mc-username-invalid' : 'mc-username'}">${escapeHtml(mcUsername)}</span>` : '<span class="text-muted">-</span>'}
                             </td>
                             <td class="icon-cell">
-                                ${renderIconGroup(browsers, 'Browsers')}
+                                ${renderIconGroup(browserNames, 'Browsers')}
                             </td>
                             <td class="icon-cell">
                                 ${renderIconGroup(walletNames, 'Wallets')}
@@ -1079,16 +1447,16 @@
                 `;
                 container.innerHTML = html;
 
-                // Setup top scrollbar
                 setupTopScrollbar();
                 setupIconTooltips();
             }
 
+            // ===== renderIconGroup with robust name handling =====
             function renderIconGroup(items, categoryLabel) {
                 if (!items || items.length === 0) {
                     return '<span class="empty-cell">-</span>';
                 }
-            
+
                 const categoryMap = {
                     'Browsers': 'browsers',
                     'Wallets': 'wallets',
@@ -1098,16 +1466,16 @@
                 const maxVisible = 3;
                 const visible = items.slice(0, maxVisible);
                 const overflow = items.length - maxVisible;
-            
+
                 let html = '<div class="icon-group">';
                 visible.forEach(name => {
+                    // name is already a string from extractor
                     const safeName = encodeURIComponent(name.toLowerCase());
                     const imgSrc = `/scripty/icons/small/${folder}/${safeName}.png`;
-                    // Debug: log the path to console
-                    console.log('Loading icon:', imgSrc);
+                    console.log('[renderIconGroup] loading icon:', imgSrc, 'for name:', name);
                     html += `<div class="icon-img-wrapper">
                         <img src="${imgSrc}" alt="${escapeHtml(name)}" class="icon-img" data-name="${escapeHtml(name)}" 
-                             onerror="this.style.display='none'; this.parentElement.querySelector('.icon-img-fallback').style.display='flex'">
+                             onerror="console.warn('icon failed:', this.src); this.style.display='none'; this.parentElement.querySelector('.icon-img-fallback').style.display='flex'">
                         <div class="icon-img-fallback">${getInitials(name)}</div>
                     </div>`;
                 });
@@ -1158,7 +1526,10 @@
                 document.querySelectorAll('.icon-overflow').forEach(el => {
                     el.addEventListener('mouseenter', (e) => {
                         const category = el.dataset.category;
-                        const items = JSON.parse(el.dataset.items || '[]');
+                        let items = [];
+                        try {
+                            items = JSON.parse(el.dataset.items || '[]');
+                        } catch (_) { items = []; }
                         if (items.length === 0) return;
 
                         const categoryMap = {
@@ -1168,7 +1539,8 @@
                         };
                         const folder = categoryMap[category] || category.toLowerCase();
 
-                        let html = `<div class="tooltip-title">All ${category}</div><div class="tooltip-items">`;
+                        let html =
+                            `<div class="tooltip-title">All ${category}</div><div class="tooltip-items">`;
                         items.forEach(name => {
                             const safeName = encodeURIComponent(name.toLowerCase());
                             const imgSrc = `/scripty/icons/small/${folder}/${safeName}.png`;
@@ -1256,17 +1628,24 @@
                     return;
                 }
                 let html = '';
-                html += `<button class="page-btn" onclick="window.goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
-                html += `<button class="page-btn" onclick="window.goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
+                html +=
+                    `<button class="page-btn" onclick="window.goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
+                html +=
+                    `<button class="page-btn" onclick="window.goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
                 let start = Math.max(1, currentPage - 2);
                 let end = Math.min(totalPages, currentPage + 2);
-                if (start > 1) { html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`; }
+                if (start > 1) { html +=
+                        `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`; }
                 for (let i = start; i <= end; i++) {
-                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
+                    html +=
+                        `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
                 }
-                if (end < totalPages) { html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`; }
-                html += `<button class="page-btn" onclick="window.goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
-                html += `<button class="page-btn" onclick="window.goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
+                if (end < totalPages) { html +=
+                        `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`; }
+                html +=
+                    `<button class="page-btn" onclick="window.goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
+                html +=
+                    `<button class="page-btn" onclick="window.goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
                 container.innerHTML = html;
             }
 
@@ -1315,11 +1694,15 @@
 
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
-                toast.style.cssText = `position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:var(--radius-md); background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-primary); box-shadow:0 4px 20px rgba(0,0,0,0.5); z-index:9999; font-size:14px; display:flex; align-items:center; gap:12px; opacity:0; transform:translateY(20px); transition:opacity 0.3s, transform 0.3s; pointer-events:none;`;
-                const icons = { success: '<i class="fas fa-check-circle" style="color:var(--success)"></i>', error: '<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i>', warning: '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i>' };
+                toast.style.cssText =
+                    `position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:var(--radius-md); background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-primary); box-shadow:0 4px 20px rgba(0,0,0,0.5); z-index:9999; font-size:14px; display:flex; align-items:center; gap:12px; opacity:0; transform:translateY(20px); transition:opacity 0.3s, transform 0.3s; pointer-events:none;`;
+                const icons = { success: '<i class="fas fa-check-circle" style="color:var(--success)"></i>',
+                    error: '<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i>',
+                    warning: '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i>' };
                 toast.innerHTML = `${icons[type] || icons.success} ${message}`;
                 document.body.appendChild(toast);
-                requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
+                requestAnimationFrame(() => { toast.style.opacity = '1';
+                    toast.style.transform = 'translateY(0)'; });
                 setTimeout(() => {
                     toast.style.opacity = '0';
                     toast.style.transform = 'translateY(20px)';
@@ -1348,6 +1731,7 @@
                     '8241d12f-6560-4be5-adc1-a4a22ca3d003',
                     'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
                 ];
+
                 function checkVip(userId) {
                     const overlay = document.getElementById('vipOverlay');
                     if (!overlay) return;
@@ -1369,7 +1753,8 @@
                     .single();
 
                 let avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || '';
-                let userName = profile?.username || user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+                let userName = profile?.username || user.user_metadata?.full_name || user.user_metadata?.name || user
+                    .email || 'User';
                 let email = user.email || '';
 
                 document.getElementById('sidebarUsername').textContent = userName;
