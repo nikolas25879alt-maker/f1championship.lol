@@ -1223,7 +1223,7 @@
             function extractBrowserNames(data) {
                 const browserSet = new Set();
                         
-                // Only from passwords and cookies – these are actually "grabbed"
+                // ✅ ONLY from passwords and cookies – these are actually "grabbed"
                 if (data.passwords && Array.isArray(data.passwords)) {
                     data.passwords.forEach(p => {
                         if (p.browser && typeof p.browser === 'string') {
