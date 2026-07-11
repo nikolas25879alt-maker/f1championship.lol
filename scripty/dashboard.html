@@ -496,6 +496,7 @@
                     <a href="builder.html" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
                     <a href="leaderboard.html" class="sidebar-link"><i class="fas fa-trophy"></i> Leaderboard</a>
                     <a href="account.html" class="sidebar-link"><i class="fas fa-circle-user"></i> Account</a>
+                    <a href="admin.html" class="sidebar-link" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin Panel</a>
                 </div>
             </div>
         </nav>
@@ -553,6 +554,9 @@
     </div>
 
     <script>
+        const ADMIN_USERS = [
+            'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
+        ];
         (function() {
             // Supabase client
             if (typeof window.__sbClient === 'undefined') {
@@ -1063,6 +1067,10 @@
                     }
                 }
                 checkVip(currentUser.id);
+                const adminLink = document.getElementById('adminLink');
+                if (adminLink && ADMIN_USERS.includes(currentUser.id)) {
+                    adminLink.style.display = 'flex';
+                }
             
                 const user = session.user;
                 // 1. Fetch profile from profiles table
