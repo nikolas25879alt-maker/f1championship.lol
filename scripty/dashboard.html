@@ -1049,16 +1049,32 @@
             supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
                 if (!session) { window.location.href = 'login.html'; return; }
                 currentUser = session.user;
-                const VIP_USERS = [
-                    '60e9045c-274e-4573-b2cb-87493563b7a2',
-                    '8241d12f-6560-4be5-adc1-a4a22ca3d003',
-                    'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-                    // add more
-                ];
-                function checkVip(userId) {
+                async function isVip(userId) {
+                    try {
+                        const { data: adminData } = await supabaseClient
+                            .from('admins')
+                            .select('user_id')
+                            .eq('user_id', userId)
+                            .single();
+                        if (adminData) return true;
+                        const { data, error } = await supabaseClient
+                            .from('vip_users')
+                            .select('user_id')
+                            .eq('user_id', userId)
+                            .single();
+                        if (error && error.code !== 'PGRST116') throw error;
+                        return !!data;
+                    } catch (err) {
+                        console.warn('VIP check error:', err);
+                        return false;
+                    }
+                }
+                
+                async function checkVip(userId) {
                     const overlay = document.getElementById('vipOverlay');
                     if (!overlay) return;
-                    if (VIP_USERS.includes(userId)) {
+                    const isVipUser = await isVip(userId);
+                    if (isVipUser) {
                         overlay.style.display = 'none';
                         document.querySelector('.app-container')?.style.setProperty('display', 'flex');
                     } else {
@@ -1066,7 +1082,7 @@
                         document.querySelector('.app-container')?.style.setProperty('display', 'none');
                     }
                 }
-                checkVip(currentUser.id);
+                await checkVip(currentUser.id);
                 const adminLink = document.getElementById('adminLink');
                 if (adminLink && ADMIN_USERS.includes(currentUser.id)) {
                     adminLink.style.display = 'flex';

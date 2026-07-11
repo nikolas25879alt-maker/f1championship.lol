@@ -791,17 +791,34 @@
                 'Unknown': 'fas fa-globe',
             };
             // ===== VIP USERS =====
-            const VIP_USERS = [
-                '60e9045c-274e-4573-b2cb-87493563b7a2',
-                '8241d12f-6560-4be5-adc1-a4a22ca3d003',
-                'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-                // add more
-            ];
-                    
-            function checkVip(userId) {
+            async function isVip(userId) {
+                try {
+                    // 1. Check if user is admin → bypass VIP overlay
+                    const { data: adminData } = await supabaseClient
+                        .from('admins')
+                        .select('user_id')
+                        .eq('user_id', userId)
+                        .single();
+                    if (adminData) return true;
+                    // 2. Check vip_users
+                    const { data, error } = await supabaseClient
+                        .from('vip_users')
+                        .select('user_id')
+                        .eq('user_id', userId)
+                        .single();
+                    if (error && error.code !== 'PGRST116') throw error;
+                    return !!data;
+                } catch (err) {
+                    console.warn('VIP check error:', err);
+                    return false;
+                }
+            }
+
+            async function checkVip(userId) {
                 const overlay = document.getElementById('vipOverlay');
                 if (!overlay) return;
-                if (VIP_USERS.includes(userId)) {
+                const isVipUser = await isVip(userId);
+                if (isVipUser) {
                     overlay.style.display = 'none';
                     document.querySelector('.app-container')?.style.setProperty('display', 'flex');
                 } else {
@@ -1432,23 +1449,7 @@
                 }
                 const user = session.user;
                 // VIP check
-                const VIP_USERS = [
-                    '60e9045c-274e-4573-b2cb-87493563b7a2',
-                    '8241d12f-6560-4be5-adc1-a4a22ca3d003',
-                    'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-                ];
-                function checkVip(userId) {
-                    const overlay = document.getElementById('vipOverlay');
-                    if (!overlay) return;
-                    if (VIP_USERS.includes(userId)) {
-                        overlay.style.display = 'none';
-                        document.querySelector('.app-container')?.style.setProperty('display', 'flex');
-                    } else {
-                        overlay.style.display = 'flex';
-                        document.querySelector('.app-container')?.style.setProperty('display', 'none');
-                    }
-                }
-                checkVip(user.id);
+                await checkVip(user.id);
                 const adminLink = document.getElementById('adminLink');
                 if (adminLink && ADMIN_USERS.includes(user.id)) {
                     adminLink.style.display = 'flex';

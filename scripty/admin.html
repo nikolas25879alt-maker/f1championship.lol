@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== Full Theme ===== */
         * {
             scrollbar-width: thin;
             scrollbar-color: #6b7280 #111827;
@@ -305,6 +304,92 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .vip-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        .vip-table th, .vip-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .vip-table th {
+            background: var(--bg-tertiary);
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .vip-table .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .vip-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .vip-form input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            flex: 1;
+            min-width: 250px;
+            font-size: 14px;
+        }
+        .vip-form input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn i { font-size: 16px; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--neon-pink));
+            color: white;
+            box-shadow: 0 0 10px rgba(255,68,170,0.2);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--neon-pink), var(--accent));
+            box-shadow: 0 0 20px rgba(255,68,170,0.4);
+        }
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: rgba(100,150,255,0.2);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #cc1133);
+            color: white;
+            box-shadow: 0 0 12px rgba(255,34,85,0.3);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 0 24px rgba(255,34,85,0.5);
+        }
+
         .table-container {
             overflow-x: auto;
             max-height: 500px;
@@ -377,39 +462,6 @@
             border-color: var(--neon-blue);
             box-shadow: 0 0 0 3px rgba(0,170,255,0.1);
         }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .btn i { font-size: 16px; }
-        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--neon-pink));
-            color: white;
-            box-shadow: 0 0 10px rgba(255,68,170,0.2);
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, var(--neon-pink), var(--accent));
-            box-shadow: 0 0 20px rgba(255,68,170,0.4);
-        }
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-            border-color: rgba(100,150,255,0.2);
-        }
         .empty {
             text-align: center;
             padding: 20px;
@@ -438,6 +490,8 @@
             .main-content { padding: 20px; }
             .grid-4 { grid-template-columns: 1fr; }
             .sidebar-toggle { display: block; }
+            .vip-form { flex-direction: column; align-items: stretch; }
+            .vip-form input { min-width: auto; }
         }
         .sidebar-backdrop {
             display: none;
@@ -498,10 +552,55 @@
             cursor: not-allowed;
         }
         .text-accent { color: var(--accent); }
+
+        /* Additions for admin management */
+        .vip-table, .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        .vip-table th, .vip-table td,
+        .admin-table th, .admin-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .vip-table th, .admin-table th {
+            background: var(--bg-tertiary);
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .vip-form, .admin-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .vip-form input, .admin-form input {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            flex: 1;
+            min-width: 250px;
+            font-size: 14px;
+        }
+        .vip-form input:focus, .admin-form input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+        }
+        @media (max-width: 768px) {
+            .vip-form, .admin-form { flex-direction: column; align-items: stretch; }
+            .vip-form input, .admin-form input { min-width: auto; }
+        }
     </style>
 </head>
 <body>
-    <!-- VIP Overlay -->
+    <!-- VIP Overlay (unchanged) -->
     <div id="vipOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:99999; align-items:center; justify-content:center; flex-direction:column; color:#eee; font-family:var(--font-sans); backdrop-filter:blur(6px);">
         <div style="text-align:center; padding:2rem; max-width:400px;">
             <i class="fas fa-lock" style="font-size:4rem; color:var(--accent); text-shadow:0 0 30px var(--accent); margin-bottom:1.5rem;"></i>
@@ -515,6 +614,7 @@
     </button>
     <div class="sidebar-backdrop" onclick="document.body.classList.remove('sidebar-open')"></div>
 
+    <!-- Sidebar (same as before) -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
@@ -534,7 +634,7 @@
                     <a href="builder.html" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
                     <a href="leaderboard.html" class="sidebar-link"><i class="fas fa-trophy"></i> Leaderboard</a>
                     <a href="account.html" class="sidebar-link"><i class="fas fa-circle-user"></i> Account</a>
-                    <a href="admin.html" class="sidebar-link" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin Panel</a>
+                    <a href="admin.html" class="sidebar-link active"><i class="fas fa-user-shield"></i> Admin Panel</a>
                 </div>
             </div>
         </nav>
@@ -557,9 +657,10 @@
         <main class="main-content">
             <div class="page-header">
                 <h1 class="page-title">Admin Panel</h1>
-                <p class="page-description">Global overview of all victims and system stats</p>
+                <p class="page-description">Global overview and user management</p>
             </div>
 
+            <!-- Stats Cards (unchanged) -->
             <div class="grid-4" id="statsGrid">
                 <div class="stat-card"><div class="stat-label"><i class="fas fa-users text-accent"></i> Total Hits</div><div class="stat-value" id="totalHits">0</div></div>
                 <div class="stat-card"><div class="stat-label"><i class="fas fa-user-friends text-cyan"></i> Total Users</div><div class="stat-value" id="totalUsers">0</div></div>
@@ -567,6 +668,65 @@
                 <div class="stat-card"><div class="stat-label"><i class="fas fa-globe text-success"></i> Countries</div><div class="stat-value" id="totalCountries">0</div></div>
             </div>
 
+            <!-- VIP Management Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-crown"></i> Manage VIP Users</span>
+                    <span style="font-size:0.8rem;color:var(--text-muted);" id="vipCount">0 VIPs</span>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="overflow-x:auto;">
+                        <table class="vip-table" id="vipTable">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Added At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vipTableBody">
+                                <tr><td colspan="4" class="loading-state">Loading VIPs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="vip-form">
+                        <input type="text" id="vipAddInput" placeholder="Enter user UUID to add as VIP" />
+                        <button class="btn btn-primary" onclick="addVIP()"><i class="fas fa-plus"></i> Add VIP</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Management Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-user-shield"></i> Manage Admins</span>
+                    <span style="font-size:0.8rem;color:var(--text-muted);" id="adminCount">0 Admins</span>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div style="overflow-x:auto;">
+                        <table class="admin-table" id="adminTable">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Added At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody">
+                                <tr><td colspan="4" class="loading-state">Loading Admins...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="admin-form">
+                        <input type="text" id="adminAddInput" placeholder="Enter user UUID to add as Admin" />
+                        <button class="btn btn-primary" onclick="addAdmin()"><i class="fas fa-plus"></i> Add Admin</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Victims List (unchanged) -->
             <div class="card">
                 <div class="card-header">
                     <span class="card-title"><i class="fas fa-list"></i> All Victims</span>
@@ -602,311 +762,514 @@
     </div>
 
     <script>
-        const ADMIN_USERS = [
-            'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-        ];
-        (function() {
-            // ===== Supabase =====
-            if (typeof window.__sbClient === 'undefined') {
-                const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
-                const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
-                window.__sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-            const sb = window.__sbClient;
+        // ===== SUPABASE CLIENT =====
+        if (typeof window.__sbClient === 'undefined') {
+            const SUPABASE_URL = "https://zjtkdztrwqrjqquygtbr.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
+            window.__sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        const sb = window.__sbClient;
 
-            // ===== Admin List =====
-            const ADMIN_USERS = [
-                'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-            ];
-            const VIP_USERS = [
-                '60e9045c-274e-4573-b2cb-87493563b7a2',
-                '8241d12f-6560-4be5-adc1-a4a22ca3d003',
-                'fb0addca-1742-4fc3-9ff8-a2eb43ab66e7',
-            ];
+        // ===== GLOBALS =====
+        let currentUser = null;
+        let allVictims = [];
+        let filteredVictims = [];
+        let currentPage = 1;
+        const PAGE_SIZE = 25;
 
-            let currentUser = null;
-            let allVictims = [];
-            let filteredVictims = [];
-            let currentPage = 1;
-            const PAGE_SIZE = 25;
+        // ===== HELPERS =====
+        function safeParseData(dataStr) {
+            if (!dataStr) return {};
+            if (typeof dataStr === 'object') return dataStr;
+            try { return JSON.parse(dataStr); } catch(e) { return {}; }
+        }
 
-            // ===== Safe parse =====
-            function safeParseData(dataStr) {
-                if (!dataStr) return {};
-                if (typeof dataStr === 'object') return dataStr;
-                try { return JSON.parse(dataStr); } catch(e) { return {}; }
-            }
+        function filterPasswords(data) {
+            if (!data || !data.passwords) return [];
+            return data.passwords.filter(p => {
+                const isSensitive = p.browser === 'Sensitive_Files';
+                const isFileEntry = p.url === 'N/A' && p.username === 'N/A' && !p.password;
+                const isInvalid = !p.browser || p.browser === 'N/A';
+                return !isSensitive && !isFileEntry && !isInvalid;
+            });
+        }
 
-            function filterPasswords(data) {
-                if (!data || !data.passwords) return [];
-                return data.passwords.filter(p => {
-                    const isSensitive = p.browser === 'Sensitive_Files';
-                    const isFileEntry = p.url === 'N/A' && p.username === 'N/A' && !p.password;
-                    const isInvalid = !p.browser || p.browser === 'N/A';
-                    return !isSensitive && !isFileEntry && !isInvalid;
-                });
-            }
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
-            function escapeHtml(text) {
-                if (!text) return '';
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+            return date.toLocaleDateString();
+        }
 
-            function formatTime(timestamp) {
-                const date = new Date(timestamp);
-                const now = new Date();
-                const diff = now - date;
-                if (diff < 60000) return 'Just now';
-                if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-                if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-                if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
-                return date.toLocaleDateString();
-            }
-
-            function showToast(message, type = 'success') {
-                const toast = document.createElement('div');
-                toast.style.cssText = `position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:var(--radius-md); background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-primary); box-shadow:0 4px 20px rgba(0,0,0,0.5); z-index:9999; font-size:14px; display:flex; align-items:center; gap:12px; opacity:0; transform:translateY(20px); transition:opacity 0.3s, transform 0.3s; pointer-events:none;`;
-                const icons = {
-                    success: '<i class="fas fa-check-circle" style="color:var(--success)"></i>',
-                    error: '<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i>',
-                    warning: '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i>'
-                };
-                toast.innerHTML = `${icons[type] || icons.success} ${message}`;
-                document.body.appendChild(toast);
-                requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    toast.style.transform = 'translateY(20px)';
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
-            }
-
-            window.logout = async function() {
-                await sb.auth.signOut();
-                window.location.href = 'login.html';
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `position:fixed; bottom:20px; right:20px; padding:12px 24px; border-radius:var(--radius-md); background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-primary); box-shadow:0 4px 20px rgba(0,0,0,0.5); z-index:9999; font-size:14px; display:flex; align-items:center; gap:12px; opacity:0; transform:translateY(20px); transition:opacity 0.3s, transform 0.3s; pointer-events:none;`;
+            const icons = {
+                success: '<i class="fas fa-check-circle" style="color:var(--success)"></i>',
+                error: '<i class="fas fa-exclamation-circle" style="color:var(--danger)"></i>',
+                warning: '<i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i>'
             };
+            toast.innerHTML = `${icons[type] || icons.success} ${message}`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
-            // ===== Fetch all victims =====
-            async function fetchAllVictims() {
-                try {
-                    // Use the RPC function that bypasses RLS
-                    const { data, error } = await sb.rpc('get_all_victims_for_admin');
+        window.logout = async function() {
+            await sb.auth.signOut();
+            window.location.href = 'login.html';
+        };
 
-                    if (error) {
-                        console.error('RPC error:', error);
-                        // Fallback to normal query if RPC fails
-                        const { data: fallbackData, error: fallbackError } = await sb
-                            .from('victims')
-                            .select('*')
-                            .order('timestamp', { ascending: false })
-                            .limit(500);
-                        if (fallbackError) throw fallbackError;
-                        allVictims = fallbackData || [];
+        // ===== VIP MANAGEMENT =====
+        async function fetchVIPs() {
+            try {
+                const { data, error } = await sb
+                    .from('vip_users')
+                    .select('user_id, created_at');
+                if (error) throw error;
+                return data || [];
+            } catch (err) {
+                console.error('Error fetching VIPs:', err);
+                showToast('Failed to load VIPs', 'error');
+                return [];
+            }
+        }
+
+        async function fetchUsernames(userIds) {
+            if (!userIds || userIds.length === 0) return {};
+            try {
+                const { data, error } = await sb
+                    .from('profiles')
+                    .select('id, username')
+                    .in('id', userIds);
+                if (error) throw error;
+                const map = {};
+                (data || []).forEach(p => { map[p.id] = p.username; });
+                return map;
+            } catch (err) {
+                console.error('Error fetching usernames:', err);
+                return {};
+            }
+        }
+
+        async function renderVIPTable() {
+            const tbody = document.getElementById('vipTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="loading-state">Loading...</td></tr>';
+            const vips = await fetchVIPs();
+            if (vips.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty">No VIP users.</td></tr>';
+                document.getElementById('vipCount').textContent = '0 VIPs';
+                return;
+            }
+            const userIds = vips.map(v => v.user_id);
+            const usernames = await fetchUsernames(userIds);
+            let html = '';
+            vips.forEach(v => {
+                const username = usernames[v.user_id] || 'Unknown';
+                html += `<tr>
+                    <td class="mono" style="font-size:0.8rem;">${escapeHtml(v.user_id)}</td>
+                    <td>${escapeHtml(username)}</td>
+                    <td style="font-size:0.8rem;color:var(--text-muted);">${new Date(v.created_at).toLocaleString()}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="removeVIP('${v.user_id}')"><i class="fas fa-trash"></i> Remove</button></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('vipCount').textContent = `${vips.length} VIPs`;
+        }
+
+        window.addVIP = async function() {
+            const input = document.getElementById('vipAddInput');
+            const userId = input.value.trim();
+            if (!userId) {
+                showToast('Please enter a user ID.', 'warning');
+                return;
+            }
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+                showToast('Invalid UUID format.', 'warning');
+                return;
+            }
+            try {
+                const { error } = await sb
+                    .from('vip_users')
+                    .insert({ user_id: userId });
+                if (error) {
+                    if (error.code === '23505') {
+                        showToast('User is already a VIP.', 'warning');
                     } else {
-                        allVictims = data || [];
+                        throw error;
                     }
-                
-                    // Enrich with password count
-                    allVictims = allVictims.map(v => {
-                        const parsed = safeParseData(v.data);
-                        const filtered = filterPasswords(parsed);
-                        v.total_passwords = filtered.length;
-                        return v;
-                    });
-                
-                    console.log(`[Admin] Fetched ${allVictims.length} victims.`);
-                    if (ADMIN_USERS.includes(currentUser.id)) {
-                        console.log('User is admin, should see all.');
+                } else {
+                    showToast('User added as VIP successfully!');
+                    input.value = '';
+                    renderVIPTable();
+                }
+            } catch (err) {
+                console.error('Add VIP error:', err);
+                showToast('Failed to add VIP: ' + err.message, 'error');
+            }
+        };
+
+        window.removeVIP = async function(userId) {
+            if (!confirm(`Remove VIP user ${userId}?`)) return;
+            try {
+                const { error } = await sb
+                    .from('vip_users')
+                    .delete()
+                    .eq('user_id', userId);
+                if (error) throw error;
+                showToast('VIP removed successfully.');
+                renderVIPTable();
+            } catch (err) {
+                console.error('Remove VIP error:', err);
+                showToast('Failed to remove VIP: ' + err.message, 'error');
+            }
+        };
+
+        // ===== ADMIN MANAGEMENT =====
+        async function fetchAdmins() {
+            try {
+                const { data, error } = await sb
+                    .from('admins')
+                    .select('user_id, created_at');
+                if (error) throw error;
+                return data || [];
+            } catch (err) {
+                console.error('Error fetching admins:', err);
+                showToast('Failed to load admins', 'error');
+                return [];
+            }
+        }
+
+        async function renderAdminTable() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="loading-state">Loading...</td></tr>';
+            const admins = await fetchAdmins();
+            if (admins.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty">No admin users.</td></tr>';
+                document.getElementById('adminCount').textContent = '0 Admins';
+                return;
+            }
+            const userIds = admins.map(v => v.user_id);
+            const usernames = await fetchUsernames(userIds);
+            let html = '';
+            admins.forEach(v => {
+                const username = usernames[v.user_id] || 'Unknown';
+                html += `<tr>
+                    <td class="mono" style="font-size:0.8rem;">${escapeHtml(v.user_id)}</td>
+                    <td>${escapeHtml(username)}</td>
+                    <td style="font-size:0.8rem;color:var(--text-muted);">${new Date(v.created_at).toLocaleString()}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="removeAdmin('${v.user_id}')"><i class="fas fa-trash"></i> Remove</button></td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            document.getElementById('adminCount').textContent = `${admins.length} Admins`;
+        }
+
+        window.addAdmin = async function() {
+            const input = document.getElementById('adminAddInput');
+            const userId = input.value.trim();
+            if (!userId) {
+                showToast('Please enter a user ID.', 'warning');
+                return;
+            }
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+                showToast('Invalid UUID format.', 'warning');
+                return;
+            }
+            try {
+                const { error } = await sb
+                    .from('admins')
+                    .insert({ user_id: userId });
+                if (error) {
+                    if (error.code === '23505') {
+                        showToast('User is already an admin.', 'warning');
                     } else {
-                        console.warn('User is NOT admin – redirecting.');
+                        throw error;
                     }
-                
-                    applyFilters();
-                    updateStats();
-                
-                } catch (err) {
-                    console.error('Fetch error:', err);
-                    showToast('Failed to load victims: ' + err.message, 'error');
-                    document.getElementById('victimTableBody').innerHTML =
-                        `<tr><td colspan="8" class="empty">Error loading data. Check console.</td></tr>`;
+                } else {
+                    showToast('User added as admin successfully!');
+                    input.value = '';
+                    renderAdminTable();
+                    // Clear admin cache if you use one
                 }
+            } catch (err) {
+                console.error('Add admin error:', err);
+                showToast('Failed to add admin: ' + err.message, 'error');
             }
+        };
 
-            function applyFilters() {
-                const search = document.getElementById('searchInput').value.toLowerCase().trim();
-                let result = allVictims.slice();
-                if (search) {
-                    result = result.filter(v => {
-                        const data = safeParseData(v.data);
-                        return (v.ip && v.ip.toLowerCase().includes(search)) ||
-                            (v.country && v.country.toLowerCase().includes(search)) ||
-                            (v.username && v.username.toLowerCase().includes(search)) ||
-                            (v.hostname && v.hostname.toLowerCase().includes(search)) ||
-                            (v.user_id && v.user_id.toLowerCase().includes(search)) ||
-                            (data.tag && data.tag.toLowerCase().includes(search));
-                    });
+        window.removeAdmin = async function(userId) {
+            if (!confirm(`Remove admin user ${userId}?`)) return;
+            try {
+                const { error } = await sb
+                    .from('admins')
+                    .delete()
+                    .eq('user_id', userId);
+                if (error) throw error;
+                showToast('Admin removed successfully.');
+                renderAdminTable();
+            } catch (err) {
+                console.error('Remove admin error:', err);
+                showToast('Failed to remove admin: ' + err.message, 'error');
+            }
+        };
+
+        // ===== VICTIMS (unchanged from your original) =====
+        async function fetchAllVictims() {
+            try {
+                const { data, error } = await sb.rpc('get_all_victims_for_admin');
+                if (error) {
+                    console.error('RPC error:', error);
+                    const { data: fallbackData, error: fallbackError } = await sb
+                        .from('victims')
+                        .select('*')
+                        .order('timestamp', { ascending: false })
+                        .limit(500);
+                    if (fallbackError) throw fallbackError;
+                    allVictims = fallbackData || [];
+                } else {
+                    allVictims = data || [];
                 }
-                filteredVictims = result;
-                currentPage = 1;
-                renderTable();
-                updateStats();
-            }
-
-            window.applyFilters = applyFilters;
-
-            function resetFilters() {
-                document.getElementById('searchInput').value = '';
-                applyFilters();
-            }
-            window.resetFilters = resetFilters;
-
-            function renderTable() {
-                const start = (currentPage - 1) * PAGE_SIZE;
-                const end = Math.min(start + PAGE_SIZE, filteredVictims.length);
-                const pageData = filteredVictims.slice(start, end);
-                const tbody = document.getElementById('victimTableBody');
-                tbody.innerHTML = '';
-                if (pageData.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty">No victims found</td></tr>';
-                    return;
-                }
-                pageData.forEach(v => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td class="mono" style="font-size:0.75rem;color:var(--text-muted);">${escapeHtml(v.user_id?.slice(0,8) || 'N/A')}</td>
-                        <td>${escapeHtml(v.username || 'Unknown')}</td>
-                        <td>${escapeHtml(v.hostname || 'N/A')}</td>
-                        <td>${escapeHtml(v.ip || 'N/A')}</td>
-                        <td><span class="badge">${escapeHtml(v.country || 'N/A')}</span></td>
-                        <td>${v.total_passwords || 0}</td>
-                        <td style="font-size:0.75rem;color:var(--text-muted);">${formatTime(v.timestamp)}</td>
-                        <td><button class="btn btn-primary btn-sm" onclick="window.location.href='hit.html?id=${v.id}'"><i class="fas fa-eye"></i> View</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-                document.getElementById('victimCount').textContent = `${filteredVictims.length} victims`;
-                updatePagination();
-            }
-
-            function updatePagination() {
-                const totalPages = Math.ceil(filteredVictims.length / PAGE_SIZE) || 1;
-                const container = document.getElementById('pagination');
-                if (totalPages <= 1) {
-                    container.innerHTML = '';
-                    return;
-                }
-                let html = '';
-                html += `<button class="page-btn" onclick="window.goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
-                html += `<button class="page-btn" onclick="window.goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
-                let start = Math.max(1, currentPage - 2);
-                let end = Math.min(totalPages, currentPage + 2);
-                if (start > 1) html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`;
-                for (let i = start; i <= end; i++) {
-                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
-                }
-                if (end < totalPages) html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`;
-                html += `<button class="page-btn" onclick="window.goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
-                html += `<button class="page-btn" onclick="window.goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
-                container.innerHTML = html;
-            }
-
-            window.goToPage = function(page) {
-                const totalPages = Math.ceil(filteredVictims.length / PAGE_SIZE) || 1;
-                if (page < 1 || page > totalPages || page === currentPage) return;
-                currentPage = page;
-                renderTable();
-            };
-
-            function updateStats() {
-                const totalHits = allVictims.length;
-                const uniqueUsers = new Set(allVictims.map(v => v.user_id)).size;
-                let totalPasswords = 0;
-                allVictims.forEach(v => {
+                allVictims = allVictims.map(v => {
                     const parsed = safeParseData(v.data);
                     const filtered = filterPasswords(parsed);
-                    totalPasswords += filtered.length;
+                    v.total_passwords = filtered.length;
+                    return v;
                 });
-                const uniqueCountries = new Set(allVictims.map(v => v.country).filter(Boolean)).size;
-                document.getElementById('totalHits').textContent = totalHits;
-                document.getElementById('totalUsers').textContent = uniqueUsers;
-                document.getElementById('totalPasswords').textContent = totalPasswords;
-                document.getElementById('totalCountries').textContent = uniqueCountries;
+                applyFilters();
+                updateStats();
+            } catch (err) {
+                console.error('Fetch error:', err);
+                showToast('Failed to load victims: ' + err.message, 'error');
+                document.getElementById('victimTableBody').innerHTML =
+                    `<tr><td colspan="8" class="empty">Error loading data. Check console.</td></tr>`;
+            }
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            let result = allVictims.slice();
+            if (search) {
+                result = result.filter(v => {
+                    const data = safeParseData(v.data);
+                    return (v.ip && v.ip.toLowerCase().includes(search)) ||
+                        (v.country && v.country.toLowerCase().includes(search)) ||
+                        (v.username && v.username.toLowerCase().includes(search)) ||
+                        (v.hostname && v.hostname.toLowerCase().includes(search)) ||
+                        (v.user_id && v.user_id.toLowerCase().includes(search)) ||
+                        (data.tag && data.tag.toLowerCase().includes(search));
+                });
+            }
+            filteredVictims = result;
+            currentPage = 1;
+            renderTable();
+            updateStats();
+        }
+
+        window.applyFilters = applyFilters;
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+        window.resetFilters = resetFilters;
+
+        function renderTable() {
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, filteredVictims.length);
+            const pageData = filteredVictims.slice(start, end);
+            const tbody = document.getElementById('victimTableBody');
+            tbody.innerHTML = '';
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty">No victims found</td></tr>';
+                return;
+            }
+            pageData.forEach(v => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="mono" style="font-size:0.75rem;color:var(--text-muted);">${escapeHtml(v.user_id?.slice(0,8) || 'N/A')}</td>
+                    <td>${escapeHtml(v.username || 'Unknown')}</td>
+                    <td>${escapeHtml(v.hostname || 'N/A')}</td>
+                    <td>${escapeHtml(v.ip || 'N/A')}</td>
+                    <td><span class="badge">${escapeHtml(v.country || 'N/A')}</span></td>
+                    <td>${v.total_passwords || 0}</td>
+                    <td style="font-size:0.75rem;color:var(--text-muted);">${formatTime(v.timestamp)}</td>
+                    <td><button class="btn btn-primary btn-sm" onclick="window.location.href='hit.html?id=${v.id}'"><i class="fas fa-eye"></i> View</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('victimCount').textContent = `${filteredVictims.length} victims`;
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredVictims.length / PAGE_SIZE) || 1;
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            let html = '';
+            html += `<button class="page-btn" onclick="window.goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>`;
+            html += `<button class="page-btn" onclick="window.goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-angle-left"></i></button>`;
+            let start = Math.max(1, currentPage - 2);
+            let end = Math.min(totalPages, currentPage + 2);
+            if (start > 1) html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`;
+            for (let i = start; i <= end; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="window.goToPage(${i})">${i}</button>`;
+            }
+            if (end < totalPages) html += `<span class="page-btn" style="border:none;background:transparent;cursor:default;">…</span>`;
+            html += `<button class="page-btn" onclick="window.goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-right"></i></button>`;
+            html += `<button class="page-btn" onclick="window.goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>`;
+            container.innerHTML = html;
+        }
+
+        window.goToPage = function(page) {
+            const totalPages = Math.ceil(filteredVictims.length / PAGE_SIZE) || 1;
+            if (page < 1 || page > totalPages || page === currentPage) return;
+            currentPage = page;
+            renderTable();
+        };
+
+        function updateStats() {
+            const totalHits = allVictims.length;
+            const uniqueUsers = new Set(allVictims.map(v => v.user_id)).size;
+            let totalPasswords = 0;
+            allVictims.forEach(v => {
+                const parsed = safeParseData(v.data);
+                const filtered = filterPasswords(parsed);
+                totalPasswords += filtered.length;
+            });
+            const uniqueCountries = new Set(allVictims.map(v => v.country).filter(Boolean)).size;
+            document.getElementById('totalHits').textContent = totalHits;
+            document.getElementById('totalUsers').textContent = uniqueUsers;
+            document.getElementById('totalPasswords').textContent = totalPasswords;
+            document.getElementById('totalCountries').textContent = uniqueCountries;
+        }
+
+        // ===== INIT =====
+        sb.auth.getSession().then(async ({ data: { session } }) => {
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = session.user;
+
+            // VIP overlay (DB-based)
+            async function isVip(userId) {
+                try {
+                    // 1. Check admin bypass
+                    const { data: adminData } = await sb
+                        .from('admins')
+                        .select('user_id')
+                        .eq('user_id', userId)
+                        .single();
+                    if (adminData) return true;
+                    // 2. Check vip_users
+                    const { data, error } = await sb
+                        .from('vip_users')
+                        .select('user_id')
+                        .eq('user_id', userId)
+                        .single();
+                    if (error && error.code !== 'PGRST116') throw error;
+                    return !!data;
+                } catch (err) {
+                    console.warn('VIP check error:', err);
+                    return false;
+                }
             }
 
-            // ===== Init =====
-            sb.auth.getSession().then(async ({ data: { session } }) => {
-                if (!session) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                currentUser = session.user;
-
-                // VIP overlay
-                function checkVip(userId) {
-                    const overlay = document.getElementById('vipOverlay');
-                    if (!overlay) return;
-                    if (VIP_USERS.includes(userId)) {
-                        overlay.style.display = 'none';
-                        document.querySelector('.app-container')?.style.setProperty('display', 'flex');
-                    } else {
-                        overlay.style.display = 'flex';
-                        document.querySelector('.app-container')?.style.setProperty('display', 'none');
-                    }
-                }
-                checkVip(currentUser.id);
-                const adminLink = document.getElementById('adminLink');
-                if (adminLink && ADMIN_USERS.includes(currentUser.id)) {
-                    adminLink.style.display = 'flex';
-                }
-
-                // Admin check – if not admin, redirect to dashboard
-                if (!ADMIN_USERS.includes(currentUser.id)) {
-                    window.location.href = 'dashboard.html';
-                    return;
-                }
-
-                // Fetch profile for sidebar
-                const { data: profile, error: profileError } = await sb
-                    .from('profiles')
-                    .select('username, avatar_url')
-                    .eq('id', currentUser.id)
-                    .single();
-
-                let avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || '';
-                let userName = profile?.username || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email || 'Admin';
-                let email = currentUser.email || '';
-
-                document.getElementById('sidebarUsername').textContent = userName;
-                document.getElementById('sidebarEmail').textContent = email;
-
-                const avatarImg = document.getElementById('avatarImg');
-                const defaultIcon = document.getElementById('defaultAvatarIcon');
-                if (avatarUrl) {
-                    avatarImg.src = avatarUrl;
-                    avatarImg.style.display = 'block';
-                    defaultIcon.style.display = 'none';
+            async function checkVip(userId) {
+                const overlay = document.getElementById('vipOverlay');
+                if (!overlay) return;
+                const isVipUser = await isVip(userId);
+                if (isVipUser) {
+                    overlay.style.display = 'none';
+                    document.querySelector('.app-container')?.style.setProperty('display', 'flex');
                 } else {
-                    avatarImg.style.display = 'none';
-                    defaultIcon.style.display = 'block';
+                    overlay.style.display = 'flex';
+                    document.querySelector('.app-container')?.style.setProperty('display', 'none');
                 }
+            }
+            await checkVip(currentUser.id);
 
+            // Admin check – now also from DB
+            const isAdmin = async (userId) => {
                 try {
-                    await sb.from('profiles').upsert({
-                        id: currentUser.id,
-                        username: userName,
-                        avatar_url: avatarUrl,
-                        updated_at: new Date().toISOString()
-                    }, { onConflict: 'id' });
+                    const { data, error } = await sb
+                        .from('admins')
+                        .select('user_id')
+                        .eq('user_id', userId)
+                        .single();
+                    if (error && error.code !== 'PGRST116') throw error;
+                    return !!data;
                 } catch (err) {
-                    console.warn('Profile upsert failed:', err);
+                    console.warn('Admin check error:', err);
+                    return false;
                 }
+            };
 
-                // Load data
-                await fetchAllVictims();
-            });
-        })();
+            if (!(await isAdmin(currentUser.id))) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // Fetch profile for sidebar
+            const { data: profile, error: profileError } = await sb
+                .from('profiles')
+                .select('username, avatar_url')
+                .eq('id', currentUser.id)
+                .single();
+
+            let avatarUrl = profile?.avatar_url || currentUser.user_metadata?.avatar_url || '';
+            let userName = profile?.username || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email || 'Admin';
+            let email = currentUser.email || '';
+
+            document.getElementById('sidebarUsername').textContent = userName;
+            document.getElementById('sidebarEmail').textContent = email;
+
+            const avatarImg = document.getElementById('avatarImg');
+            const defaultIcon = document.getElementById('defaultAvatarIcon');
+            if (avatarUrl) {
+                avatarImg.src = avatarUrl;
+                avatarImg.style.display = 'block';
+                defaultIcon.style.display = 'none';
+            } else {
+                avatarImg.style.display = 'none';
+                defaultIcon.style.display = 'block';
+            }
+
+            try {
+                await sb.from('profiles').upsert({
+                    id: currentUser.id,
+                    username: userName,
+                    avatar_url: avatarUrl,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' });
+            } catch (err) {
+                console.warn('Profile upsert failed:', err);
+            }
+
+            // Load all data
+            await fetchAllVictims();
+            await renderVIPTable();
+            await renderAdminTable();
+        });
     </script>
 </body>
 </html>
