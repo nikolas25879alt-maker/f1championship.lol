@@ -966,7 +966,12 @@
                                         <i class="fas fa-eye-slash eye-off-icon"></i>
                                     </button>
                                 </td>
-                                <td><i class="${icon}"></i> ${a.browser}</td>
+                                <td>
+                                    <img src="/scripty/icons/small/browsers/${a.browser ? a.browser.toLowerCase() : 'unknown'}.png"
+                                         onerror="this.style.display='none'"
+                                         style="width:16px;height:16px;vertical-align:middle;margin-right:4px;object-fit:contain;background:var(--bg-tertiary);padding:1px;border-radius:2px;">
+                                    ${a.browser || 'N/A'}
+                                </td>
                                 <td>${a.profile}</td>
                             </tr>`;
                         }).join('');
