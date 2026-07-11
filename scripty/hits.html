@@ -1632,7 +1632,31 @@
             };
 
             window.downloadHit = async function(id) {
-                showToast('Download coming soon...', 'warning');
+                try {
+                    // Find victim in the cached list
+                    const victim = allVictims.find(v => v.id === id);
+                    if (!victim) {
+                        showToast('Victim not found', 'error');
+                        return;
+                    }
+                    const data = safeParseData(victim.data);
+                    const zipUrl = data.logs_zip;
+                    if (!zipUrl) {
+                        showToast('No ZIP file available for this hit', 'warning');
+                        return;
+                    }
+                    // Trigger download by creating a hidden link
+                    const a = document.createElement('a');
+                    a.href = zipUrl;
+                    a.download = 'logs.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast('Downloading logs.zip...');
+                } catch (err) {
+                    console.error(err);
+                    showToast('Download failed: ' + err.message, 'error');
+                }
             };
 
             function updatePaginationInfo() {

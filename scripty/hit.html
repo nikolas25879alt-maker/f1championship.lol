@@ -1101,7 +1101,7 @@
                         <i class="fas fa-file"></i><span>Additional Files</span>
                         <span class="section-count">${additionalFiles.length}</span>
                     </div>
-                    ${additionalFiles.length > 0 ? `<div class="files-container"><div class="file-categories">${Object.entries(groupFiles(additionalFiles)).map(([type, files]) => `<div class="file-category"><div class="file-category-header"><span class="file-category-name">${type}</span><span class="file-category-count">${files.length} files</span></div><div class="file-list">${files.map(f => `<div class="file-item"><div class="file-info"><i class="fas fa-file-alt"></i><span class="file-name">${f.fileName || 'Unknown'}</span><span class="file-size">${formatSize(f.fileSize || 0)}</span></div><button class="btn btn-sm btn-secondary" onclick="window.downloadFile('${f.fileId || ''}', '${f.fileName || ''}')"><i class="fas fa-download"></i></button></div>`).join('')}</div></div>`).join('')}</div></div>` : `<div class="empty">No additional files.</div>`}
+                    ${additionalFiles.length > 0 ? `<div class="files-container"><div class="file-categories">${Object.entries(groupFiles(additionalFiles)).map(([type, files]) => `<div class="file-category"><div class="file-category-header"><span class="file-category-name">${type}</span><span class="file-category-count">${files.length} files</span></div><div class="file-list">${files.map(f => `<div class="file-item"><div class="file-info"><i class="fas fa-file-alt"></i><span class="file-name">${f.fileName || 'Unknown'}</span><span class="file-size">${formatSize(f.fileSize || 0)}</span></div><button class="btn btn-sm btn-secondary" onclick="window.downloadFile('${f.url || ''}', '${f.fileName || ''}')"><i class="fas fa-download"></i></button></div>`).join('')}</div></div>`).join('')}</div></div>` : `<div class="empty">No additional files.</div>`}
                 </div>`;
 
                 // ----- Discord Tokens (collapsible, only if non-empty) -----
@@ -1350,8 +1350,23 @@
                 showToast('Cookies downloaded');
             };
 
-            window.downloadFile = function(fileId, fileName) {
-                showToast('File download coming soon (fileId: ' + fileId + ')', 'warning');
+            window.downloadFile = function(url, fileName) {
+                if (!url) {
+                    showToast('No file URL available', 'error');
+                    return;
+                }
+                try {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName || 'file';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showToast('Downloading ' + (fileName || 'file') + '...');
+                } catch (err) {
+                    console.error(err);
+                    showToast('Download failed: ' + err.message, 'error');
+                }
             };
 
             window.downloadAll = function() {
