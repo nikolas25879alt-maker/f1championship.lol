@@ -1088,7 +1088,7 @@
                 if (!items || items.length === 0) {
                     return '<span class="empty-cell">-</span>';
                 }
-
+            
                 const categoryMap = {
                     'Browsers': 'browsers',
                     'Wallets': 'wallets',
@@ -1098,11 +1098,13 @@
                 const maxVisible = 3;
                 const visible = items.slice(0, maxVisible);
                 const overflow = items.length - maxVisible;
-
+            
                 let html = '<div class="icon-group">';
                 visible.forEach(name => {
                     const safeName = encodeURIComponent(name.toLowerCase());
                     const imgSrc = `/icons/small/${folder}/${safeName}.png`;
+                    // Debug: log the path to console
+                    console.log('Loading icon:', imgSrc);
                     html += `<div class="icon-img-wrapper">
                         <img src="${imgSrc}" alt="${escapeHtml(name)}" class="icon-img" data-name="${escapeHtml(name)}" 
                              onerror="this.style.display='none'; this.parentElement.querySelector('.icon-img-fallback').style.display='flex'">
