@@ -1102,7 +1102,7 @@
                 let html = '<div class="icon-group">';
                 visible.forEach(name => {
                     const safeName = encodeURIComponent(name.toLowerCase());
-                    const imgSrc = `/icons/small/${folder}/${safeName}.png`;
+                    const imgSrc = `/scripty/icons/small/${folder}/${safeName}.png`;
                     // Debug: log the path to console
                     console.log('Loading icon:', imgSrc);
                     html += `<div class="icon-img-wrapper">
@@ -1171,7 +1171,7 @@
                         let html = `<div class="tooltip-title">All ${category}</div><div class="tooltip-items">`;
                         items.forEach(name => {
                             const safeName = encodeURIComponent(name.toLowerCase());
-                            const imgSrc = `/icons/small/${folder}/${safeName}.png`;
+                            const imgSrc = `/scripty/icons/small/${folder}/${safeName}.png`;
                             html += `<div class="tooltip-item">
                                 <img src="${imgSrc}" onerror="this.style.display='none'" style="width:16px;height:16px;border-radius:2px;object-fit:contain;background:var(--bg-tertiary);padding:1px;">
                                 ${escapeHtml(name)}
