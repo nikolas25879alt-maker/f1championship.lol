@@ -173,27 +173,6 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqdGtkenRyd3FyanFxdXlndGJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTE2NDEsImV4cCI6MjA5ODM4NzY0MX0.t8eT3QHOPY50dL_oIpJrXTxQHMJi6rCjUU-f3OmLJxI";
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function loginWithDiscord() {
-            const btn = document.getElementById('loginBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
-            document.getElementById('loginError').style.display = 'none';
-            try {
-                const { error } = await supabaseClient.auth.signInWithOAuth({
-                    provider: 'discord',
-                    options: {
-                        redirectTo: window.location.origin + '/scripty/dashboard.html'
-                    }
-                });
-                if (error) throw error;
-            } catch (err) {
-                document.getElementById('loginError').textContent = err.message;
-                document.getElementById('loginError').style.display = 'block';
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fab fa-discord"></i> Login with Discord';
-            }
-        }
-        //
         //async function loginWithDiscord() {
         //    const btn = document.getElementById('loginBtn');
         //    btn.disabled = true;
@@ -203,7 +182,7 @@
         //        const { error } = await supabaseClient.auth.signInWithOAuth({
         //            provider: 'discord',
         //            options: {
-        //                redirectTo: window.location.origin + '/dashboard.html'
+        //                redirectTo: window.location.origin + '/scripty/dashboard.html'
         //            }
         //        });
         //        if (error) throw error;
@@ -214,6 +193,27 @@
         //        btn.innerHTML = '<i class="fab fa-discord"></i> Login with Discord';
         //    }
         //}
+        //
+        async function loginWithDiscord() {
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
+            document.getElementById('loginError').style.display = 'none';
+            try {
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'discord',
+                    options: {
+                        redirectTo: window.location.origin + '/dashboard.html'
+                    }
+                });
+                if (error) throw error;
+            } catch (err) {
+                document.getElementById('loginError').textContent = err.message;
+                document.getElementById('loginError').style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fab fa-discord"></i> Login with Discord';
+            }
+        }
 
         supabaseClient.auth.getSession().then(({ data: { session } }) => {
             if (session) window.location.href = 'dashboard.html';
