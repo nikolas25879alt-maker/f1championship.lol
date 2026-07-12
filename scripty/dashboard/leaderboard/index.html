@@ -1051,7 +1051,7 @@
 
             window.logout = async function() {
                 await sb.auth.signOut();
-                window.location.href = 'login.html';
+                window.location.href = '/scripty/login.html';
             };
 
             function getInitials(username) {
@@ -1267,7 +1267,7 @@
             // --- Init ---
             sb.auth.getSession().then(async ({ data: { session } }) => {
                 if (!session) {
-                    window.location.href = 'login.html';
+                    window.location.href = '/scripty/login.html';
                     return;
                 }
                 currentUser = session.user;

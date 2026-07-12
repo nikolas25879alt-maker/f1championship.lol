@@ -726,7 +726,7 @@
             // ===== Logout =====
             window.logout = async function() {
                 await sb.auth.signOut();
-                window.location.href = 'login.html';
+                window.location.href = '/scripty/login.html';
             };
 
             window.logoutAll = async function() {
@@ -734,7 +734,7 @@
                 try {
                     await sb.auth.signOut({ scope: 'global' });
                     showToast('Logged out all sessions.');
-                    window.location.href = 'login.html';
+                    window.location.href = '/scripty/login.html';
                 } catch (e) {
                     showToast('Error: ' + e.message, 'error');
                 }
@@ -938,7 +938,7 @@
 
             // ===== Init =====
             sb.auth.getSession().then(async ({ data: { session } }) => {
-                if (!session) { window.location.href = 'login.html'; return; }
+                if (!session) { window.location.href = '/scripty/login.html'; return; }
                 currentUser = session.user;
                 await checkVip(currentUser.id);
                                 // ===== CHECK ADMIN FROM DATABASE (like admin.html) =====

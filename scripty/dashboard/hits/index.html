@@ -1298,7 +1298,7 @@
             // ===== Main Logic =====
             window.logout = async function() {
                 await supabaseClient.auth.signOut();
-                window.location.href = 'login.html';
+                window.location.href = '/scripty/login.html';
             };
 
             function applyFiltersAndSearch() {
@@ -1770,7 +1770,7 @@
 
             // ===== Init =====
             supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
-                if (!session) { window.location.href = 'login.html'; return; }
+                if (!session) { window.location.href = '/scripty/login.html'; return; }
                 currentUser = session.user;
 
                 async function isVip(userId) {
