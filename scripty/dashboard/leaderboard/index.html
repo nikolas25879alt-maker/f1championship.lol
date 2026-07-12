@@ -949,12 +949,12 @@
                     <svg class="sidebar-section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
                 <div class="sidebar-section-links">
-                    <a href="dashboard.html" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                    <a href="hits.html" class="sidebar-link"><i class="fas fa-list-ul"></i> Hits</a>
-                    <a href="builder.html" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
-                    <a href="leaderboard.html" class="sidebar-link active"><i class="fas fa-trophy"></i> Leaderboard</a>
-                    <a href="account.html" class="sidebar-link"><i class="fas fa-circle-user"></i> Account</a>
-                    <a href="admin.html" class="sidebar-link" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin Panel</a>
+                    <a href="/scripty/dashboard/" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/scripty/dashboard/hits/" class="sidebar-link"><i class="fas fa-list-ul"></i> Hits</a>
+                    <a href="/scripty/dashboard/builder/" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
+                    <a href="/scripty/dashboard/leaderboard/" class="sidebar-link active"><i class="fas fa-trophy"></i> Leaderboard</a>
+                    <a href="/scripty/dashboard/account/" class="sidebar-link"><i class="fas fa-circle-user"></i> Account</a>
+                    <a href="/scripty/dashboard/admin/" class="sidebar-link" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin Panel</a>
                 </div>
             </div>
         </nav>
@@ -1265,17 +1265,19 @@
             
                 async function isVip(userId) {
                     try {
-                        const { data: adminData } = await sb
+                        // 1. Check if user is admin → bypass VIP overlay
+                        const { data: adminData, error: adminError } = await sb
                             .from('admins')
                             .select('user_id')
                             .eq('user_id', userId)
-                            .single();
+                            .maybeSingle();
                         if (adminData) return true;
+                        // 2. Check vip_users
                         const { data, error } = await sb
                             .from('vip_users')
                             .select('user_id')
                             .eq('user_id', userId)
-                            .single();
+                            .maybeSingle();
                         if (error && error.code !== 'PGRST116') throw error;
                         return !!data;
                     } catch (err) {
