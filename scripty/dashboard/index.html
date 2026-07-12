@@ -1104,7 +1104,7 @@
 
                 // Use it
                 const adminLink = document.getElementById('adminLink');
-                if (adminLink && await isAdminFromDB(user.id)) {
+                if (adminLink && await isAdminFromDB(currentUser.id)) {
                     adminLink.style.display = 'flex';
                 }
             
