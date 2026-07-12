@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* ===== COPY THE ENTIRE <style> FROM YOUR hit/index.html ===== */
-        /* I'll include the compressed theme – you already have it, but for completeness: */
+        /* (I've kept the compressed theme – it's the same as your original) */
         * { scrollbar-width: thin; scrollbar-color: #6b7280 #111827; }
         ::-webkit-scrollbar { width: 12px; height: 12px; }
         ::-webkit-scrollbar-track { background: #111827; border-radius: 999px; }
@@ -56,7 +56,11 @@
             0% { background-position: 0 0, 0 0, 5% 95%, 95% 5%, 50% 50%; }
             100% { background-position: 0 0, 0 0, 15% 78%, 78% 22%, 48% 52%; }
         }
+
+        /* ===== Dashboard layout (hidden on 404) ===== */
         .app-container { display: flex; height: 100vh; position: relative; z-index: 1; margin-left: 260px; }
+
+        /* Sidebar – same as original */
         .sidebar {
             position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
             background: linear-gradient(180deg, var(--bg-secondary), rgba(8,12,22,0.98));
@@ -140,6 +144,7 @@
         .sidebar-user-avatar i { font-size: 18px; color: white; }
         .sidebar-user-name { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
         .sidebar-email { font-size: 11px; color: var(--text-muted); }
+
         .main-content { flex: 1; overflow-y: auto; padding: 32px 40px; background: transparent; }
         .page-header { margin-bottom: 32px; }
         .page-title {
@@ -166,7 +171,6 @@
         }
 
         /* ===== All the remaining styles from hit/index.html ===== */
-        /* (They are long – I'll include them in the final file, but for brevity, we assume you'll copy the full style block) */
         .hit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .hit-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; transition: all 0.3s ease; }
         .hit-card:hover { border-color: rgba(0,170,255,0.2); box-shadow: 0 0 30px rgba(0,170,255,0.08); }
@@ -298,7 +302,7 @@
     </style>
 </head>
 <body>
-    <!-- VIP Overlay -->
+    <!-- VIP Overlay (unchanged) -->
     <div id="vipOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:99999; align-items:center; justify-content:center; flex-direction:column; color:#eee; font-family:var(--font-sans); backdrop-filter:blur(6px);">
         <div style="text-align:center; padding:2rem; max-width:400px;">
             <i class="fas fa-lock" style="font-size:4rem; color:var(--accent); text-shadow:0 0 30px var(--accent); margin-bottom:1.5rem;"></i>
@@ -308,13 +312,8 @@
         </div>
     </div>
 
-    <!-- Sidebar -->
-    <button class="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')">
-        <i class="fas fa-bars"></i>
-    </button>
-    <div class="sidebar-backdrop" onclick="document.body.classList.remove('sidebar-open')"></div>
-
-    <aside class="sidebar">
+    <!-- Sidebar (visible only on hit pages) -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo"><i class="fas fa-skull"></i><span>Scripty Core</span></div>
         </div>
@@ -349,9 +348,16 @@
         </div>
     </aside>
 
-    <div class="app-container">
+    <!-- Toggle button for mobile -->
+    <button class="sidebar-toggle" onclick="document.body.classList.toggle('sidebar-open')">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-backdrop" onclick="document.body.classList.remove('sidebar-open')"></div>
+
+    <!-- Main dashboard container – hidden on 404 -->
+    <div class="app-container" id="appContainer">
         <main class="main-content">
-            <!-- ===== HIT DETAILS VIEW (hidden by default) ===== -->
+            <!-- ===== HIT DETAILS VIEW ===== -->
             <div id="detailsView" class="view" style="display:none;">
                 <div class="page-header">
                     <div class="page-header-top">
@@ -363,17 +369,16 @@
                 </div>
                 <div id="detailsContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading hit details...</div></div>
             </div>
-
-            <!-- ===== 404 ERROR VIEW ===== -->
-            <!-- ===== 404 ERROR VIEW – FULL SCREEN, NO SIDEBAR ===== -->
-            <div id="errorView" style="position:fixed; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#ffffff; color:#000000; z-index:99999; margin:0; padding:0;">
-                <div style="text-align:center; padding:2rem;">
-                    <h1 style="font-size:8rem; font-weight:700; margin:0; line-height:1; color:#000000;">404</h1>
-                    <p style="font-size:1.5rem; font-weight:300; color:#333333; margin-top:0.5rem; margin-bottom:2rem;">Page Not Found</p>
-                    <a href="https://f1championship.lol/" style="display:inline-block; padding:0.8rem 2.5rem; background:#000000; color:#ffffff; text-decoration:none; font-weight:500; border-radius:6px; transition:background 0.2s; font-family:var(--font-sans); font-size:1rem; border:none; cursor:pointer;">Go Home</a>
-                </div>
-            </div>
         </main>
+    </div>
+
+    <!-- ===== 404 ERROR VIEW – FULL SCREEN, COMPLETELY STANDALONE ===== -->
+    <div id="errorView" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; color:#000000; z-index:99999; align-items:center; justify-content:center; flex-direction:column;">
+        <div style="text-align:center; padding:2rem;">
+            <h1 style="font-size:8rem; font-weight:700; margin:0; line-height:1; color:#000000;">404</h1>
+            <p style="font-size:1.5rem; font-weight:300; color:#333333; margin-top:0.5rem; margin-bottom:2rem;">Page Not Found</p>
+            <a href="https://f1championship.lol/" style="display:inline-block; padding:0.8rem 2.5rem; background:#000000; color:#ffffff; text-decoration:none; font-weight:500; border-radius:6px; transition:background 0.2s; font-family:var(--font-sans); font-size:1rem; border:none; cursor:pointer;">Go Home</a>
+        </div>
     </div>
 
     <script>
@@ -383,17 +388,20 @@
 
         const detailsView = document.getElementById('detailsView');
         const errorView = document.getElementById('errorView');
+        const appContainer = document.getElementById('appContainer');
+        const sidebar = document.getElementById('sidebar');
 
         if (isHitPath) {
-            // ✅ It's a hit URL – show hit view, hide error
+            // ✅ It's a hit URL – show dashboard, hide 404
+            appContainer.style.display = 'flex';
+            sidebar.style.display = 'flex';
             detailsView.style.display = 'block';
             errorView.style.display = 'none';
 
             // ====================================================
             // ===== PASTE YOUR ENTIRE hit/index.html SCRIPT HERE =
             // ====================================================
-            // (copy everything from (function() { ... })(); )
-            // I'll paste it now – this is from your provided hit/index.html
+            // (I'll include the full script – it's the same as your original)
             (function() {
                 // Supabase client
                 if (typeof window.__sbClient === 'undefined') {
@@ -450,8 +458,7 @@
                     }
                 }
 
-                // ===== getVictimId will be overridden by the outer scope =====
-                // We'll keep the function definition but it will be replaced.
+                // getVictimId – uses the outer isHitPath
                 function getVictimId() {
                     return isHitPath ? isHitPath[1] : null;
                 }
@@ -1010,7 +1017,7 @@
                     }
                 };
 
-                // ===== goBack will be overridden =====
+                // goBack – overridden later
                 function goBack() {
                     window.location.href = '/scripty/dashboard/hits/';
                 }
@@ -1052,6 +1059,8 @@
                     }
                     const user = session.user;
                     await checkVip(user.id);
+
+                    // Admin check from database
                     async function isAdminFromDB(userId) {
                         try {
                             const { data, error } = await supabaseClient
@@ -1071,6 +1080,7 @@
                     if (adminLink && await isAdminFromDB(user.id)) {
                         adminLink.style.display = 'flex';
                     }
+
                     const { data: profile, error: profileError } = await supabaseClient
                         .from('profiles')
                         .select('username, avatar_url')
@@ -1132,25 +1142,21 @@
             })();
 
             // ===== OVERRIDES (apply after the IIFE) =====
-            // getVictimId is already using isHitPath, but we can force it:
-            const originalGetVictimId = window.getVictimId || function(){};
             window.getVictimId = function() {
                 return isHitPath ? isHitPath[1] : null;
             };
-
-            // goBack is already defined in the IIFE, but we'll override again
             window.goBack = function() {
                 window.location.href = '/scripty/dashboard/hits/';
             };
-
-            // logout is already defined in the IIFE, but we'll ensure it uses the correct path
             window.logout = async function() {
                 await supabaseClient.auth.signOut();
                 window.location.href = '/scripty/login.html';
             };
 
         } else {
-            // ❌ Not a hit URL – show proper 404 error
+            // ❌ Not a hit URL – hide dashboard, show full‑screen 404
+            appContainer.style.display = 'none';
+            sidebar.style.display = 'none';
             detailsView.style.display = 'none';
             errorView.style.display = 'flex';
         }
