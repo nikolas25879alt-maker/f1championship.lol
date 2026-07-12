@@ -727,14 +727,23 @@
                 <div class="sidebar-section-links">
                     <a href="/scripty/dashboard/" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                     <a href="/scripty/dashboard/hits/" class="sidebar-link active"><i class="fas fa-list-ul"></i> Hits</a>
-                    <a href="/scripty/dashboard/builder/" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
                     <a href="/scripty/dashboard/leaderboard/" class="sidebar-link"><i class="fas fa-trophy"></i> Leaderboard</a>
                     <a href="/scripty/dashboard/account/" class="sidebar-link"><i class="fas fa-circle-user"></i> Account</a>
                     <a href="/scripty/dashboard/admin/" class="sidebar-link" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin Panel</a>
                 </div>
             </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-toggle" onclick="this.closest('.sidebar-section').classList.toggle('collapsed')">
+                    <span class="sidebar-section-title">Tools</span>
+                    <svg class="sidebar-section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="sidebar-section-links">
+                    <a href="/scripty/dashboard/tutorials/" class="sidebar-link"><i class="fas fa-question"></i> Tutorials</a>
+                    <a href="/scripty/dashboard/builder/" class="sidebar-link"><i class="fas fa-code"></i> Builder</a>
+                </div>
+            </div>
         </nav>
-        <div class="sidebar-footer" onclick="window.location.href='account.html'">
+        <div class="sidebar-footer" onclick="window.location.href='/scripty/dashboard/account/'">
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar" id="userAvatar">
                     <img id="avatarImg" src="" alt="Avatar" />
