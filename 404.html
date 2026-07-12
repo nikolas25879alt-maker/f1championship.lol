@@ -1052,11 +1052,25 @@
                     }
                     const user = session.user;
                     await checkVip(user.id);
+                    async function isAdminFromDB(userId) {
+                        try {
+                            const { data, error } = await supabaseClient
+                                .from('admins')
+                                .select('user_id')
+                                .eq('user_id', userId)
+                                .maybeSingle();
+                            if (error && error.code !== 'PGRST116') throw error;
+                            return !!data;
+                        } catch (err) {
+                            console.warn('Admin check error:', err);
+                            return false;
+                        }
+                    }
+                    
                     const adminLink = document.getElementById('adminLink');
-                    if (adminLink && ADMIN_USERS.includes(user.id)) {
+                    if (adminLink && await isAdminFromDB(currentUser.id)) {
                         adminLink.style.display = 'flex';
                     }
-
                     const { data: profile, error: profileError } = await supabaseClient
                         .from('profiles')
                         .select('username, avatar_url')

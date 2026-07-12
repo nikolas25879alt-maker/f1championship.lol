@@ -1450,8 +1450,26 @@
                 const user = session.user;
                 // VIP check
                 await checkVip(user.id);
+                // ===== CHECK ADMIN FROM DATABASE (like admin.html) =====
+                async function isAdminFromDB(userId) {
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from('admins')
+                            .select('user_id')
+                            .eq('user_id', userId)
+                            .maybeSingle();
+                        if (error && error.code !== 'PGRST116') throw error;
+                        return !!data;
+                    } catch (err) {
+                        console.warn('Admin check error:', err);
+                        // Fallback to hardcoded list if database fails
+                        return ADMIN_USERS_FALLBACK.includes(userId);
+                    }
+                }
+                
+                // Use it
                 const adminLink = document.getElementById('adminLink');
-                if (adminLink && ADMIN_USERS.includes(user.id)) {
+                if (adminLink && await isAdminFromDB(user.id)) {
                     adminLink.style.display = 'flex';
                 }
             

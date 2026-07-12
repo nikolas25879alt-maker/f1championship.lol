@@ -1209,24 +1209,27 @@
             await checkVip(currentUser.id);
 
             // Admin check – now also from DB
-            const isAdmin = async (userId) => {
+            // ===== CHECK ADMIN FROM DATABASE (like admin.html) =====
+            async function isAdminFromDB(userId) {
                 try {
                     const { data, error } = await sb
                         .from('admins')
                         .select('user_id')
                         .eq('user_id', userId)
-                        .single();
+                        .maybeSingle();
                     if (error && error.code !== 'PGRST116') throw error;
                     return !!data;
                 } catch (err) {
                     console.warn('Admin check error:', err);
-                    return false;
+                    // Fallback to hardcoded list if database fails
+                    return ADMIN_USERS_FALLBACK.includes(userId);
                 }
-            };
+            }
 
-            if (!(await isAdmin(currentUser.id))) {
-                window.location.href = 'dashboard.html';
-                return;
+            // Use it
+            const adminLink = document.getElementById('adminLink');
+            if (adminLink && await isAdminFromDB(user.id)) {
+                adminLink.style.display = 'flex';
             }
 
             // Fetch profile for sidebar
