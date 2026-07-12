@@ -182,7 +182,7 @@
                 const { error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'discord',
                     options: {
-                        redirectTo: window.location.origin + '/scripty/dashboard.html'
+                        redirectTo: window.location.origin + '/scripty/dashboard/'
                     }
                 });
                 if (error) throw error;
