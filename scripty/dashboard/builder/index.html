@@ -10,6 +10,62 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+            
+            
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.3);
+            box-shadow: none !important;
+            transform: none !important;
+            background: linear-gradient(135deg, #555, #888) !important;
+        }
+        .btn:disabled:hover {
+            transform: none !important;
+            box-shadow: 0 0 15px rgba(255,255,255,0.1) !important;
+        }
+        .btn:disabled[title] {
+            position: relative;
+        }
+        .btn:disabled[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+            background: linear-gradient(135deg, rgba(10,14,26,0.95), rgba(16,21,37,0.95));
+            backdrop-filter: blur(4px);
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255,68,170,0.2);
+        }
+        .btn:disabled[title]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--neon-pink);
+            z-index: 100;
+            pointer-events: none;
+        }
+
+
+
+
+
+
         /* ===== Full Theme ===== */
         * {
             scrollbar-width: thin;
@@ -405,7 +461,8 @@
             <div class="card">
                 <div class="card-header"><span class="card-title"><i class="fas fa-code"></i> Generate EXE</span></div>
                 <input type="text" id="buildName" class="input-field" placeholder="Build Name (e.g., 'MyStealer')" />
-                <button class="btn btn-primary" id="downloadBtn" onclick="window.downloadExe()"><i class="fas fa-download"></i> Download EXE</button>
+                <button class="btn btn-primary" id="downloadBtn" disabled title="This feature is temporarily disabled."><i class="fas fa-download"></i> Download EXE</button>
+                <!-- <button class="btn btn-primary" id="downloadBtn" onclick="window.downloadExe()"><i class="fas fa-download"></i> Download EXE</button> -->
             </div>
         </main>
     </div>
