@@ -33,21 +33,17 @@
             bottom: calc(100% + 10px);
             left: 50%;
             transform: translateX(-50%);
-            background: var(--bg-secondary);
+            background: #101527cc;  /* solid dark */
             color: var(--text-primary);
             padding: 8px 14px;
             border-radius: var(--radius-sm);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.836);
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 20px rgba(255,68,170,0.15);
             font-size: 13px;
             font-weight: 500;
             white-space: nowrap;
             z-index: 100;
             pointer-events: none;
-            background: linear-gradient(135deg, rgba(10,14,26,0.95), rgba(16,21,37,0.95));
-            backdrop-filter: blur(4px);
-            border-color: var(--neon-pink);
-            box-shadow: 0 0 20px rgba(35, 193, 255, 0.2);
         }
         .btn:disabled[title]:hover::before {
             content: '';
