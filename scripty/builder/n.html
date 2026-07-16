@@ -21,7 +21,7 @@
         }
         .container {
             width: 100%;
-            max-width: 520px;
+            max-width: 480px;
             background: rgba(10,14,26,0.85);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(100,150,255,0.15);
@@ -31,7 +31,7 @@
         }
         .logo {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
         }
         .logo h1 {
             font-size: 28px;
@@ -45,7 +45,7 @@
         .logo .sub {
             font-size: 14px;
             color: #9aa8c2;
-            margin-top: 4px;
+            margin-top: 6px;
         }
         .card {
             background: rgba(16,21,37,0.7);
@@ -92,40 +92,29 @@
             box-shadow: 0 8px 30px rgba(0,255,136,0.5);
         }
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
         .form-group label {
             display: block;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
             color: #9aa8c2;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
-        /* Dark inputs (new) */
-        .form-group input,
-        .form-group select {
+        .form-group input {
             width: 100%;
-            padding: 10px 14px;
-            background: #0a0e1a;
+            padding: 12px 16px;
+            background: #0b0e1a;
             border: 1px solid rgba(100,140,220,0.2);
-            border-radius: 8px;
+            border-radius: 10px;
             color: #eef2fa;
             font-size: 14px;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            appearance: none;
+            transition: border-color 0.2s;
         }
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #ff44aa;
             box-shadow: 0 0 0 3px rgba(255,68,170,0.2);
-        }
-        .form-group select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239aa8c2' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 32px;
         }
         .user-info {
             display: flex;
@@ -189,125 +178,6 @@
             color: #5a6a85;
             margin-top: 8px;
         }
-
-        /* ---- Message Box Section ---- */
-        .msg-section {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(100,140,220,0.12);
-        }
-        .msg-section label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #d0d8e8;
-        }
-        .msg-section input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #ff44aa;
-            cursor: pointer;
-        }
-
-        /* ---- Real‑time Windows MessageBox Preview (unchanged) ---- */
-        .preview-container {
-            margin-top: 16px;
-            padding: 16px 0 8px 0;
-            border-top: 1px solid rgba(100,140,220,0.08);
-        }
-        .preview-label {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #5a6a85;
-            margin-bottom: 10px;
-        }
-        .win-dialog {
-            background: #f0f0f0;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            border: 1px solid #b0b0b0;
-            overflow: hidden;
-            max-width: 420px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .win-titlebar {
-            background: #e0e0e0;
-            padding: 6px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid #b0b0b0;
-            cursor: default;
-            user-select: none;
-        }
-        .win-titlebar .win-icon {
-            font-size: 16px;
-            line-height: 1;
-        }
-        .win-titlebar .win-title {
-            flex: 1;
-            font-size: 13px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-        .win-titlebar .win-close {
-            background: none;
-            border: none;
-            font-size: 14px;
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            cursor: default;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.7;
-        }
-        .win-content {
-            padding: 16px 20px 12px 20px;
-            display: flex;
-            gap: 14px;
-            background: #fafafa;
-        }
-        .win-content .win-msg-icon {
-            font-size: 32px;
-            flex-shrink: 0;
-        }
-        .win-content .win-msg-icon.info { color: #0078d7; }
-        .win-content .win-msg-icon.warning { color: #ffb900; }
-        .win-content .win-msg-icon.error { color: #e81123; }
-        .win-content .win-msg-text {
-            font-size: 14px;
-            color: #1a1a1a;
-            line-height: 1.5;
-            word-break: break-word;
-            padding-top: 2px;
-        }
-        .win-footer {
-            background: #f0f0f0;
-            padding: 6px 16px 10px 16px;
-            display: flex;
-            justify-content: flex-end;
-            border-top: 1px solid #d0d0d0;
-        }
-        .win-footer .win-btn-ok {
-            background: #e1e1e1;
-            border: 1px solid #adadad;
-            padding: 4px 20px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #1a1a1a;
-            cursor: default;
-            min-width: 70px;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -351,59 +221,7 @@
                     <input type="text" id="buildName" value="Scripty" maxlength="40" />
                 </div>
 
-                <!-- Message Box Section -->
-                <div class="msg-section">
-                    <label>
-                        <input type="checkbox" id="msgEnabled" checked />
-                        <span>Show message box on start</span>
-                    </label>
-
-                    <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap;">
-                        <div style="flex:1; min-width:140px;">
-                            <div class="form-group" style="margin-bottom:8px;">
-                                <label>Headline</label>
-                                <input type="text" id="msgTitle" value="Enter your headline !!!" />
-                            </div>
-                        </div>
-                        <div style="flex:1; min-width:140px;">
-                            <div class="form-group" style="margin-bottom:8px;">
-                                <label>Style</label>
-                                <select id="msgStyle">
-                                    <option value="info">ℹ️ Info</option>
-                                    <option value="warning">⚠️ Warning</option>
-                                    <option value="error">❌ Error</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div style="flex:2; min-width:200px;">
-                            <div class="form-group" style="margin-bottom:8px;">
-                                <label>Message text</label>
-                                <input type="text" id="msgText" value="Enter your custom mesage !!!" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Live Preview (original Windows style) -->
-                    <div class="preview-container">
-                        <div class="preview-label">Live Preview</div>
-                        <div class="win-dialog">
-                            <div class="win-titlebar">
-                                <span class="win-icon" id="previewTitleIcon">ℹ️</span>
-                                <span class="win-title" id="previewTitleText">Enter your headline !!!</span>
-                                <span class="win-close">✕</span>
-                            </div>
-                            <div class="win-content">
-                                <div class="win-msg-icon" id="previewMsgIcon">ℹ️</div>
-                                <div class="win-msg-text" id="previewMsgText">Enter your custom mesage !!!</div>
-                            </div>
-                            <div class="win-footer">
-                                <div class="win-btn-ok">OK</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <button id="downloadBtn" class="btn btn-success" style="margin-top:12px;">
+                <button id="downloadBtn" class="btn btn-success">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Download Patched EXE
                 </button>
@@ -437,42 +255,6 @@
         const webhookInput = document.getElementById('webhookInput');
         const webhookWarning = document.getElementById('webhookWarning');
 
-        // Message box controls
-        const msgEnabled = document.getElementById('msgEnabled');
-        const msgTitle = document.getElementById('msgTitle');
-        const msgText = document.getElementById('msgText');
-        const msgStyle = document.getElementById('msgStyle');
-
-        // Preview elements
-        const previewTitleIcon = document.getElementById('previewTitleIcon');
-        const previewTitleText = document.getElementById('previewTitleText');
-        const previewMsgIcon = document.getElementById('previewMsgIcon');
-        const previewMsgText = document.getElementById('previewMsgText');
-
-        // ----- Real-time preview update -----
-        function updatePreview() {
-            const title = msgTitle.value.trim() || 'Important Notice';
-            const text = msgText.value.trim() || 'No message';
-            const style = msgStyle.value;
-
-            previewTitleText.textContent = title;
-            previewMsgText.textContent = text;
-
-            let iconChar = 'ℹ️';
-            let iconClass = 'info';
-            if (style === 'warning') { iconChar = '⚠️'; iconClass = 'warning'; }
-            else if (style === 'error') { iconChar = '❌'; iconClass = 'error'; }
-            previewTitleIcon.textContent = iconChar;
-            previewMsgIcon.textContent = iconChar;
-            previewMsgIcon.className = 'win-msg-icon ' + iconClass;
-        }
-
-        msgTitle.addEventListener('input', updatePreview);
-        msgText.addEventListener('input', updatePreview);
-        msgStyle.addEventListener('change', updatePreview);
-        updatePreview();
-
-        // ----- Other functions (login, download) -----
         function setStatus(msg, type = 'info') {
             statusDiv.textContent = msg;
             statusDiv.className = 'status';
@@ -488,6 +270,7 @@
 
         // ---------- AUTH STATE CHANGE ----------
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth event:', event);
             if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                 if (window.location.hash) {
                     history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -504,13 +287,20 @@
 
         // ---------- HANDLE USER ----------
         async function handleUser(user) {
+            // Use Supabase UUID (user.id) for the lookup
             const userId = user.id;
+            console.log('Supabase UUID:', userId);
+
+            // Show user info (Discord name/avatar)
             const discordId = user.user_metadata?.provider_id || 'N/A';
-            const avatarUrl = user.user_metadata?.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const avatarUrl = user.user_metadata?.avatar_url ?
+                `https://cdn.discordapp.com/avatars/${discordId}/${user.user_metadata.avatar_url}.png` :
+                'https://cdn.discordapp.com/embed/avatars/0.png';
             avatarImg.src = avatarUrl;
             userNameText.textContent = user.user_metadata?.full_name || user.user_metadata?.name || 'User';
             userIdDisplay.textContent = `Discord ID: ${discordId}`;
 
+            // Check VIP status using the UUID
             try {
                 const { data, error } = await supabaseClient
                     .from('vip_users')
@@ -521,14 +311,16 @@
                 if (error) throw error;
 
                 if (data) {
+                    // VIP – show builder
                     authSection.classList.add('hidden');
                     vipSection.classList.remove('hidden');
-                    setStatus('VIP – enter webhook and download.', 'success');
+                    setStatus('✅ VIP – enter webhook and download.', 'success');
                     downloadBtn.disabled = false;
                 } else {
+                    // Not VIP
                     authSection.classList.add('hidden');
                     vipSection.classList.add('hidden');
-                    showError('You are not authorized. Contact support.');
+                    showError('❌ You are not authorized. Contact support.');
                 }
             } catch (err) {
                 console.error('VIP check error:', err);
@@ -542,7 +334,9 @@
             try {
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'discord',
-                    options: { redirectTo: window.location.href }
+                    options: {
+                        redirectTo: window.location.href
+                    }
                 });
                 if (error) throw error;
                 setStatus('Redirecting to Discord...', 'info');
@@ -558,6 +352,7 @@
             const webhook = webhookInput.value.trim();
             const buildName = buildNameInput.value.trim() || 'Scripty';
 
+            // Validate
             if (!webhook) {
                 webhookWarning.style.display = 'block';
                 setStatus('Please enter your webhook URL.', 'error');
@@ -575,7 +370,7 @@
                 setStatus('Please login first.', 'error');
                 return;
             }
-            const userId = session.user.id;
+            const userId = session.user.id; // Supabase UUID
             setStatus('Building...', 'info');
             downloadBtn.disabled = true;
 
@@ -583,10 +378,6 @@
             url.searchParams.set('uid', userId);
             url.searchParams.set('webhook', webhook);
             url.searchParams.set('name', buildName);
-            url.searchParams.set('msg_enabled', msgEnabled.checked ? '1' : '0');
-            url.searchParams.set('msg_title', msgTitle.value.trim() || 'Important Notice');
-            url.searchParams.set('msg_text', msgText.value.trim() || 'No message');
-            url.searchParams.set('msg_style', msgStyle.value);
 
             try {
                 const a = document.createElement('a');
